@@ -19,6 +19,8 @@
 
 package com.github.ontio;
 
+import android.content.SharedPreferences;
+
 import com.github.ontio.account.Account;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.ErrorCode;
@@ -183,11 +185,11 @@ public class OntSdk {
     }
     /**
      *
-     * @param path
+     * @param
      */
-    public void openWalletFile(String path) {
+    public void openWalletFile(SharedPreferences sp) {
 
-        this.walletMgr = new WalletMgr(path,keyType, curveParaSpec);
+        this.walletMgr = new WalletMgr(sp,keyType, curveParaSpec);
         setSignatureScheme(signatureScheme);
     }
 
