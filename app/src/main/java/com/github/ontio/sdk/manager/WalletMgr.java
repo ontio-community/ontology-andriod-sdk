@@ -399,6 +399,10 @@ public class WalletMgr {
 
     private com.github.ontio.account.Account createAccount(String label, String password, byte[] privateKey, boolean saveAccountFlag, KeyType type, Object[] params) throws Exception {
         com.github.ontio.account.Account account = new com.github.ontio.account.Account(privateKey, type, params);
+        if (label.equals("")){
+            String uuidStr = UUID.randomUUID().toString();
+            label = uuidStr.substring(0,8);
+        }
 
         Account at = new Account();
         if (password != null) {
