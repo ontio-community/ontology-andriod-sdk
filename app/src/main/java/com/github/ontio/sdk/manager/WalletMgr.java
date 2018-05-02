@@ -407,6 +407,7 @@ public class WalletMgr {
             at.key = Helper.toHexString(account.serializePrivateKey());
         }
         at.address = Address.addressFromPubKey(account.serializePublicKey()).toBase58();
+        at.label = label;
         if (saveAccountFlag) {
             for (Account e : wallet.getAccounts()) {
                 if (e.address.equals(at.address)) {
