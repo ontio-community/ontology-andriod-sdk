@@ -42,6 +42,9 @@ public class Account {
     public String signatureScheme = "SHA256withECDSA";
     public String passwordHash = "";
     public Object extra = null;
+    public Account(){
+
+    }
     public Account(String alg,Object[] params,String encAlg,String scheme,String hash){
         this.algorithm = alg;
         this.parameters.put("curve",params[0]);
