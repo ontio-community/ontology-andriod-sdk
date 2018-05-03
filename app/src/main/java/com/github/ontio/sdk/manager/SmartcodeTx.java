@@ -78,7 +78,7 @@ public class SmartcodeTx {
 
     public String sendInvokeSmartCodeWithSign(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
         Transaction tx = invokeTransaction( ontid, password, abiFunction, vmtype);
-        sdk.signTx(tx, new Account[][]{{sdk.getWalletMgr().getAccount(ontid, password,sdk.keyType,sdk.curveParaSpec)}});
+        sdk.signTx(tx, new Account[][]{{sdk.getWalletMgr().getAccount(ontid, password)}});
         boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
         if (!b) {
             throw new SDKException("sendRawTransaction error");
@@ -145,7 +145,7 @@ public class SmartcodeTx {
             tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress,null,params, vmtype, fees);
         } else {
             Fee[] fees = new Fee[1];
-            AccountInfo info = sdk.getWalletMgr().getAccountInfo(ontid, password,sdk.keyType,sdk.curveParaSpec);
+            AccountInfo info = sdk.getWalletMgr().getAccountInfo(ontid, password);
             fees[0] = new Fee(0, Address.addressFromPubKey(info.pubkey));
             tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress,null,params, vmtype, fees);
         }
