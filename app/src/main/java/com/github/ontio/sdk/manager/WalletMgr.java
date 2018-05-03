@@ -63,7 +63,7 @@ public class WalletMgr {
     private SharedPreferences sp;
     private static final String key = "wallet_file";
 
-    public WalletMgr(SharedPreferences sp, KeyType type, Object[] curveParaSpec) {
+    public WalletMgr(SharedPreferences sp, KeyType type, Object[] curveParaSpec) throws IOException {
 //        try {
             this.keyType = type;
             this.curveParaSpec = curveParaSpec;
@@ -144,7 +144,7 @@ public class WalletMgr {
             }
         }
 
-    private static void writeFile(SharedPreferences sp, String sets) {
+    private static void writeFile(SharedPreferences sp, String sets) throws IOException {
 //        FileWriter fw = new FileWriter(filePath);
 //        PrintWriter out = new PrintWriter(fw);
 //        out.write(sets);
@@ -152,7 +152,10 @@ public class WalletMgr {
 //        fw.close();
 //        out.close();
         Log.i("sava", "writeFile: " + sets);
-        sp.edit().putString(key, sets).apply();
+        boolean isSuccess = sp.edit().putString(key, sets).commit();
+        if (!isSuccess){
+            throw new IOException("Wallet File Write Error");
+        }
     }
 
     public Wallet openWallet() {
@@ -163,7 +166,7 @@ public class WalletMgr {
         return wallet;
     }
 
-    public Wallet writeWallet() {
+    public Wallet writeWallet() throws IOException {
         writeFile(sp, JSON.toJSONString(wallet));
         walletFile = wallet;
         return walletFile;

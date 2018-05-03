@@ -32,6 +32,8 @@ import com.github.ontio.sdk.exception.SDKException;
 import com.github.ontio.sdk.manager.*;
 import com.github.ontio.network.websocket.WebsocketClient;
 
+import java.io.IOException;
+
 /**
  * Ont Sdk
  */
@@ -187,7 +189,7 @@ public class OntSdk {
      *
      * @param
      */
-    public void openWalletFile(SharedPreferences sp) {
+    public void openWalletFile(SharedPreferences sp) throws IOException {
 
         this.walletMgr = new WalletMgr(sp,keyType, curveParaSpec);
         setSignatureScheme(signatureScheme);
