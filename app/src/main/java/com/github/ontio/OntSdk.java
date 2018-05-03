@@ -194,7 +194,7 @@ public class OntSdk {
 
     public Transaction signTx(Transaction tx, String address, String password) throws Exception{
         address = address.replace(Common.didont, "");
-        signTx(tx, new Account[][]{{getWalletMgr().getAccount(address, password,keyType, curveParaSpec)}});
+        signTx(tx, new Account[][]{{getWalletMgr().getAccount(address, password)}});
         return tx;
     }
     /**

@@ -27,6 +27,18 @@ public class Scrypt {
     private int n = 16384;
     private int r = 8;
     private int p = 8;
+    private int DkLen = 64;
+    private String Salt;
+
+    public int getDkLen() {
+        return DkLen;
+    }
+
+    public void setDkLen(int dkLen) {
+        DkLen = dkLen;
+    }
+
+
     public Scrypt(){
     }
     public Scrypt(int n,int r,int p){
@@ -58,6 +70,8 @@ public class Scrypt {
     public void setP(int p){
         this.p = p;
     }
+
+
 
     @Override
     public String toString() {

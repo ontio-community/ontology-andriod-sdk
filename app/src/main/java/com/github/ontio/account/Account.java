@@ -18,6 +18,7 @@ import org.spongycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.spongycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.spongycastle.jce.ECNamedCurveTable;
 import org.spongycastle.jce.ECPointUtil;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.spongycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.spongycastle.jce.spec.ECNamedCurveSpec;
 import org.spongycastle.util.Strings;
@@ -39,32 +40,38 @@ import java.security.spec.ECPoint;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.ECPublicKeySpec;
 import java.util.Arrays;
+import android.util.Base64;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 
 public class Account {
-    private KeyType type;
-    private Object param;
+    private KeyType keyType;
+    private Object[] curveParams;
     private PrivateKey privateKey;
     private PublicKey publicKey;
-    private Address addressU160; ;
+    private Address addressU160;
+    private SignatureScheme signatureScheme;
 
     // create an account with the specified key type
-    public Account(KeyType type, Object... params) throws Exception {
-        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+    public Account(SignatureScheme scheme) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
         KeyPairGenerator gen;
         AlgorithmParameterSpec paramSpec;
-        switch (type) {
-            case ECDSA:
-            case SM2:
+        KeyType keyType;
+        signatureScheme = scheme;
+        switch (scheme) {
+            case SHA256WITHECDSA:
+                keyType = KeyType.ECDSA;
+                Object[] params = new Object[]{Curve.P256.toString()};
+                curveParams = params;
                 if (!(params[0] instanceof String)) {
                     throw new Exception(ErrorCode.InvalidParams);
                 }
-                String curveName = (String)params[0];
+                String curveName = (String) params[0];
                 paramSpec = new ECGenParameterSpec(curveName);
-                this.param = Curve.valueOf(ECNamedCurveTable.getParameterSpec(curveName).getCurve());
                 gen = KeyPairGenerator.getInstance("EC", "SC");
                 break;
             default:
@@ -75,17 +82,20 @@ public class Account {
         KeyPair keyPair = gen.generateKeyPair();
         this.privateKey = keyPair.getPrivate();
         this.publicKey = keyPair.getPublic();
-        this.type = type;
-        this.addressU160 = Address.toScriptHash(serializePublicKey());
+        this.keyType = keyType;
+        this.addressU160 = Address.addressFromPubKey(serializePublicKey());
     }
 
-    public Account(byte[] data, KeyType type, Object... params) throws Exception {
-        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
-        switch (type) {
-            case ECDSA:
-            case SM2:
+    public Account(byte[] data, SignatureScheme scheme) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+        signatureScheme = scheme;
+        switch (scheme) {
+            case SHA256WITHECDSA:
+                this.keyType = KeyType.ECDSA;
+                Object[] params = new Object[]{Curve.P256.toString()};
+                curveParams = params;
                 BigInteger d = new BigInteger(1, data);
-                ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec((String)params[0]);
+                ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec((String) params[0]);
                 ECParameterSpec paramSpec = new ECNamedCurveSpec(spec.getName(), spec.getCurve(), spec.getG(), spec.getN());
                 ECPrivateKeySpec priSpec = new ECPrivateKeySpec(d, paramSpec);
                 KeyFactory kf = KeyFactory.getInstance("EC", "SC");
@@ -96,8 +106,7 @@ public class Account {
                         new ECPoint(Q.getAffineXCoord().toBigInteger(), Q.getAffineYCoord().toBigInteger()),
                         paramSpec);
                 this.publicKey = kf.generatePublic(pubSpec);
-                this.type = type;
-                this.addressU160 = Address.toScriptHash(serializePublicKey());
+                this.addressU160 = Address.addressFromPubKey(serializePublicKey());
                 break;
             default:
                 throw new Exception(ErrorCode.UnsupportedKeyType);
@@ -140,53 +149,56 @@ public class Account {
         return privateKey;
     }
 
+
+
     /**
      * @param encryptedPriKey
      * @param passphrase
      * @return
      * @throws Exception
      */
-    public static String getPrivateKey(String encryptedPriKey, String passphrase,KeyType type,Object[] params) throws Exception {
+    public static String getEcbDecodedPrivateKey(String encryptedPriKey, String passphrase, int n, SignatureScheme scheme) throws Exception {
         if (encryptedPriKey == null) {
             throw new NullPointerException();
         }
         byte[] decoded = Base58.decodeChecked(encryptedPriKey);
         if (decoded.length != 43 || decoded[0] != (byte) 0x01 || decoded[1] != (byte) 0x42 || decoded[2] != (byte) 0xe0) {
-            throw new SDKException("decoded 3 bytes error");
+            throw new SDKException(ErrorCode.Decoded3bytesError);
         }
         byte[] data = Arrays.copyOfRange(decoded, 0, decoded.length - 4);
-        return decode(passphrase, data,type,params);
+        return decode(passphrase, data, n, scheme);
     }
 
-    private static String decode(String passphrase,byte[] input,KeyType type, Object[] params) throws  Exception{
-        int N = 16384;
+    private static String decode(String passphrase, byte[] input, int n, SignatureScheme scheme) throws Exception {
+        int N = n;
         int r = 8;
         int p = 8;
+        int dkLen = 64;
         byte[] addresshash = new byte[4];
         byte[] encryptedkey = new byte[32];
         System.arraycopy(input, 3, addresshash, 0, 4);
         System.arraycopy(input, 7, encryptedkey, 0, 32);
 
-        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, 64);
+        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
         byte[] derivedhalf1 = new byte[32];
         byte[] derivedhalf2 = new byte[32];
         System.arraycopy(derivedkey, 0, derivedhalf1, 0, 32);
         System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32);
 
         SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");// AES/ECB/NoPadding
         cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-        byte[] rawkey = cipher.doFinal( encryptedkey);
+        byte[] rawkey = cipher.doFinal(encryptedkey);
 
         String priKey = Helper.toHexString(XOR(rawkey, derivedhalf1));
-        Account account = new Account(Helper.hexToBytes(priKey),type, params);
+        Account account = new Account(Helper.hexToBytes(priKey), scheme);
         Address script_hash = Address.addressFromPubKey(account.serializePublicKey());
         String address = script_hash.toBase58();
-        byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes())) ;
-        byte[] addresshashNew =  Arrays.copyOfRange(addresshashTmp, 0, 4);
+        byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
+        byte[] addresshashNew = Arrays.copyOfRange(addresshashTmp, 0, 4);
 
-        if(!new String(addresshash).equals(new String(addresshashNew))){
-            throw new SDKException("decode prikey passphrase error. " + Helper.toHexString(addresshash) + "," + Helper.toHexString(addresshashNew));
+        if (!new String(addresshash).equals(new String(addresshashNew))) {
+            throw new SDKException(ErrorCode.DecodePrikeyPassphraseError + Helper.toHexString(addresshash) + "," + Helper.toHexString(addresshashNew));
         }
         return priKey;
     }
@@ -221,7 +233,7 @@ public class Account {
             throw new Exception("account without private key cannot generate signature");
         }
 
-        SignatureHandler ctx = new SignatureHandler(type, scheme);
+        SignatureHandler ctx = new SignatureHandler(keyType, scheme);
         AlgorithmParameterSpec paramSpec = null;
         if (scheme == SignatureScheme.SM3WITHSM2 && param != null) {
             if (param instanceof String) {
@@ -246,15 +258,15 @@ public class Account {
             throw new Exception(ErrorCode.AccountWithoutPublicKey);
         }
         Signature sig = new Signature(signature);
-        SignatureHandler ctx = new SignatureHandler(type, sig.getScheme());
+        SignatureHandler ctx = new SignatureHandler(keyType, sig.getScheme());
         return ctx.verifySignature(publicKey, msg, sig.getValue());
     }
 
     public byte[] serializePublicKey() {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        bs.write(this.type.getLabel());
+        bs.write(this.keyType.getLabel());
         try {
-            switch (this.type) {
+            switch (this.keyType) {
                 case ECDSA:
                 case SM2:
                     BCECPublicKey pub = (BCECPublicKey)publicKey;
@@ -281,11 +293,10 @@ public class Account {
         if (data.length < 2) {
             throw new Exception(ErrorCode.InvalidData);
         }
-        this.param = null;
         this.privateKey = null;
         this.publicKey = null;
-        this.type = KeyType.fromLabel(data[0]);
-        switch (this.type) {
+        this.keyType = KeyType.fromLabel(data[0]);
+        switch (this.keyType) {
             case ECDSA:
             case SM2:
                 Curve c = Curve.fromLabel(data[1]);
@@ -305,7 +316,7 @@ public class Account {
     }
 
     public byte[] serializePrivateKey() throws Exception {
-        switch (this.type) {
+        switch (this.keyType) {
             case ECDSA:
             case SM2:
                 BCECPrivateKey pri = (BCECPrivateKey) this.privateKey;
@@ -348,7 +359,7 @@ public class Account {
         return wif;
     }
 
-    public String exportEncryptedPrikey(String passphrase) {
+    public String exportEcbEncryptedPrikey(String passphrase) {
         int N = 16384;
         int r = 8;
         int p = 8;
@@ -381,6 +392,61 @@ public class Account {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String exportCtrEncryptedPrikey(String passphrase, int n) {
+        int N = n;
+        int r = 8;
+        int p = 8;
+        int dkLen = 64;
+        Address script_hash = Address.addressFromPubKey(serializePublicKey());
+        String address = script_hash.toBase58();
+
+        byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
+        byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
+
+        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
+        byte[] derivedhalf2 = new byte[32];
+        byte[] iv = new byte[16];
+        System.arraycopy(derivedkey, 0, iv, 0, 16);
+        System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32);
+        try {
+            SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
+            Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+            byte[] encryptedkey = cipher.doFinal(serializePrivateKey());
+            return new String(Base64.encode(encryptedkey, Base64.DEFAULT));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getCtrDecodedPrivateKey(String encryptedPriKey, String passphrase, String address, int n, SignatureScheme scheme) throws Exception {
+        if (encryptedPriKey == null) {
+            throw new NullPointerException();
+        }
+        byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.DEFAULT);
+
+        int N = n;
+        int r = 8;
+        int p = 8;
+        int dkLen = 64;
+
+        byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
+        byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
+
+        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
+        byte[] derivedhalf2 = new byte[32];
+        byte[] iv = new byte[16];
+        System.arraycopy(derivedkey, 0, iv, 0, 16);
+        System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32);
+
+        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
+        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+        byte[] rawkey = cipher.doFinal(encryptedkey);
+        return Helper.toHexString(rawkey);
     }
 
     @Override
