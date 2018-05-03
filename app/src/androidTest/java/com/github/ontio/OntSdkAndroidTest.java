@@ -69,11 +69,20 @@ public class OntSdkAndroidTest {
     public void getBlock() throws ConnectorException, IOException {
         Block block1 = connectMgr.getBlock(1);
         assertNotNull(block1);
-        String txhash1 = block1.transactions[0].hash().toHexString();
-        Transaction transaction1 = connectMgr.getTransaction(txhash1);
-        assertNotNull(transaction1);
         int blockHeight = connectMgr.getBlockHeight();
         Block blockMax = connectMgr.getBlock(blockHeight);
         assertNotNull(blockMax);
+    }
+
+    @Test
+    public void getTransaction() throws ConnectorException, IOException {
+        int blockHeight = connectMgr.getBlockHeight();
+        Block blockMax = connectMgr.getBlock(blockHeight);
+        assertNotNull(blockMax);
+
+        String txhash = blockMax.transactions[0].hash().toHexString();
+        Transaction transaction = connectMgr.getTransaction(txhash);
+        assertNotNull(transaction);
+
     }
 }
