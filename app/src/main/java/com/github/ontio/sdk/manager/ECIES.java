@@ -23,6 +23,7 @@ import com.github.ontio.account.Account;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
 import com.github.ontio.crypto.KeyType;
+import com.github.ontio.crypto.SignatureScheme;
 
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.Digest;
@@ -53,6 +54,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class ECIES {
     public static KeyType keyType = KeyType.ECDSA;
     public static Object[] curveParaSpec = new Object[]{"P-256"};
+    public static SignatureScheme signatureScheme = SignatureScheme.SHA256WITHECDSA;
     public static Digest digest = new SHA1Digest();
     public ECIES(Digest dig){
         digest = dig;
@@ -119,7 +121,7 @@ public class ECIES {
 
     public static byte[] Decrypt(byte[] prikey, byte[] IV, byte[] key_cxt, byte[] ciphertext, int keylen) {
         try {
-            com.github.ontio.account.Account account = new com.github.ontio.account.Account(prikey, keyType, curveParaSpec);
+            com.github.ontio.account.Account account = new com.github.ontio.account.Account(prikey, signatureScheme);
 
             ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec((String) curveParaSpec[0]);
             ECDomainParameters ecDomain = new ECDomainParameters(spec.getCurve(), spec.getG(), spec.getN());

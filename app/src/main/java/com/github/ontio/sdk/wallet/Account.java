@@ -20,6 +20,7 @@
 package com.github.ontio.sdk.wallet;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,10 +36,18 @@ public class Account {
     public String algorithm = "";
     public Map parameters = new HashMap() ;
     public String key = "";
+    @JSONField(name = "enc-alg")
+    public String encAlg = "aes-256-ctr";
+    public String hash = "sha256";
+    public String signatureScheme = "SHA256withECDSA";
+    public String passwordHash = "";
     public Object extra = null;
-    public Account(){
-        this.algorithm = "ECDSA";
-        this.parameters.put("curve","secp256r1");
+    public Account(String alg,Object[] params,String encAlg,String scheme,String hash){
+        this.algorithm = alg;
+        this.parameters.put("curve",params[0]);
+        this.signatureScheme = scheme;
+        this.encAlg = encAlg;
+        this.hash = hash;
         this.extra = null;
     }
 
@@ -50,6 +59,27 @@ public class Account {
         this.extra = extra;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
     @Override
     public String toString() {
         return JSON.toJSONString(this);
