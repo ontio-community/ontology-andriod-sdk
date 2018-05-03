@@ -359,7 +359,8 @@ public class Account {
         return wif;
     }
 
-    public String exportEcbEncryptedPrikey(String passphrase) {
+    public String exportEcbEncryptedPrikey(String passphrase) throws Exception{
+
         int N = 16384;
         int r = 8;
         int p = 8;
@@ -374,7 +375,7 @@ public class Account {
         byte[] derivedhalf2 = new byte[32];
         System.arraycopy(derivedkey, 0, derivedhalf1, 0, 32);
         System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32);
-        try {
+
             SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
             Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
@@ -388,10 +389,7 @@ public class Account {
             System.arraycopy(addresshash, 0, buffer, 3, addresshash.length);
             System.arraycopy(encryptedkey, 0, buffer, 7, encryptedkey.length);
             return Base58.checkSumEncode(buffer);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+
     }
 
     public String exportCtrEncryptedPrikey(String passphrase, int n) {

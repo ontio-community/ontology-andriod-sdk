@@ -19,6 +19,9 @@
 
 package com.github.ontio.sdk.manager;
 
+import android.content.SharedPreferences;
+import android.util.Log;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IOUtils;
 import com.github.ontio.common.Address;
@@ -44,11 +47,12 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.spongycastle.cms.RecipientId.password;
+
 /**
  *
  */
 public class WalletMgr {
-    private final String FILE_PATH = "";//Environment.getExternalStoragePublicDirectory("") + "/ontio/";
     private Wallet wallet;
     private Map acctPriKeyMap = new HashMap();
     private Map identityPriKeyMap = new HashMap();
@@ -57,71 +61,64 @@ public class WalletMgr {
     private String filePath = null;
     private KeyType keyType = null;
     private Object[] curveParaSpec = null;
-    public WalletMgr(String path,KeyType type, Object[] curveParaSpec) {
-        try {
+    private SharedPreferences sp;
+    private static final String key = "wallet_file";
+
+    public WalletMgr(SharedPreferences sp, KeyType type, Object[] curveParaSpec) throws IOException {
             this.keyType = type;
             this.curveParaSpec = curveParaSpec;
-            this.filePath = FILE_PATH + path;
-            File file = new File(this.filePath);
-            if (!file.exists()) {
+            this.sp = sp;
+            String text = sp.getString(key, "");
+            if (text.isEmpty()) {
                 wallet = new Wallet();
                 wallet.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
                 walletFile = new Wallet();
-                file.createNewFile();
                 writeWallet();
+            } else {
+                Log.i("haha", "WalletMgr: " + text);
+                wallet = JSON.parseObject(text, Wallet.class);
+                walletFile = JSON.parseObject(text, Wallet.class);
             }
-            InputStream inputStream = new FileInputStream(filePath);
-            String text = IOUtils.toString(inputStream);
-            wallet = JSON.parseObject(text, Wallet.class);
-            walletFile = JSON.parseObject(text, Wallet.class);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-    }
 
-    private WalletMgr(String path, String password,KeyType type, Object[] params) {
-        try {
-            this.filePath = FILE_PATH + path;
-            File file = new File(FILE_PATH);
-            if (!file.exists()) {
-                wallet = new Wallet();
-                wallet.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
-                walletFile = new Wallet();
-                file.mkdir();
-                createIdentity(password);
-                writeWallet();
+    private WalletMgr(SharedPreferences sp, String password, KeyType type, Object[]params){
+            try {
+                String text = sp.getString(key, "");
+                if (text.isEmpty()) {
+                    wallet = new Wallet();
+                    wallet.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
+                    walletFile = new Wallet();
+                    writeWallet();
+                } else {
+                    Log.i("haha", "WalletMgr: " + text);
+                    wallet = JSON.parseObject(text, Wallet.class);
+                    walletFile = JSON.parseObject(text, Wallet.class);
+                }
+                wallet = JSON.parseObject(text, Wallet.class);
+                walletFile = JSON.parseObject(text, Wallet.class);
+                if (getIdentitys().size() == 0) {
+                    createIdentity("", password, type, params);
+                    writeWallet();
+                    return;
+                }
+                Identity identity = getDefaultIdentity();
+                if (identity != null) {
+                    String prikey = com.github.ontio.account.Account.getPrivateKey(identity.controls.get(0).key, password, type, params);
+                    storePrivateKey(identityPriKeyMap, identity.ontid, password, prikey);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            InputStream inputStream = new FileInputStream(filePath);
-            String text = IOUtils.toString(inputStream);
-            wallet = JSON.parseObject(text, Wallet.class);
-            walletFile = JSON.parseObject(text, Wallet.class);
-            if (getIdentitys().size() == 0) {
-                createIdentity(password);
-                writeWallet();
-                return;
-            }
-            Identity identity = getDefaultIdentity();
-            if (identity != null) {
-                String addr = identity.ontid.replace(Common.didont,"");
-                String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(identity.controls.get(0).key, password, addr, walletFile.getScrypt().getN(), scheme);
-                storePrivateKey(identityPriKeyMap, identity.ontid, password, prikey);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-    }
 
-    private static void writeFile(String filePath, String sets) throws IOException {
-        FileWriter fw = new FileWriter(filePath);
-        PrintWriter out = new PrintWriter(fw);
-        out.write(sets);
-        out.println();
-        fw.close();
-        out.close();
+    private static void writeFile(SharedPreferences sp, String sets) throws IOException {
+        Log.i("sava", "writeFile: " + sets);
+        boolean isSuccess = sp.edit().putString(key, sets).commit();
+        if (!isSuccess){
+            throw new IOException("Wallet File Write Error");
+        }
     }
 
     public Wallet openWallet() {
@@ -132,8 +129,8 @@ public class WalletMgr {
         return wallet;
     }
 
-    public Wallet writeWallet() throws Exception {
-        writeFile(filePath, JSON.toJSONString(wallet));
+    public Wallet writeWallet() throws IOException {
+        writeFile(sp, JSON.toJSONString(wallet));
         walletFile = wallet;
         return walletFile;
     }
@@ -156,6 +153,7 @@ public class WalletMgr {
         storePrivateKey(identityPriKeyMap, info.ontid, password, prikey);
         return getIdentity(info.ontid);
     }
+
     public Identity createIdentity(String password) throws Exception {
         IdentityInfo info = createIdentity(password, ECC.generateKey());
         return getIdentity(info.ontid);
@@ -201,13 +199,14 @@ public class WalletMgr {
         storePrivateKey(acctPriKeyMap, info.addressBase58, password, prikey);
         return getAccount(info.addressBase58);
     }
+
     public Account createAccount(String password) throws Exception {
         AccountInfo info = createAccount(password,ECC.generateKey());
         return getAccount(info.addressBase58);
     }
 
-    private AccountInfo createAccount(String password, byte[] prikey) throws Exception {
-        com.github.ontio.account.Account acct = createAccount(password, prikey, true);
+    private AccountInfo createAccount(String label, String password, byte[] prikey) throws Exception {
+        com.github.ontio.account.Account acct = createAccount(String labelpassword, prikey, true);
         AccountInfo info = new AccountInfo();
         info.addressBase58 = Address.addressFromPubKey(acct.serializePublicKey()).toBase58();
         info.pubkey = Helper.toHexString(acct.serializePublicKey());
@@ -242,17 +241,6 @@ public class WalletMgr {
         return act.exportWif();
     }
 
-//    public ECPoint getPubkey(String pubkeyHexStr) {
-//        ECPoint pubkey;
-//        byte[] pubkeyBys = Helper.hexToBytes(pubkeyHexStr);
-//        if (getAlgrithem().equals(KeyType.SM2.name())) {
-//            pubkey = SM2Utils.decodePoint(pubkeyBys);
-//        } else {
-//            pubkey = ECC.secp256r1.getCurve().decodePoint(pubkeyBys);
-//        }
-//        return pubkey;
-//    }
-
     public byte[] signatureData(com.github.ontio.account.Account acct, String str) throws SDKException {
         DataSignature sign = null;
         try {
@@ -272,6 +260,7 @@ public class WalletMgr {
             throw new SDKException(e);
         }
     }
+
     public com.github.ontio.account.Account getAccount(String address, String password) throws Exception {
         address = address.replace(Common.didont, "");
         return getAccountByAddress(Address.decodeBase58(address), password);
@@ -366,7 +355,7 @@ public class WalletMgr {
         return identity;
     }
 
-    private com.github.ontio.account.Account createAccount(String password, byte[] privateKey, boolean saveAccountFlag) throws Exception {
+    private com.github.ontio.account.Account createAccount(String label, String password, byte[] privateKey, boolean saveAccountFlag) throws Exception {
         com.github.ontio.account.Account account = new com.github.ontio.account.Account(privateKey, scheme);
         Account acct;
         switch (scheme) {
@@ -382,6 +371,11 @@ public class WalletMgr {
             acct.key = Helper.toHexString(account.serializePrivateKey());
         }
         acct.address = Address.addressFromPubKey(account.serializePublicKey()).toBase58();
+        if (label.equals("")){
+            String uuidStr = UUID.randomUUID().toString();
+            label = uuidStr.substring(0,8);
+        }
+        acct.label = label;
         if (saveAccountFlag) {
             for (Account e : wallet.getAccounts()) {
                 if (e.address.equals(acct.address)) {
@@ -409,6 +403,7 @@ public class WalletMgr {
             idt.controls = new ArrayList<Control>();
             Control ctl = new Control(acct.key, "");
             idt.controls.add(ctl);
+            idt.label = label;
             wallet.getIdentities().add(idt);
         }
         return account;
