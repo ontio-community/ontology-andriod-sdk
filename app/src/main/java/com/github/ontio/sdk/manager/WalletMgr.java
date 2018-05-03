@@ -159,6 +159,11 @@ public class WalletMgr {
         IdentityInfo info = createIdentity("",password, ECC.generateKey());
         return getIdentity(info.ontid);
     }
+
+    public Identity createIdentity(String label, String password) throws Exception{
+        IdentityInfo info = createIdentity(label, password, ECC.generateKey());
+        return getIdentity(info.ontid);
+    }
     public Identity createIdentityFromPriKey(String password, String prikey) throws Exception{
         IdentityInfo info = createIdentity("",password, Helper.hexToBytes(prikey));
         return getIdentity(info.ontid);
