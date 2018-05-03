@@ -51,7 +51,6 @@ import static org.spongycastle.cms.RecipientId.password;
  *
  */
 public class WalletMgr {
-    //    private final String FILE_PATH = "";//Environment.getExternalStoragePublicDirectory("") + "/ontio/";
     private Wallet wallet;
     private Map acctPriKeyMap = new HashMap();
     private Map identityPriKeyMap = new HashMap();
@@ -64,28 +63,9 @@ public class WalletMgr {
     private static final String key = "wallet_file";
 
     public WalletMgr(SharedPreferences sp, KeyType type, Object[] curveParaSpec) throws IOException {
-//        try {
             this.keyType = type;
             this.curveParaSpec = curveParaSpec;
-//            this.filePath = FILE_PATH + path;
             this.sp = sp;
-//            File file = new File(this.filePath);
-//            if (!file.exists()) {
-//                wallet = new Wallet();
-//                wallet.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
-//                walletFile = new Wallet();
-//                file.createNewFile();
-//                writeWallet();
-//            }
-//            InputStream inputStream = new FileInputStream(filePath);
-//            String text = IOUtils.toString(inputStream);
-//            wallet = JSON.parseObject(text, Wallet.class);
-//            walletFile = JSON.parseObject(text, Wallet.class);
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
             String text = sp.getString(key, "");
             if (text.isEmpty()) {
                 wallet = new Wallet();
@@ -97,23 +77,10 @@ public class WalletMgr {
                 wallet = JSON.parseObject(text, Wallet.class);
                 walletFile = JSON.parseObject(text, Wallet.class);
             }
-
         }
 
     private WalletMgr(SharedPreferences sp, String password, KeyType type, Object[]params){
             try {
-//                this.filePath = FILE_PATH + path;
-//                File file = new File(FILE_PATH);
-//                if (!file.exists()) {
-//                    wallet = new Wallet();
-//                    wallet.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
-//                    walletFile = new Wallet();
-//                    file.mkdir();
-//                    createIdentity("", password, type, params);
-//                    writeWallet();
-//                }
-//                InputStream inputStream = new FileInputStream(filePath);
-//                String text = IOUtils.toString(inputStream);
                 String text = sp.getString(key, "");
                 if (text.isEmpty()) {
                     wallet = new Wallet();
@@ -145,12 +112,6 @@ public class WalletMgr {
         }
 
     private static void writeFile(SharedPreferences sp, String sets) throws IOException {
-//        FileWriter fw = new FileWriter(filePath);
-//        PrintWriter out = new PrintWriter(fw);
-//        out.write(sets);
-//        out.println();
-//        fw.close();
-//        out.close();
         Log.i("sava", "writeFile: " + sets);
         boolean isSuccess = sp.edit().putString(key, sets).commit();
         if (!isSuccess){
@@ -318,17 +279,6 @@ public class WalletMgr {
         com.github.ontio.account.Account act = new com.github.ontio.account.Account(Helper.hexToBytes(privateKey), type, params);
         return act.exportWif();
     }
-
-//    public ECPoint getPubkey(String pubkeyHexStr) {
-//        ECPoint pubkey;
-//        byte[] pubkeyBys = Helper.hexToBytes(pubkeyHexStr);
-//        if (getAlgrithem().equals(KeyType.SM2.name())) {
-//            pubkey = SM2Utils.decodePoint(pubkeyBys);
-//        } else {
-//            pubkey = ECC.secp256r1.getCurve().decodePoint(pubkeyBys);
-//        }
-//        return pubkey;
-//    }
 
     public byte[] signatureData(com.github.ontio.account.Account acct, String str) throws SDKException {
         DataSignature sign = null;
