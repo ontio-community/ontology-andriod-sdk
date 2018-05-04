@@ -24,7 +24,7 @@ import com.alibaba.fastjson.JSON;
 /**
  */
 public class Scrypt {
-    private int n = 256;
+    private int n = 4096;
     private int r = 8;
     private int p = 8;
     private int DkLen = 64;
