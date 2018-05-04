@@ -361,7 +361,7 @@ public class Account {
 
     public String exportEcbEncryptedPrikey(String passphrase) throws Exception{
 
-        int N = 16384;
+        int N = 256;
         int r = 8;
         int p = 8;
         Address script_hash = Address.addressFromPubKey(serializePublicKey());
