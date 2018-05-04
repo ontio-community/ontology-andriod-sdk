@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.IOUtils;
 import com.github.ontio.common.Address;
 import com.github.ontio.common.Common;
@@ -41,9 +42,12 @@ import com.github.ontio.sdk.info.IdentityInfo;
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Control;
 import com.github.ontio.sdk.wallet.Identity;
+import com.github.ontio.sdk.wallet.Scrypt;
 import com.github.ontio.sdk.wallet.Wallet;
 
 import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -146,6 +150,33 @@ public class WalletMgr {
 
     private void storePrivateKey(Map map, String key, String password, String prikey) {
         map.put(key + "," + password, prikey);
+    }
+
+    public JSONObject exportIdentity(Identity identity) throws NoSuchAlgorithmException {
+        Control control = identity.controls.get(0);
+        String address = identity.ontid.substring(8);
+        String prefix = Helper.getPrefix(address);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("type","I");
+        jsonObject.put("label",identity.label);
+        jsonObject.put("algorithm","ECDSA");
+        jsonObject.put("scrypt", walletFile.getScrypt());
+        jsonObject.put("key",control.key);
+        jsonObject.put("prefix",prefix);
+        jsonObject.put("parameters",control.parameters);
+        return jsonObject;
+    }
+
+    public JSONObject exportAccount(Account account) throws NoSuchAlgorithmException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("type","A");
+        jsonObject.put("label",account.label);
+        jsonObject.put("algorithm","ECDSA");
+        jsonObject.put("scrypt", walletFile.getScrypt());
+        jsonObject.put("key",account.key);
+        jsonObject.put("prefix",Helper.getPrefix(account.address));
+        jsonObject.put("parameters",account.parameters);
+        return jsonObject;
     }
 
     public Identity importIdentity(String label,String encryptedPrikey, String password, String address) throws Exception {
