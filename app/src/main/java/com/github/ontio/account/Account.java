@@ -1,6 +1,7 @@
 package com.github.ontio.account;
 
 
+import com.crypho.plugins.ScryptPlugin;
 import com.github.ontio.common.Address;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
@@ -178,8 +179,8 @@ public class Account {
         byte[] encryptedkey = new byte[32];
         System.arraycopy(input, 3, addresshash, 0, 4);
         System.arraycopy(input, 7, encryptedkey, 0, 32);
-
-        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
+//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
         byte[] derivedhalf1 = new byte[32];
         byte[] derivedhalf2 = new byte[32];
         System.arraycopy(derivedkey, 0, derivedhalf1, 0, 32);
@@ -370,25 +371,26 @@ public class Account {
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes())) ;
         byte[] addresshash =  Arrays.copyOfRange(addresshashTmp, 0, 4);
 
-        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, 64);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
+//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, 64);
         byte[] derivedhalf1 = new byte[32];
         byte[] derivedhalf2 = new byte[32];
         System.arraycopy(derivedkey, 0, derivedhalf1, 0, 32);
         System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32);
 
-            SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
-            Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-            byte[] derived = XOR(serializePrivateKey(), derivedhalf1);
-            byte[] encryptedkey = cipher.doFinal( derived);
+        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
+        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+        byte[] derived = XOR(serializePrivateKey(), derivedhalf1);
+        byte[] encryptedkey = cipher.doFinal( derived);
 
-            byte[] buffer = new byte[encryptedkey.length+7];
-            buffer[0] = (byte) 0x01;
-            buffer[1] = (byte) 0x42;
-            buffer[2] = (byte) 0xe0;
-            System.arraycopy(addresshash, 0, buffer, 3, addresshash.length);
-            System.arraycopy(encryptedkey, 0, buffer, 7, encryptedkey.length);
-            return Base58.checkSumEncode(buffer);
+        byte[] buffer = new byte[encryptedkey.length+7];
+        buffer[0] = (byte) 0x01;
+        buffer[1] = (byte) 0x42;
+        buffer[2] = (byte) 0xe0;
+        System.arraycopy(addresshash, 0, buffer, 3, addresshash.length);
+        System.arraycopy(encryptedkey, 0, buffer, 7, encryptedkey.length);
+        return Base58.checkSumEncode(buffer);
 
     }
 
@@ -461,5 +463,15 @@ public class Account {
     @Override
     public int hashCode(){
         return addressU160.hashCode();
+    }
+
+    // byte转char
+
+    public static char[] getChars(byte[] bytes) {
+        char[] chars = new char[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            chars[i] = (char) bytes[i];
+        }
+        return chars;
     }
 }
