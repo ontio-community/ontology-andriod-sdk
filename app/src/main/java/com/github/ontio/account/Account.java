@@ -452,6 +452,47 @@ public class Account {
         return Helper.toHexString(rawkey);
     }
 
+    /**
+     *
+     * @param encryptedPriKey
+     * @param passphrase
+     * @param prefix
+     * @param n
+     * @param scheme
+     * @return
+     * @throws Exception
+     */
+    public static String getCtrDecodedPrivateKey(String encryptedPriKey, String passphrase, byte[] prefix, int n, SignatureScheme scheme) throws Exception {
+        if (encryptedPriKey == null) {
+            throw new NullPointerException();
+        }
+        byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.DEFAULT);
+
+        int N = n;
+        int r = 8;
+        int p = 8;
+        int dkLen = 64;
+
+        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), prefix, N, r, p, dkLen);
+        byte[] derivedhalf2 = new byte[32];
+        byte[] iv = new byte[16];
+        System.arraycopy(derivedkey, 0, iv, 0, 16);
+        System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32);
+
+        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
+        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+        byte[] rawkey = cipher.doFinal(encryptedkey);
+        String address = new Account(rawkey, scheme).getAddressU160().toBase58();
+        byte[] addresshashTmp2 = Digest.sha256(Digest.sha256(address.getBytes()));
+        for(int i = 0; i < prefix.length; i++) {
+            if(prefix[i] != addresshashTmp2[i]){
+                throw new SDKException(ErrorCode.OtherError("encryptedPriKey address password not match."));
+            }
+        }
+        return Helper.toHexString(rawkey);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

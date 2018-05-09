@@ -186,6 +186,22 @@ public class WalletMgr {
         return getIdentity(info.ontid);
     }
 
+    /**
+     *
+     * @param encryptedPrikey
+     * @param password
+     * @param prefix
+     * @return
+     * @throws Exception
+     */
+    public Identity importIdentity(String encryptedPrikey, String password, byte[] prefix) throws Exception {
+        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix,walletFile.getScrypt().getN(), scheme);
+        IdentityInfo info = createIdentity(password, Helper.hexToBytes(prikey));
+        storePrivateKey(identityPriKeyMap, info.ontid, password, prikey);
+        return getIdentity(info.ontid);
+    }
+
+
     public Identity createIdentity(String password) throws Exception {
         IdentityInfo info = createIdentity("",password, ECC.generateKey());
         return getIdentity(info.ontid);
@@ -238,6 +254,21 @@ public class WalletMgr {
     public Account importAccount(String label, String encryptedPrikey, String password, String address) throws Exception {
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, address,walletFile.getScrypt().getN(),scheme);
         AccountInfo info = createAccount(label,password, Helper.hexToBytes(prikey));
+        storePrivateKey(acctPriKeyMap, info.addressBase58, password, prikey);
+        return getAccount(info.addressBase58);
+    }
+
+    /**
+     *
+     * @param encryptedPrikey
+     * @param password
+     * @param prefix
+     * @return
+     * @throws Exception
+     */
+    public Account importAccount(String encryptedPrikey, String password, byte[] prefix) throws Exception {
+        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix,walletFile.getScrypt().getN(),scheme);
+        AccountInfo info = createAccount(password, Helper.hexToBytes(prikey));
         storePrivateKey(acctPriKeyMap, info.addressBase58, password, prikey);
         return getAccount(info.addressBase58);
     }
