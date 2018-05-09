@@ -19,6 +19,10 @@
 
 package com.github.ontio.common;
 
+import android.util.Base64;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -108,5 +112,20 @@ public class Helper {
     }
     public static void print(Map<String,Object> map){
         System.out.println(toString(map));
+    }
+
+    public static String sha256(String text) throws NoSuchAlgorithmException {
+        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+        sha256.update(text.getBytes());
+        byte[] digest = sha256.digest();
+        String digestStr = Base64.encodeToString(digest, Base64.DEFAULT);
+
+	    return digestStr;
+    }
+
+    public static String getPrefix(String text) throws NoSuchAlgorithmException {
+	    String string = sha256(text);
+	    string = string.substring(0,8);
+	    return string;
     }
 }

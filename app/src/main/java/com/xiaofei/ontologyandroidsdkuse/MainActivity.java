@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 OntSdk ontSdk = OntSdk.getInstance();
                 ontSdk.setRestful("http://polaris1.ont.io:20334");
                 String filepath = Environment.getExternalStoragePublicDirectory("") + "/wallet.json";
-                ontSdk.openWalletFile(filepath);
+                //ontSdk.openWalletFile(filepath);
                 ontSdk.setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
 
                 //Identity identity = ontSdk.getWalletMgr().createIdentity("123456");
