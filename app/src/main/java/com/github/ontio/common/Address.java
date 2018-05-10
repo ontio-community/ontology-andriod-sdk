@@ -25,6 +25,7 @@ import com.github.ontio.crypto.Base58;
 import com.github.ontio.crypto.Digest;
 import com.github.ontio.crypto.ECC;
 import com.github.ontio.io.BinaryWriter;
+import com.github.ontio.sdk.exception.SDKException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -151,18 +152,18 @@ public class Address extends UIntBase implements Comparable<Address> {
 //        }
 //    }
 
-    public static Address decodeBase58(String address) {
+    public static Address decodeBase58(String address) throws Exception{
         byte[] data = Base58.decode(address);
         if (data.length != 25) {
-            throw new IllegalArgumentException();
+            throw new SDKException("decode error");
         }
         if (data[0] != COIN_VERSION) {
-            throw new IllegalArgumentException();
+            throw new SDKException("decode error");
         }
         byte[] checksum = Digest.sha256(Digest.sha256(data, 0, 21));
         for (int i = 0; i < 4; i++) {
             if (data[data.length - 4 + i] != checksum[i]) {
-                throw new IllegalArgumentException();
+                throw new SDKException("decode error");
             }
         }
         byte[] buffer = new byte[20];
