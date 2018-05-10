@@ -20,6 +20,9 @@
 package com.github.ontio.common;
 
 import android.util.Base64;
+import android.util.Log;
+
+import com.github.ontio.crypto.Digest;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -114,18 +117,19 @@ public class Helper {
         System.out.println(toString(map));
     }
 
-    public static String sha256(String text) throws NoSuchAlgorithmException {
-        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-        sha256.update(text.getBytes());
-        byte[] digest = sha256.digest();
-        String digestStr = Base64.encodeToString(digest, Base64.DEFAULT);
-
-	    return digestStr;
-    }
+//    public static String sha256(String text) throws NoSuchAlgorithmException {
+//        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+//        sha256.update(text.getBytes());
+//        byte[] digest = sha256.digest();
+//        String digestStr = Base64.encodeToString(digest, Base64.DEFAULT);
+//
+//	    return digestStr;
+//    }
 
     public static String getPrefix(String text) throws NoSuchAlgorithmException {
-	    String string = sha256(text);
-	    string = string.substring(0,8);
-	    return string;
+        byte[] sha256 = Digest.sha256(Digest.sha256(text.getBytes()));
+        byte[] addresshash = Arrays.copyOfRange(sha256, 0, 4);
+        String s = Helper.toHexString(addresshash);
+	    return s;
     }
 }

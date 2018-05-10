@@ -404,8 +404,9 @@ public class Account {
 
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
         byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
 
-        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
+//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[16];
         System.arraycopy(derivedkey, 0, iv, 0, 16);
@@ -435,8 +436,9 @@ public class Account {
 
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
         byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
 
-        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
+//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[16];
         System.arraycopy(derivedkey, 0, iv, 0, 16);
@@ -472,8 +474,9 @@ public class Account {
         int r = 8;
         int p = 8;
         int dkLen = 64;
-
-        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), prefix, N, r, p, dkLen);
+        String s = Helper.toHexString(prefix);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(prefix), N, r, p, 64);
+//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), prefix, N, r, p, dkLen);
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[16];
         System.arraycopy(derivedkey, 0, iv, 0, 16);
