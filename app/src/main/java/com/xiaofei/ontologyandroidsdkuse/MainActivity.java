@@ -66,32 +66,32 @@ public class MainActivity extends AppCompatActivity {
 ////
 ////        Log.i("mid", "mid: ");
 
-
-
-        FutureTask<Identity> identityFutureTask = new FutureTask<>(new Callable<Identity>() {
-            @Override
-            public Identity call() throws Exception {
-                OntSdk ontSdk = OntSdk.getInstance();
-                ontSdk.setRestful("http://polaris1.ont.io:20334");
-                String filepath = Environment.getExternalStoragePublicDirectory("") + "/wallet.json";
-                //ontSdk.openWalletFile(filepath);
-                ontSdk.setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
-
-                //Identity identity = ontSdk.getWalletMgr().createIdentity("123456");
-
-                Identity identity1 = ontSdk.getOntIdTx().sendRegisterPreExec("123456");
-                return identity1;
-            }
-        });
-
-        new Thread(identityFutureTask).start();
-        Flowable.just(identityFutureTask).subscribe(new Consumer<FutureTask<Identity>>() {
-            @Override
-            public void accept(FutureTask<Identity> identityFutureTask) throws Exception {
-                myIdentity = identityFutureTask.get();
-                Log.i("haha", "myIdentity: "+myIdentity.toString());
-            }
-        });
+//
+//
+//        FutureTask<Identity> identityFutureTask = new FutureTask<>(new Callable<Identity>() {
+//            @Override
+//            public Identity call() throws Exception {
+//                OntSdk ontSdk = OntSdk.getInstance();
+//                ontSdk.setRestful("http://polaris1.ont.io:20334");
+//                String filepath = Environment.getExternalStoragePublicDirectory("") + "/wallet.json";
+//                //ontSdk.openWalletFile(filepath);
+//                ontSdk.setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
+//
+//                //Identity identity = ontSdk.getWalletMgr().createIdentity("123456");
+//
+//                Identity identity1 = ontSdk.getOntIdTx().sendRegisterPreExec("123456");
+//                return identity1;
+//            }
+//        });
+//
+//        new Thread(identityFutureTask).start();
+//        Flowable.just(identityFutureTask).subscribe(new Consumer<FutureTask<Identity>>() {
+//            @Override
+//            public void accept(FutureTask<Identity> identityFutureTask) throws Exception {
+//                myIdentity = identityFutureTask.get();
+//                Log.i("haha", "myIdentity: "+myIdentity.toString());
+//            }
+//        });
 
     }
 
