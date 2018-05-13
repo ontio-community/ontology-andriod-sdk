@@ -443,7 +443,7 @@ public class Account {
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
         byte[] rawkey = cipher.doFinal(encryptedkey);
         if (!new Account(rawkey, scheme).getAddressU160().toBase58().equals(address)) {
-            throw new SDKException(ErrorCode.OtherError("encryptedPriKey address password not match."));
+            throw new SDKException(ErrorCode.GetAccountByAddressErr);
         }
         return Helper.toHexString(rawkey);
     }
@@ -483,7 +483,7 @@ public class Account {
         byte[] addresshashTmp2 = Digest.sha256(Digest.sha256(address.getBytes()));
         for (int i = 0; i < prefix.length; i++) {
             if (prefix[i] != addresshashTmp2[i]) {
-                throw new SDKException(ErrorCode.OtherError("encryptedPriKey address password not match."));
+                throw new SDKException(ErrorCode.GetAccountByAddressErr);
             }
         }
         return Helper.toHexString(rawkey);

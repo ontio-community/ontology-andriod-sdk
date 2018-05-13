@@ -100,7 +100,7 @@ public class OntIdTx {
             String result = (String) sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
             b = Integer.parseInt(result) > 0 ? true : false;
             if (!b) {
-                throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error"));
+                throw new SDKException(ErrorCode.SendRawTxError);
             }
         } else {
             b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
@@ -167,7 +167,7 @@ public class OntIdTx {
             System.out.println(result);
             b = Integer.parseInt(result) > 0 ? true : false;
             if (!b) {
-                throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error"));
+                throw new SDKException(ErrorCode.SendRawTxError);
             }
         } else {
             b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
@@ -536,7 +536,7 @@ public class OntIdTx {
             String result = (String) sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
             b = Integer.parseInt(result) > 0 ? true : false;
             if (!b) {
-                throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error"));
+                throw new SDKException(ErrorCode.SendRawTxError);
             }
         } else {
             b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());

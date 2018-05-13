@@ -422,7 +422,7 @@ public class WalletMgr {
                 acct = new Account("ECDSA", new Object[]{Curve.P256.toString()}, "aes-256-ctr", "SHA256withECDSA", "sha256");
                 break;
             default:
-                throw new SDKException(ErrorCode.OtherError("scheme type error"));
+                throw new SDKException(ErrorCode.TypeError);
         }
         if (password != null) {
             acct.key = account.exportCtrEncryptedPrikey(password, walletFile.getScrypt().getN());
