@@ -910,7 +910,7 @@ public class OntIdTx {
             byte[] data = JSON.toJSONString(obj).getBytes();
             return sign.verifySignature(new Account(false, Helper.hexToBytes(pubkeyStr)), data, Base64.decode(signature,Base64.DEFAULT));
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
             throw new SDKException(e);
         }
     }
@@ -969,7 +969,7 @@ public class OntIdTx {
             }
             return MerkleVerifier.VerifyLeafHashInclusion(txroot, blockHeight, targetHashes, curBlockRoot, curBlockHeight + 1);
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
             throw new SDKException(e);
         }
     }

@@ -50,9 +50,9 @@ public class State extends Serializable {
             to = reader.readSerializable(Address.class);
             value = new BigInteger(reader.readVarBytes());
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            //to do exception logic
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
     }
 

@@ -320,7 +320,7 @@ public class WebsocketClient extends AbstractConnector {
                         lock.notify();
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //to do exception logic
                 }
             }
 

@@ -148,7 +148,7 @@ public abstract class Transaction extends Inventory {
         try {
             return hash().equals(tx.hash());
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return false;
     }
@@ -158,7 +158,7 @@ public abstract class Transaction extends Inventory {
         try {
             return hash().hashCode();
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return -1;
     }

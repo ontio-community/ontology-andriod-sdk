@@ -281,7 +281,7 @@ public class Account {
         }
         catch (Exception e) {
             // Should not reach here
-            e.printStackTrace();
+            //to do exception logic
             return null;
         }
         return bs.toByteArray();
@@ -418,7 +418,7 @@ public class Account {
             byte[] encryptedkey = cipher.doFinal(serializePrivateKey());
             return new String(Base64.encode(encryptedkey, Base64.DEFAULT));
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return null;
     }

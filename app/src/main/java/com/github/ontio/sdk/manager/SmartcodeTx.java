@@ -207,7 +207,7 @@ public class SmartcodeTx {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return builder.toArray();
     }
@@ -236,7 +236,7 @@ public class SmartcodeTx {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return sb.toArray();
     }

@@ -48,7 +48,7 @@ public class InvokeCode extends Transaction {
 			vmType = reader.readByte();
 			code = reader.readVarBytes();
 		} catch (Exception e) {
-			e.printStackTrace();
+			//to do exception logic
 		}
 	}
 	@Override

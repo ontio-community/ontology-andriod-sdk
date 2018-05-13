@@ -166,7 +166,7 @@ public class OntAssetTx {
                 acct[i] = new Account[]{sdk.getWalletMgr().getAccount(sendAddr[i], password[i])};
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
 
         sdk.signTx(tx, acct);

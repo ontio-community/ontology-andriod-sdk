@@ -55,9 +55,9 @@ public class Contract extends Serializable {
             method = new String(reader.readVarBytes());
             args = reader.readVarBytes();
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            //to do exception logic
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
 
     }

@@ -40,7 +40,7 @@ public class RpcClient extends AbstractConnector {
         try {
             this.rpc = new Interfaces(url);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
     }
 
@@ -55,7 +55,7 @@ public class RpcClient extends AbstractConnector {
         try {
             result = rpc.call("getbalance", address);
         } catch (IOException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return result;
     }
@@ -89,7 +89,7 @@ public class RpcClient extends AbstractConnector {
         try {
             result = rpc.call("getrawtransaction", txhash.toString(), 1);
         } catch (IOException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return result.toString();
     }
@@ -118,7 +118,7 @@ public class RpcClient extends AbstractConnector {
         try {
             result = rpc.call("getblock", index, 1);
         } catch (IOException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return result;
     }
@@ -129,7 +129,7 @@ public class RpcClient extends AbstractConnector {
         try {
             result = rpc.call("getblock", hash, 1);
         } catch (IOException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return result;
     }
@@ -140,7 +140,7 @@ public class RpcClient extends AbstractConnector {
         try {
             result = rpc.call("getcontractstate", hash);
         } catch (IOException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return result;
     }
@@ -151,7 +151,7 @@ public class RpcClient extends AbstractConnector {
         try {
             result = rpc.call("getcontractstate", hash,1);
         } catch (IOException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return result;
     }

@@ -112,9 +112,9 @@ public class WalletMgr {
                     storePrivateKey(identityPriKeyMap, identity.ontid, password, prikey);
                 }
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                //to do exception logic
             } catch (Exception e) {
-                e.printStackTrace();
+                //to do exception logic
             }
         }
 
@@ -512,7 +512,7 @@ public class WalletMgr {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         throw new SDKRuntimeException(ErrorCode.GetAccountByAddressErr);
     }

@@ -51,7 +51,7 @@ public class Vote extends Transaction {
             }
             account = reader.readSerializable(Address.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
     }
     @Override

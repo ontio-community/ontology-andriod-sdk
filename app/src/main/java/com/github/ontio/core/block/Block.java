@@ -192,7 +192,7 @@ public class Block extends Inventory {
         try {
             return this.hash().equals(((Block) obj).hash());
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return false;
     }
@@ -202,7 +202,7 @@ public class Block extends Inventory {
         try {
             return hash().hashCode();
         } catch (Exception e) {
-            e.printStackTrace();
+            //to do exception logic
         }
         return -1;
     }

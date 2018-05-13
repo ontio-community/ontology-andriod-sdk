@@ -45,9 +45,9 @@ public class Fee extends Serializable {
         try {
             payer = reader.readSerializable(Address.class);
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            //to do exception logic
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
 
     }

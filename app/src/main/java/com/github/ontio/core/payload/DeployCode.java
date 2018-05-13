@@ -53,7 +53,7 @@ public class DeployCode extends Transaction {
 			email = reader.readVarString();
 			description = reader.readVarString();
 		} catch (Exception e) {
-			e.printStackTrace();
+			//to do exception logic
 		}
 	}
 	@Override

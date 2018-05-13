@@ -192,7 +192,7 @@ public class http {
             try {
 				value = value == null ? value:URLEncoder.encode(value, DEFAULT_CHARSET);
 			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				//to do exception logic
 			}
             sb.append("&").append(key).append("=").append(value);
         }

@@ -58,7 +58,7 @@ public class Signature {
             bs.write(value);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            //to do exception logic
         }
 
         return bs.toByteArray();
