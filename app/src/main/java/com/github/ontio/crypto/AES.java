@@ -24,24 +24,16 @@ import com.github.ontio.sdk.exception.SDKException;
 
 import java.io.UnsupportedEncodingException;
 import java.security.AlgorithmParameters;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.security.auth.DestroyFailedException;
 
 public class AES {
     private static final String KEY_ALGORITHM = "AES";
