@@ -24,7 +24,6 @@ import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.util.IOUtils;
 import com.github.ontio.common.Address;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.ErrorCode;
@@ -36,22 +35,17 @@ import com.github.ontio.crypto.ECC;
 import com.github.ontio.crypto.KeyType;
 import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.exception.SDKException;
-import com.github.ontio.sdk.exception.SDKRuntimeException;
 import com.github.ontio.sdk.info.AccountInfo;
 import com.github.ontio.sdk.info.IdentityInfo;
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Control;
 import com.github.ontio.sdk.wallet.Identity;
-import com.github.ontio.sdk.wallet.Scrypt;
 import com.github.ontio.sdk.wallet.Wallet;
 
 import java.io.*;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static org.spongycastle.cms.RecipientId.password;
 
 /**
  *
@@ -487,7 +481,7 @@ public class WalletMgr {
         return account;
     }
 
-    private com.github.ontio.account.Account getAccountByAddress(Address address, String password) throws SDKRuntimeException {
+    private com.github.ontio.account.Account getAccountByAddress(Address address, String password) throws Exception {
         try {
             for (Account e : wallet.getAccounts()) {
                 if (e.address.equals(address.toBase58())) {
@@ -514,7 +508,7 @@ public class WalletMgr {
         } catch (Exception e) {
             //to do exception logic
         }
-        throw new SDKRuntimeException(ErrorCode.GetAccountByAddressErr);
+        throw new SDKException(ErrorCode.GetAccountByAddressErr);
     }
 
 }
