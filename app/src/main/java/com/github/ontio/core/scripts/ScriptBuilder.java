@@ -23,7 +23,9 @@ import java.io.*;
 import java.math.BigInteger;
 import java.nio.*;
 
+import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.UIntBase;
+import com.github.ontio.sdk.exception.SDKException;
 
 /**
  */
@@ -59,7 +61,7 @@ public class ScriptBuilder implements AutoCloseable {
         return add(ScriptOp.OP_0);
     }
 
-    public ScriptBuilder push(BigInteger number) {
+    public ScriptBuilder push(BigInteger number) throws SDKException {
     	if (number.equals(BigInteger.ONE.negate())) {
             return add(ScriptOp.OP_1NEGATE);
         }
@@ -72,9 +74,9 @@ public class ScriptBuilder implements AutoCloseable {
         return push(number.toByteArray());
     }
 
-    public ScriptBuilder push(byte[] data) {
+    public ScriptBuilder push(byte[] data) throws SDKException {
         if (data == null) {
-        	throw new NullPointerException();
+        	throw new SDKException(ErrorCode.ParamError);
         }
         if (data.length <= (int)ScriptOp.OP_PUSHBYTES75.getByte()) {
             ms.write((byte)data.length);
@@ -97,7 +99,7 @@ public class ScriptBuilder implements AutoCloseable {
         return this;
     }
 
-    public ScriptBuilder push(UIntBase hash) {
+    public ScriptBuilder push(UIntBase hash) throws SDKException {
         return push(hash.toArray());
     }
 

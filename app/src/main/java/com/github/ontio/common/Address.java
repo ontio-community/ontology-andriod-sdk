@@ -51,9 +51,9 @@ public class Address extends UIntBase implements Comparable<Address> {
         super(20, value);
     }
 
-    public static Address parse(String value) {
+    public static Address parse(String value) throws SDKException {
         if (value == null) {
-            throw new NullPointerException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         if (value.startsWith("0x")) {
             value = value.substring(2);

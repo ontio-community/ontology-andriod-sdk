@@ -130,9 +130,9 @@ public class Account {
      * @param wif
      * @return
      */
-    public static byte[] getPrivateKeyFromWIF(String wif) {
+    public static byte[] getPrivateKeyFromWIF(String wif) throws SDKException {
         if (wif == null) {
-            throw new NullPointerException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] data = Base58.decode(wif);
         if (data.length != 38 || data[0] != (byte) 0x80 || data[33] != 0x01) {
@@ -160,7 +160,7 @@ public class Account {
      */
     public static String getEcbDecodedPrivateKey(String encryptedPriKey, String passphrase, int n, SignatureScheme scheme) throws Exception {
         if (encryptedPriKey == null) {
-            throw new NullPointerException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] decoded = Base58.decodeChecked(encryptedPriKey);
         if (decoded.length != 43 || decoded[0] != (byte) 0x01 || decoded[1] != (byte) 0x42 || decoded[2] != (byte) 0xe0) {
@@ -425,7 +425,7 @@ public class Account {
 
     public static String getCtrDecodedPrivateKey(String encryptedPriKey, String passphrase, String address, int n, SignatureScheme scheme) throws Exception {
         if (encryptedPriKey == null) {
-            throw new NullPointerException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.DEFAULT);
 
@@ -466,7 +466,7 @@ public class Account {
      */
     public static String getCtrDecodedPrivateKey(String encryptedPriKey, String passphrase, byte[] prefix, int n, SignatureScheme scheme) throws Exception {
         if (encryptedPriKey == null) {
-            throw new NullPointerException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.DEFAULT);
 
