@@ -200,15 +200,4 @@ public class http {
         }
         return "?" + sb.toString().substring(1);
     }
-
-    /**
-     *
-     * @param objs
-     * @throws IOException
-     */
-//    private static void close(Closeable... objs) throws IOException {
-//    	if(objs != null	&& objs.length > 0) {
-//    		Arrays.stream(objs).forEach(p -> {try {p.close(); } (Exception e){}});
-//    	}
-//    }
 }
