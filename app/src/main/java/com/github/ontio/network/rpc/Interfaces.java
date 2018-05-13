@@ -53,7 +53,7 @@ class Interfaces {
         return url.getHost() + " " + url.getPort();
     }
 
-    public Object call(String method, Object... params) throws Exception, IOException {
+    public Object call(String method, Object... params) throws Exception {
         Map req = makeRequest(method, params);
         Map response = (Map) send(req);
         if (response == null) {

@@ -99,7 +99,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Object sendRawTransaction(boolean preExec, String userid, String hexData) throws Exception, IOException {
+    public Object sendRawTransaction(boolean preExec, String userid, String hexData) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "sendrawtransaction");
         map.put("Version", "1.0.0");
@@ -113,7 +113,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Object sendRawTransaction(String hexData) throws Exception, IOException {
+    public Object sendRawTransaction(String hexData) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "sendrawtransaction");
         map.put("Version", "1.0.0");
@@ -124,7 +124,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Transaction getRawTransaction(String txhash) throws Exception, IOException {
+    public Transaction getRawTransaction(String txhash) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "gettransaction");
         map.put("Version", "1.0.0");
@@ -136,7 +136,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Object getRawTransactionJson(String txhash) throws Exception, IOException {
+    public Object getRawTransactionJson(String txhash) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "gettransaction");
         map.put("Version", "1.0.0");
@@ -148,7 +148,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public int getGenerateBlockTime() throws Exception, IOException {
+    public int getGenerateBlockTime() throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getgenerateblocktime");
         map.put("Version", "1.0.0");
@@ -158,7 +158,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public int getNodeCount() throws Exception, IOException {
+    public int getNodeCount() throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getconnectioncount");
         map.put("Version", "1.0.0");
@@ -168,7 +168,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public int getBlockHeight() throws Exception, IOException {
+    public int getBlockHeight() throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getblockheight");
         map.put("Version", "1.0.0");
@@ -178,7 +178,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Block getBlock(int height) throws Exception, IOException {
+    public Block getBlock(int height) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getblockbyheight");
         map.put("Version", "1.0.0");
@@ -190,7 +190,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Block getBlock(String hash) throws Exception, IOException {
+    public Block getBlock(String hash) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getblockbyhash");
         map.put("Version", "1.0.0");
@@ -202,7 +202,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Block getBlockJson(int height) throws Exception, IOException {
+    public Block getBlockJson(int height) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getblockbyheight");
         map.put("Version", "1.0.0");
@@ -213,7 +213,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Block getBlockJson(String hash) throws Exception, IOException {
+    public Block getBlockJson(String hash) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getblockbyhash");
         map.put("Version", "1.0.0");
@@ -224,7 +224,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Object getBalance(String address) throws Exception, IOException {
+    public Object getBalance(String address) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getbalance");
         map.put("Version", "1.0.0");
@@ -235,7 +235,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Object getContract(String hash) throws Exception, IOException {
+    public Object getContract(String hash) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getcontract");
         map.put("Version", "1.0.0");
@@ -246,7 +246,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Object getContractJson(String hash) throws Exception, IOException {
+    public Object getContractJson(String hash) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getcontract");
         map.put("Version", "1.0.0");
@@ -257,7 +257,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Object getSmartCodeEvent(int height) throws Exception, IOException {
+    public Object getSmartCodeEvent(int height) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getsmartcodeeventtxs");
         map.put("Version", "1.0.0");
@@ -267,7 +267,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Object getSmartCodeEvent(String hash) throws Exception, IOException {
+    public Object getSmartCodeEvent(String hash) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getsmartcodeevent");
         map.put("Version", "1.0.0");
@@ -276,7 +276,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public int getBlockHeightByTxHash(String hash) throws Exception, IOException {
+    public int getBlockHeightByTxHash(String hash) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getblockheightbytxhash");
         map.put("Version", "1.0.0");
@@ -287,7 +287,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public String getStorage(String codehash, String key) throws Exception, IOException {
+    public String getStorage(String codehash, String key) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getstorage");
         map.put("Version", "1.0.0");
@@ -299,7 +299,7 @@ public class WebsocketClient extends AbstractConnector {
     }
 
     @Override
-    public Object getMerkleProof(String hash) throws Exception, IOException {
+    public Object getMerkleProof(String hash) throws Exception {
         Map map = new HashMap<>();
         map.put("Action", "getmerkleproof");
         map.put("Version", "1.0.0");

@@ -2,6 +2,7 @@ package com.github.ontio.crypto;
 
 import com.github.ontio.account.SM2ParameterSpec;
 import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class Signature {
     // parse a serialized bytes to signature structure
     public Signature(byte[] data) throws Exception {
         if (data == null) {
-            throw new Exception("null input");
+            throw new SDKException(ErrorCode.ParamError);
         }
 
         if (data.length < 2) {

@@ -172,23 +172,7 @@ public class BinaryReader implements AutoCloseable {
 		}
 		return value;
 	}
-//	public long readVarInt2(long max) throws IOException {
-//		long fb = Byte.toUnsignedLong(readByte());
-//		long value;
-//		if (fb == ScriptOp.OP_PUSHDATA1.getByte()) {
-//			value = Byte.toUnsignedLong(readByte());
-//		} else if (fb == ScriptOp.OP_PUSHDATA2.getByte()) {
-//			value = Short.toUnsignedLong(readShort());
-//		} else if (fb == ScriptOp.OP_PUSHDATA4.getByte()) {
-//			value = Integer.toUnsignedLong(readInt());
-//		} else{
-//			value = fb;
-//		}
-//		if (Long.compareUnsigned(value, max) > 0) {
-//			throw new IOException();
-//		}
-//		return value;
-//	}
+
 	public String readVarString() throws IOException {
 		return new String(readVarBytes(), "UTF-8");
 	}

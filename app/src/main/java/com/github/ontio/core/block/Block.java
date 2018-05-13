@@ -59,27 +59,6 @@ public class Block extends Inventory {
     public UInt256 hash;
     private Block _header = null;
 
-//    public static Block fromTrimmedData(byte[] data, int index, Function<UInt256, Transaction> txSelector) throws IOException {
-//        Block block = new Block();
-//        try (ByteArrayInputStream ms = new ByteArrayInputStream(data, index, data.length - index)) {
-//            try (BinaryReader reader = new BinaryReader(ms)) {
-//                block.deserializeUnsigned(reader);
-//                reader.readByte();
-//                if (txSelector == null) {
-//                    block.transactions = new Transaction[0];
-//                } else {
-//                    block.transactions = new Transaction[(int) reader.readVarInt(0x10000000)];
-//                    for (int i = 0; i < block.transactions.length; i++) {
-//                        block.transactions[i] = txSelector.apply(reader.readSerializable(UInt256.class));
-//                    }
-//                }
-//            }  (InstantiationException | IllegalAccessException ex) {
-//                throw new IOException(ex);
-//            }
-//        }
-//        return block;
-//    }
-
     public Block header() {
         if (isHeader()) {
             return this;

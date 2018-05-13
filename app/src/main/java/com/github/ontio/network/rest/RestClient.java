@@ -189,7 +189,7 @@ public class RestClient extends AbstractConnector {
     }
 
     @Override
-    public Object getSmartCodeEvent(int height) throws Exception, IOException {
+    public Object getSmartCodeEvent(int height) throws Exception {
         String rs = api.getSmartCodeEvent(height);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
@@ -200,7 +200,7 @@ public class RestClient extends AbstractConnector {
     }
 
     @Override
-    public Object getSmartCodeEvent(String hash) throws Exception, IOException {
+    public Object getSmartCodeEvent(String hash) throws Exception {
         String rs = api.getSmartCodeEvent(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
@@ -210,7 +210,7 @@ public class RestClient extends AbstractConnector {
     }
 
     @Override
-    public int getBlockHeightByTxHash(String hash) throws Exception, IOException {
+    public int getBlockHeightByTxHash(String hash) throws Exception {
         String rs = api.getBlockHeightByTxHash(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
@@ -220,7 +220,7 @@ public class RestClient extends AbstractConnector {
     }
 
     @Override
-    public String getStorage(String codehash, String key) throws Exception, IOException {
+    public String getStorage(String codehash, String key) throws Exception {
         String rs = api.getStorage(codehash, key);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
@@ -230,7 +230,7 @@ public class RestClient extends AbstractConnector {
     }
 
     @Override
-    public Object getMerkleProof(String hash) throws Exception, IOException {
+    public Object getMerkleProof(String hash) throws Exception {
         String rs = api.getMerkleProof(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {

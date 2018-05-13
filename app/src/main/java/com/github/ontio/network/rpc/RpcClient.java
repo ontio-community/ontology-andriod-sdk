@@ -50,13 +50,13 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public String sendRawTransaction(String sData) throws Exception, IOException {
+    public String sendRawTransaction(String sData) throws Exception {
         Object result = rpc.call("sendrawtransaction", sData);
         return (String) result;
     }
 
     @Override
-    public Object sendRawTransaction(boolean preExec, String userid, String sData) throws Exception, IOException {
+    public Object sendRawTransaction(boolean preExec, String userid, String sData) throws Exception {
         Object result = null;
         if (preExec) {
             result = rpc.call("sendrawtransaction", sData, 1);
@@ -80,19 +80,19 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public int getGenerateBlockTime() throws Exception, IOException {
+    public int getGenerateBlockTime() throws Exception {
         Object result = rpc.call("getgenerateblocktime");
         return (int) result;
     }
 
     @Override
-    public int getNodeCount() throws Exception, IOException {
+    public int getNodeCount() throws Exception {
         Object result = rpc.call("getconnectioncount");
         return (int) result;
     }
 
     @Override
-    public int getBlockHeight() throws Exception, IOException {
+    public int getBlockHeight() throws Exception {
         Object result = rpc.call("getblockcount");
         return (int) result;
     }
@@ -125,7 +125,7 @@ public class RpcClient extends AbstractConnector {
         return result;
     }
 
-    public String getRawTransaction(UInt256 txhash) throws Exception, IOException {
+    public String getRawTransaction(UInt256 txhash) throws Exception {
         Object result = rpc.call("getrawtransaction", txhash.toString());
         return (String) result;
     }
@@ -144,7 +144,7 @@ public class RpcClient extends AbstractConnector {
         return bb;
     }
 
-    public int getBlockCount() throws Exception, IOException {
+    public int getBlockCount() throws Exception {
         Object result = rpc.call("getblockcount");
         return (int) result;
     }
