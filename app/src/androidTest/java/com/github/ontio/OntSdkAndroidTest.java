@@ -39,32 +39,32 @@ public class OntSdkAndroidTest {
     }
 
     @Test
-    public void getBlockHeight() throws ConnectorException, IOException {
+    public void getBlockHeight() throws Exception {
         int blockHeight = connectMgr.getBlockHeight();
         assertTrue(blockHeight >= 0);
     }
 
     @Test
-    public void getNodeCount() throws ConnectorException, IOException {
+    public void getNodeCount() throws Exception {
         int nodeCount = connectMgr.getNodeCount();
         assertTrue(nodeCount > 0);
     }
 
     @Test
-    public void getGenerateTime() throws ConnectorException, IOException {
+    public void getGenerateTime() throws Exception {
         int time = connectMgr.getGenerateBlockTime();
         assertTrue(time > 0);
         assertTrue(time == 6);
     }
 
     @Test
-    public void getFirstBlock() throws ConnectorException, IOException {
+    public void getFirstBlock() throws Exception {
         Block block = connectMgr.getBlock(0);
         assertNotNull(block);
     }
 
     @Test
-    public void getBlock() throws ConnectorException, IOException {
+    public void getBlock() throws Exception {
         Block block1 = connectMgr.getBlock(1);
         assertNotNull(block1);
         int blockHeight = connectMgr.getBlockHeight();
@@ -73,7 +73,7 @@ public class OntSdkAndroidTest {
     }
 
     @Test
-    public void getTransaction() throws ConnectorException, IOException {
+    public void getTransaction() throws Exception {
         int blockHeight = connectMgr.getBlockHeight();
         Block blockMax = connectMgr.getBlock(blockHeight);
         assertNotNull(blockMax);

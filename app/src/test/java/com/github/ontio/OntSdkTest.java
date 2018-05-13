@@ -7,9 +7,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 public class OntSdkTest {
     private OntSdk ontSdk;
@@ -32,35 +32,35 @@ public class OntSdkTest {
     }
 
     @Test
-    public void getBlockHeight() throws ConnectorException, IOException {
+    public void getBlockHeight() throws  Exception {
         int blockHeight = ontSdk.getConnectMgr().getBlockHeight();
         assertTrue(blockHeight >0);
     }
 
     @Test
-    public void getBlock() throws ConnectorException, IOException {
-        Block block0 = ontSdk.getConnectMgr().getBlock(0);
-        assertNotNull(block0);
+    public void getBlock() throws  Exception {
+        //Block block0 = ontSdk.getConnectMgr().getBlock(0);
+        //assertNotNull(block0);
         int blockHeight = ontSdk.getConnectMgr().getBlockHeight();
         Block block = ontSdk.getConnectMgr().getBlock(blockHeight);
         assertNotNull(block);
     }
 
     @Test
-    public void getNodeCount() throws ConnectorException, IOException {
+    public void getNodeCount() throws  Exception {
         int nodeCount = ontSdk.getConnectMgr().getNodeCount();
         assertTrue(nodeCount > 0);
     }
 
     @Test
-    public void getGenerateTime() throws ConnectorException, IOException {
+    public void getGenerateTime() throws  Exception {
         int time = ontSdk.getConnectMgr().getGenerateBlockTime();
         assertTrue(time > 0);
         assertTrue(time == 6);
     }
 
     @Test
-    public void getTransaction() throws ConnectorException, IOException {
+    public void getTransaction() throws  Exception {
         Transaction transaction = ontSdk.getConnectMgr().getTransaction("");
         assertNotNull(transaction);
     }

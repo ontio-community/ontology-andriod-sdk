@@ -461,7 +461,7 @@ public class Account {
         if (encryptedPriKey == null) {
             throw new SDKException(ErrorCode.ParamError);
         }
-        byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.DEFAULT);
+        byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.NO_PADDING);
 
         int N = n;
         int r = 8;
@@ -483,7 +483,7 @@ public class Account {
         byte[] addresshashTmp2 = Digest.sha256(Digest.sha256(address.getBytes()));
         for (int i = 0; i < prefix.length; i++) {
             if (prefix[i] != addresshashTmp2[i]) {
-                throw new SDKException(ErrorCode.GetAccountByAddressErr);
+                throw new SDKException(ErrorCode.PrefixNotMatch);
             }
         }
         return Helper.toHexString(rawkey);
