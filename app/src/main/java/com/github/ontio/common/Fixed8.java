@@ -95,13 +95,9 @@ public class Fixed8  implements Comparable<Fixed8> {
 //    }
 
     public static boolean tryParse(String s, Fixed8 result) {
-        try {
-            BigDecimal val = new BigDecimal(s);
-            result.value = val.longValueExact();
-            return true;
-        } catch(NumberFormatException | ArithmeticException ex) {
-            return false;
-        }
+        BigDecimal val = new BigDecimal(s);
+        result.value = val.longValueExact();
+        return true;
     }
 
     public Fixed8 abs() {
