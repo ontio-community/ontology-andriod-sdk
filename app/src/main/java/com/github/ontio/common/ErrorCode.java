@@ -49,7 +49,7 @@ public class ErrorCode {
     public static String Decoded3bytesError = getError(51011,"Account Error,decoded 3 bytes error");
     public static String DecodePrikeyPassphraseError = getError(51012,"Account Error,decode prikey passphrase error.");
     public static String PrikeyLengthError = getError(51013,"Account Error,Prikey length error");
-    public static String PrefixNotMatch = getError(51014,"Prefix not match");
+    public static String PrefixNotMatch = getError(51014,"Key Password and Prefix not match");
 
     public static String InputError = getError(52001,"Uint256 Error,input error");
     public static String ChecksumNotValidate = getError(52002,"Base58 Error,Checksum does not validate");

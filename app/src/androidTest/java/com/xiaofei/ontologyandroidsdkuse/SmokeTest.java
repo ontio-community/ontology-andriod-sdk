@@ -77,7 +77,7 @@ public class SmokeTest {
     }
     @Test
     public void sendTransfer() throws Exception {
-        final int amount = 3;
+        final int amount = 1;
 //b14757ed---kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=---123123---TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z rich
 //4fd1e7fe---6LL8RCFR8lhpkAAyvEXVRKGzs6Q5ZNh4so4SGXrPHMs=---123123---TA9hEJap1EWcAo9DfrKFHCHcuRAG9xRMft poor
         final String richAddr = "TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z";
