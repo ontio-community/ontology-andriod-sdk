@@ -66,7 +66,7 @@ public class RestClient extends AbstractConnector {
     }
 
     @Override
-    public Transaction getRawTransaction(String txhash) throws RestfulException {
+    public Transaction getRawTransaction(String txhash) throws Exception {
         String rs = api.getTransaction(txhash, true);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
@@ -113,7 +113,7 @@ public class RestClient extends AbstractConnector {
     }
 
     @Override
-    public Block getBlock(int height) throws RestfulException {
+    public Block getBlock(int height) throws Exception {
         String rs = api.getBlock(height, "1");
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
@@ -128,7 +128,7 @@ public class RestClient extends AbstractConnector {
 
 
     @Override
-    public Block getBlock(String hash) throws RestfulException {
+    public Block getBlock(String hash) throws Exception {
         String rs = api.getBlock(hash, "1");
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {

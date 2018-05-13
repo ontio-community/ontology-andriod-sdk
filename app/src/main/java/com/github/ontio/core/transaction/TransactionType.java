@@ -19,6 +19,9 @@
 
 package com.github.ontio.core.transaction;
 
+import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
+
 /**
  * list transaction types
  */
@@ -40,12 +43,12 @@ public enum TransactionType {
         return value;
     }
 
-    public static TransactionType valueOf(byte v) {
+    public static TransactionType valueOf(byte v) throws Exception {
     	for (TransactionType e : TransactionType.values()) {
     		if (e.value == v) {
     			return e;
     		}
     	}
-    	throw new IllegalArgumentException();
+    	throw new SDKException(ErrorCode.ParamError);
     }
 }

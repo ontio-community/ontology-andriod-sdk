@@ -38,7 +38,7 @@ public class Transfers extends Serializable {
         this.states = states;
     }
     @Override
-    public void deserialize(BinaryReader reader) throws IOException {
+    public void deserialize(BinaryReader reader) throws Exception {
         version = reader.readByte();
         int len = (int)reader.readVarInt();
         for(int i = 0;i <len;i++){
@@ -53,7 +53,7 @@ public class Transfers extends Serializable {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         writer.writeByte(version);
         writer.writeSerializableArray(states);
     }

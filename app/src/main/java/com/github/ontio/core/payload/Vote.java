@@ -59,7 +59,7 @@ public class Vote extends Transaction {
         return null;
     }
     @Override
-    protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+    protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
         writer.writeInt(pubKeys.length);
         for(ECPoint pubkey:pubKeys) {
             writer.writeVarBytes(Helper.removePrevZero(pubkey.getXCoord().toBigInteger().toByteArray()));

@@ -45,7 +45,7 @@ public class Bookkeeper extends Transaction {
 	}
 	
 	@Override
-	protected void deserializeExclusiveData(BinaryReader reader) throws IOException {
+	protected void deserializeExclusiveData(BinaryReader reader) throws Exception {
 		issuer = ECC.secp256r1.getCurve().createPoint(
         		new BigInteger(1,reader.readVarBytes()), new BigInteger(1,reader.readVarBytes()));
 		action = BookkeeperAction.valueOf(reader.readByte());
@@ -56,7 +56,7 @@ public class Bookkeeper extends Transaction {
 		return null;
 	}
 	@Override
-	protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+	protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
 		writer.writeVarBytes(Helper.removePrevZero(issuer.getXCoord().toBigInteger().toByteArray()));
         writer.writeVarBytes(Helper.removePrevZero(issuer.getYCoord().toBigInteger().toByteArray()));
         writer.writeByte(action.value());

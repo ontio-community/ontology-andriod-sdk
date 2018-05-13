@@ -116,13 +116,13 @@ public class BinaryReader implements AutoCloseable {
 		return buffer.getLong(0);
 	}
 	
-	public <T extends Serializable> T readSerializable(Class<T> t) throws InstantiationException, IllegalAccessException, IOException {
+	public <T extends Serializable> T readSerializable(Class<T> t) throws Exception {
 		T obj = t.newInstance();
 		obj.deserialize(this);
 		return obj;
 	}
 	
-	public <T extends Serializable> T[] readSerializableArray(Class<T> t) throws InstantiationException, IllegalAccessException, IOException {
+	public <T extends Serializable> T[] readSerializableArray(Class<T> t) throws Exception {
 		@SuppressWarnings("unchecked")
 		T[] array = (T[])Array.newInstance(t, (int)readVarInt(0x10000000));
 		for (int i = 0; i < array.length; i++) {

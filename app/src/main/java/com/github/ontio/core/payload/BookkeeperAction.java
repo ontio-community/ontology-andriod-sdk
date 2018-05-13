@@ -19,6 +19,9 @@
 
 package com.github.ontio.core.payload;
 
+import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
+
 public enum BookkeeperAction {
 	BookKeeperAction_ADD(0x00),
 	BookKeeperAction_SUB(0x01),
@@ -28,13 +31,13 @@ public enum BookkeeperAction {
         value = (byte)v;
     }
 
-    public static BookkeeperAction valueOf(byte v) {
+    public static BookkeeperAction valueOf(byte v) throws Exception {
     	for (BookkeeperAction e : BookkeeperAction.values()) {
     		if (e.value == v) {
     			return e;
     		}
     	}
-    	throw new IllegalArgumentException();
+    	throw new SDKException(ErrorCode.ParamError);
     }
 
     public byte value() {

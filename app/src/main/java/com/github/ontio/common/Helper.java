@@ -23,6 +23,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.github.ontio.crypto.Digest;
+import com.github.ontio.sdk.exception.SDKException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -52,12 +53,12 @@ public class Helper {
         return result;
     }
     
-    public static byte[] hexToBytes(String value) {
+    public static byte[] hexToBytes(String value) throws Exception {
         if (value == null || value.length() == 0) {
             return new byte[0];
         }
         if (value.length() % 2 == 1) {
-            throw new IllegalArgumentException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] result = new byte[value.length() / 2];
         for (int i = 0; i < result.length; i++) {
@@ -76,7 +77,7 @@ public class Helper {
         return sb.toString();
     }
     
-    public static String reverse(String value) {
+    public static String reverse(String value) throws Exception {
     	return toHexString(reverse(hexToBytes(value)));
     }
     
@@ -86,7 +87,7 @@ public class Helper {
 		}
 		return bt;
 	}
-    public static String getCodeAddress(String codeHexStr,byte vmtype){
+    public static String getCodeAddress(String codeHexStr,byte vmtype) throws Exception {
         Address code = Address.toScriptHash(Helper.hexToBytes(codeHexStr));
         byte[] hash = code.toArray();
         hash[0] = vmtype;

@@ -615,7 +615,7 @@ public class OntIdTx {
      * @param obj
      * @return
      */
-    private Map parseDdoData(String ontid, String obj) {
+    private Map parseDdoData(String ontid, String obj) throws Exception {
         byte[] bys = Helper.hexToBytes(obj);
         int elen = parse4bytes(bys, 0);
         int offset = 4;

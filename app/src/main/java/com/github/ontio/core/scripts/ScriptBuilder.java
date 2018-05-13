@@ -94,7 +94,7 @@ public class ScriptBuilder implements AutoCloseable {
             ms.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(data.length).array(), 0, 4);
             ms.write(data, 0, data.length);
         } else {
-            throw new IllegalArgumentException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         return this;
     }

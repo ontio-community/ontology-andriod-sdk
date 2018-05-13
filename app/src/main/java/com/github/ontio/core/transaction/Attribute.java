@@ -37,7 +37,7 @@ public class Attribute extends Serializable {
 	public int size;
 
 	@Override
-	public void serialize(BinaryWriter writer) throws IOException {
+	public void serialize(BinaryWriter writer) throws Exception {
         writer.writeByte(usage.value());
         if (usage == AttributeUsage.Script
         		|| usage == AttributeUsage.DescriptionUrl
@@ -50,7 +50,7 @@ public class Attribute extends Serializable {
 	}
 
 	@Override
-	public void deserialize(BinaryReader reader) throws IOException {
+	public void deserialize(BinaryReader reader) throws Exception {
 		usage = AttributeUsage.valueOf(reader.readByte());
         if (usage == AttributeUsage.Script
         		|| usage == AttributeUsage.DescriptionUrl

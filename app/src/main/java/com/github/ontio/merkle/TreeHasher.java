@@ -32,14 +32,14 @@ import java.util.List;
  * @date 2018/4/4
  */
 public class TreeHasher {
-    public UInt256 hash_empty(){
+    public UInt256 hash_empty() throws Exception {
         return new UInt256();
     }
-    public UInt256 hash_leaf(byte[] data) {
+    public UInt256 hash_leaf(byte[] data) throws Exception {
         byte[] tmp = Helper.addBytes(new byte[]{0},data);
         return new UInt256(Digest.sha256(tmp));
     }
-    public UInt256 hash_children(UInt256 left, UInt256 right ){
+    public UInt256 hash_children(UInt256 left, UInt256 right ) throws Exception {
         byte[] data = Helper.addBytes(new byte[]{1},left.toArray());
         data = Helper.addBytes(data,right.toArray());
         return new UInt256(Digest.sha256(data));
@@ -100,7 +100,7 @@ public class TreeHasher {
             return new Obj(root_hash, hashes);
         }
     }
-    public UInt256 _hash_fold(UInt256[] hashes){
+    public UInt256 _hash_fold(UInt256[] hashes) throws Exception {
         int l = hashes.length;
         UInt256 accum = hashes[l-1];
         for(int i=l-2;i>=0;i--){

@@ -29,17 +29,16 @@ import com.github.ontio.sdk.exception.SDKException;
  *
  */
 public class UInt256 extends UIntBase implements Comparable<UInt256> {
-    public static final UInt256 ZERO = new UInt256();
 
-    public UInt256() {
+    public UInt256() throws Exception {
         this(null);
     }
 
-    public UInt256(byte[] value) {
+    public UInt256(byte[] value) throws Exception {
         super(32, value);
     }
 
-    public static UInt256 parse(String s) throws SDKException {
+    public static UInt256 parse(String s) throws Exception {
         if (s == null) {
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -47,7 +46,7 @@ public class UInt256 extends UIntBase implements Comparable<UInt256> {
             s = s.substring(2);
         }
         if (s.length() != 64) {
-            throw new IllegalArgumentException(ErrorCode.InputError);
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] v = Helper.hexToBytes(s);
         return new UInt256(v);

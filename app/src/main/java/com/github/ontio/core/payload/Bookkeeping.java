@@ -49,7 +49,7 @@ public class Bookkeeping extends Transaction {
 		writer.writeLong(nonce);
 	}
 	@Override
-	public Object json() {
+	public Object json() throws Exception {
 		Map obj = (Map)super.json();
 		Map payload = new HashMap();
 		payload.put("Nonce", nonce);

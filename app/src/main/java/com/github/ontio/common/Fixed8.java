@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import com.github.ontio.io.BinaryReader;
 import com.github.ontio.io.BinaryWriter;
 import com.github.ontio.io.Serializable;
+import com.github.ontio.sdk.exception.SDKException;
 
 /**
  *
@@ -52,9 +53,9 @@ public class Fixed8  implements Comparable<Fixed8> {
         return new Fixed8(val.multiply(new BigDecimal(D)).longValueExact());
     }
 
-    public static Fixed8 fromLong(long val) {
+    public static Fixed8 fromLong(long val) throws Exception {
     	if (val < 0 || val > Long.MAX_VALUE / D) {
-    		throw new IllegalArgumentException();
+    		throw new SDKException(ErrorCode.ParamError);
     	}
     	return new Fixed8(val * D);
     }

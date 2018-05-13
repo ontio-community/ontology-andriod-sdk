@@ -57,7 +57,7 @@ public class DeployCode extends Transaction {
 		}
 	}
 	@Override
-	protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+	protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
 		writer.writeByte(vmType);
 		writer.writeVarBytes(code);
 		writer.writeBoolean(needStorage);

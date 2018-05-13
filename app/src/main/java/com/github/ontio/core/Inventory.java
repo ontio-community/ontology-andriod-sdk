@@ -26,7 +26,7 @@ public abstract class Inventory extends Signable {
     //[NonSerialized]
     private UInt256 _hash = null;
     
-    public UInt256 hash() {
+    public UInt256 hash() throws Exception {
         if (_hash == null) {
 			_hash = new UInt256(Digest.hash256(getHashData()));
         }

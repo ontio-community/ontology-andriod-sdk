@@ -19,6 +19,9 @@
 
 package com.github.ontio.core;
 
+import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
+
 /**
  * list vm types
  */
@@ -36,12 +39,12 @@ public enum VmType {
         return value;
     }
 
-    public static VmType valueOf(byte v) {
+    public static VmType valueOf(byte v) throws Exception {
     	for (VmType e : VmType.values()) {
     		if (e.value == v) {
     			return e;
     		}
     	}
-    	throw new IllegalArgumentException();
+    	throw new SDKException(ErrorCode.ParamError);
     }
 }

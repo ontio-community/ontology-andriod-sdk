@@ -46,7 +46,7 @@ public class TransferFrom extends Serializable {
         this.value = amount;
     }
     @Override
-    public void deserialize(BinaryReader reader) throws IOException {
+    public void deserialize(BinaryReader reader) throws Exception {
         try {
             version = reader.readByte();
             sender = reader.readSerializable(Address.class);
@@ -61,7 +61,7 @@ public class TransferFrom extends Serializable {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         writer.writeByte((byte)0);
         writer.writeSerializable(sender);
         writer.writeSerializable(from);

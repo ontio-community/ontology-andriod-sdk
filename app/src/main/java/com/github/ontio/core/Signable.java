@@ -33,13 +33,13 @@ import com.github.ontio.common.Address;
 
 public abstract class Signable extends Serializable {
 
-	public abstract void deserializeUnsigned(BinaryReader reader) throws IOException;
+	public abstract void deserializeUnsigned(BinaryReader reader) throws Exception;
 
-	public abstract void serializeUnsigned(BinaryWriter writer) throws IOException;
+	public abstract void serializeUnsigned(BinaryWriter writer) throws Exception;
 
 	public abstract Address[] getAddressU160ForVerifying();
     
-    public byte[] getHashData() {
+    public byte[] getHashData() throws Exception {
     	try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
 	    	try (BinaryWriter writer = new BinaryWriter(ms)) {
 	            serializeUnsigned(writer);

@@ -88,7 +88,7 @@ public class ConnectMgr {
         return connector.getUrl();
     }
 
-    public boolean sendRawTransaction(Transaction tx) throws ConnectorException, IOException {
+    public boolean sendRawTransaction(Transaction tx) throws Exception {
         String rs = (String) connector.sendRawTransaction(Helper.toHexString(tx.toArray()));
         if (connector instanceof RpcClient) {
             return true;
@@ -103,7 +103,7 @@ public class ConnectMgr {
         return false;
     }
 
-    public boolean sendRawTransaction(String hexData) throws ConnectorException, IOException {
+    public boolean sendRawTransaction(String hexData) throws Exception {
         String rs = (String) connector.sendRawTransaction(hexData);
         if (connector instanceof RpcClient) {
             return true;
@@ -118,7 +118,7 @@ public class ConnectMgr {
         return false;
     }
 
-    public Object sendRawTransactionPreExec(String hexData) throws ConnectorException, IOException {
+    public Object sendRawTransactionPreExec(String hexData) throws Exception {
         Object rs = connector.sendRawTransaction(true, null, hexData);
         if (connector instanceof RpcClient) {
             return rs;
@@ -133,77 +133,77 @@ public class ConnectMgr {
         return null;
     }
 
-    public Transaction getTransaction(String txhash) throws ConnectorException, IOException {
+    public Transaction getTransaction(String txhash) throws Exception {
         txhash = txhash.replace("0x","");
         return connector.getRawTransaction(txhash);
     }
 
-    public Object getTransactionJson(String txhash) throws ConnectorException, IOException {
+    public Object getTransactionJson(String txhash) throws Exception {
         txhash = txhash.replace("0x","");
         return connector.getRawTransactionJson(txhash);
     }
 
-    public int getGenerateBlockTime() throws ConnectorException, IOException {
+    public int getGenerateBlockTime() throws Exception {
         return connector.getGenerateBlockTime();
     }
 
-    public int getNodeCount() throws ConnectorException, IOException {
+    public int getNodeCount() throws Exception {
         return connector.getNodeCount();
     }
 
-    public int getBlockHeight() throws ConnectorException, IOException {
+    public int getBlockHeight() throws Exception {
         return connector.getBlockHeight();
     }
 
-    public Block getBlock(int height) throws ConnectorException, IOException {
+    public Block getBlock(int height) throws Exception {
         return connector.getBlock(height);
     }
 
-    public Block getBlock(String hash) throws ConnectorException, IOException {
+    public Block getBlock(String hash) throws Exception {
         return connector.getBlock(hash);
 
     }
 
-    public Object getBalance(String address) throws ConnectorException, IOException {
+    public Object getBalance(String address) throws Exception {
         return connector.getBalance(address);
     }
 
-    public Object getBlockJson(int height) throws ConnectorException, IOException {
+    public Object getBlockJson(int height) throws Exception {
         return connector.getBlockJson(height);
     }
 
-    public Object getBlockJson(String hash) throws ConnectorException, IOException {
+    public Object getBlockJson(String hash) throws Exception {
         return connector.getBlockJson(hash);
     }
 
-    public Object getContract(String hash) throws ConnectorException, IOException {
+    public Object getContract(String hash) throws Exception {
         hash = hash.replace("0x","");
         return connector.getContract(hash);
     }
-    public Object getContractJson(String hash) throws ConnectorException, IOException {
+    public Object getContractJson(String hash) throws Exception {
         hash = hash.replace("0x","");
         return connector.getContractJson(hash);
     }
 
-    public Object getSmartCodeEvent(int height) throws ConnectorException, IOException {
+    public Object getSmartCodeEvent(int height) throws Exception {
         return connector.getSmartCodeEvent(height);
     }
 
-    public Object getSmartCodeEvent(String hash) throws ConnectorException, IOException {
+    public Object getSmartCodeEvent(String hash) throws Exception {
         return connector.getSmartCodeEvent(hash);
     }
 
-    public int getBlockHeightByTxHash(String hash) throws ConnectorException, IOException {
+    public int getBlockHeightByTxHash(String hash) throws Exception {
         hash = hash.replace("0x", "");
         return connector.getBlockHeightByTxHash(hash);
     }
 
-    public String getStorage(String codehash, String key) throws ConnectorException, IOException {
+    public String getStorage(String codehash, String key) throws Exception {
         codehash = codehash.replace("0x", "");
         return connector.getStorage(codehash, key);
     }
 
-    public Object getMerkleProof(String hash) throws ConnectorException, IOException {
+    public Object getMerkleProof(String hash) throws Exception {
         hash = hash.replace("0x", "");
         return connector.getMerkleProof(hash);
     }

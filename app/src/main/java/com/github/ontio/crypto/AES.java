@@ -19,6 +19,9 @@
 
 package com.github.ontio.crypto;
 
+import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
+
 import java.io.UnsupportedEncodingException;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -48,9 +51,9 @@ public class AES {
 		Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
 	}
 	
-	public static byte[] decrypt(byte[] encryptedData, byte[] key, byte[] iv) throws IllegalBlockSizeException, BadPaddingException {
+	public static byte[] decrypt(byte[] encryptedData, byte[] key, byte[] iv) throws Exception {
 		if (key.length != 32 || iv.length != 16) {
-			throw new IllegalArgumentException();
+			throw new SDKException(ErrorCode.ParamError);
 		}
 		try {
 			SecretKey secretKey = new SecretKeySpec(key, KEY_ALGORITHM);
@@ -64,9 +67,9 @@ public class AES {
 		}
 	}
 	
-	public static byte[] encrypt(byte[] data, byte[] key, byte[] iv) {
+	public static byte[] encrypt(byte[] data, byte[] key, byte[] iv) throws Exception {
 		if (key.length != 32 || iv.length != 16) {
-			throw new IllegalArgumentException();
+			throw new SDKException(ErrorCode.ParamError);
 		}
 		try {
 			SecretKey secretKey = new SecretKeySpec(key, KEY_ALGORITHM);

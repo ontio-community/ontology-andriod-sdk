@@ -110,7 +110,7 @@ public class Block extends Inventory {
     }
 
     @Override
-    public void deserialize(BinaryReader reader) throws IOException {
+    public void deserialize(BinaryReader reader) throws Exception {
         deserializeUnsigned(reader);
         int len = (int) reader.readVarInt();
         sigData = new String[len];
@@ -131,7 +131,7 @@ public class Block extends Inventory {
     }
 
     @Override
-    public void deserializeUnsigned(BinaryReader reader) throws IOException {
+    public void deserializeUnsigned(BinaryReader reader) throws Exception {
         try {
             version = reader.readInt();
             prevBlockHash = reader.readSerializable(UInt256.class);
@@ -153,7 +153,7 @@ public class Block extends Inventory {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         serializeUnsigned(writer);
         writer.writeVarInt(bookkeepers.length);
         for(int i=0;i<bookkeepers.length;i++) {
@@ -170,7 +170,7 @@ public class Block extends Inventory {
     }
 
     @Override
-    public void serializeUnsigned(BinaryWriter writer) throws IOException {
+    public void serializeUnsigned(BinaryWriter writer) throws Exception {
         writer.writeInt(version);
         writer.writeSerializable(prevBlockHash);
         writer.writeSerializable(transactionsRoot);
@@ -189,12 +189,22 @@ public class Block extends Inventory {
         if (!(obj instanceof Block)) {
             return false;
         }
-        return this.hash().equals(((Block) obj).hash());
+        try {
+            return this.hash().equals(((Block) obj).hash());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return hash().hashCode();
+        try {
+            return hash().hashCode();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     @Override
@@ -202,7 +212,7 @@ public class Block extends Inventory {
         return null;
     }
 
-    public Object json() {
+    public Object json() throws Exception {
         Map json = new HashMap();
         Map head = new HashMap();
         json.put("Hash", hash().toString());
@@ -242,7 +252,7 @@ public class Block extends Inventory {
         return JSON.toJSONString(json);
     }
 
-    public byte[] trim() {
+    public byte[] trim() throws Exception {
         try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
             try (BinaryWriter writer = new BinaryWriter(ms)) {
                 serializeUnsigned(writer);

@@ -52,7 +52,7 @@ public class InvokeCode extends Transaction {
 		}
 	}
 	@Override
-	protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+	protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
 		writer.writeLong(gasLimit);
 		writer.writeByte(vmType);
 		writer.writeVarBytes(code);
@@ -63,7 +63,7 @@ public class InvokeCode extends Transaction {
 		return null;
 	}
 	@Override
-	public Object json() {
+	public Object json() throws Exception {
 		Map obj = (Map)super.json();
 		Map payload = new HashMap();
 		payload.put("Code", Helper.toHexString(code));

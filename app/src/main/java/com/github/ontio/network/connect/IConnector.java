@@ -27,26 +27,26 @@ import com.github.ontio.network.exception.ConnectorException;
 public interface IConnector {
 
 	String getUrl();
-	Object sendRawTransaction(boolean preExec, String userid, String hexData) throws ConnectorException, IOException;
-	Object sendRawTransaction(String hexData) throws ConnectorException, IOException;
-	Transaction getRawTransaction(String txhash) throws ConnectorException, IOException;
-	Object getRawTransactionJson(String txhash) throws ConnectorException, IOException;
-	int getGenerateBlockTime() throws ConnectorException, IOException;
-	int getNodeCount() throws ConnectorException, IOException;
-	int getBlockHeight() throws ConnectorException, IOException;
-	Block getBlock(int height) throws ConnectorException, IOException;
-	Block getBlock(String hash) throws ConnectorException, IOException ;
-	Object getBlockJson(int height) throws ConnectorException, IOException;
-	Object getBlockJson(String hash) throws ConnectorException, IOException;
+	Object sendRawTransaction(boolean preExec, String userid, String hexData) throws Exception;
+	Object sendRawTransaction(String hexData) throws Exception;
+	Transaction getRawTransaction(String txhash) throws Exception;
+	Object getRawTransactionJson(String txhash) throws Exception;
+	int getGenerateBlockTime() throws Exception;
+	int getNodeCount() throws Exception;
+	int getBlockHeight() throws Exception;
+	Block getBlock(int height) throws Exception;
+	Block getBlock(String hash) throws Exception ;
+	Object getBlockJson(int height) throws Exception;
+	Object getBlockJson(String hash) throws Exception;
 
-	Object getBalance(String address) throws ConnectorException, IOException;
+	Object getBalance(String address) throws Exception;
 
-	Object getContract(String hash) throws ConnectorException, IOException;
-	Object getContractJson(String hash) throws ConnectorException, IOException;
-	Object getSmartCodeEvent(int height) throws ConnectorException, IOException;
-	Object getSmartCodeEvent(String hash) throws ConnectorException, IOException;
-	int getBlockHeightByTxHash(String hash) throws ConnectorException, IOException;
+	Object getContract(String hash) throws Exception;
+	Object getContractJson(String hash) throws Exception;
+	Object getSmartCodeEvent(int height) throws Exception;
+	Object getSmartCodeEvent(String hash) throws Exception;
+	int getBlockHeightByTxHash(String hash) throws Exception;
 
-	String getStorage(String codehash, String key) throws ConnectorException, IOException;
-	Object getMerkleProof(String hash) throws ConnectorException, IOException;
+	String getStorage(String codehash, String key) throws Exception;
+	Object getMerkleProof(String hash) throws Exception;
 }

@@ -27,6 +27,7 @@ import com.github.ontio.io.BinaryReader;
 import com.github.ontio.io.BinaryWriter;
 import com.github.ontio.io.Serializable;
 import com.github.ontio.io.*;
+import com.github.ontio.sdk.exception.SDKException;
 
 /**
  * Custom type base abstract class, it defines the storage and the serialization 
@@ -37,13 +38,13 @@ import com.github.ontio.io.*;
 public abstract class UIntBase extends Serializable {
     protected byte[] data_bytes;
 
-    protected UIntBase(int bytes, byte[] value) {
+    protected UIntBase(int bytes, byte[] value) throws Exception {
         if (value == null) {
             this.data_bytes = new byte[bytes];
             return;
         }
         if (value.length != bytes) {
-        	throw new IllegalArgumentException();
+        	throw new SDKException(ErrorCode.ParamError);
         }
         this.data_bytes = value;
     }

@@ -76,7 +76,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Transaction getRawTransaction(String txhash) throws RpcException, IOException {
+    public Transaction getRawTransaction(String txhash) throws Exception {
         Object result = rpc.call("getrawtransaction", txhash.toString());
         return Transaction.deserializeFrom(Helper.hexToBytes((String) result));
     }
@@ -160,7 +160,7 @@ public class RpcClient extends AbstractConnector {
     }
 
 
-    public Block getBlock(UInt256 hash) throws RpcException, IOException {
+    public Block getBlock(UInt256 hash) throws Exception {
         Object result = rpc.call("getblock", hash.toString());
         try {
             Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
@@ -171,7 +171,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Block getBlock(int index) throws RpcException, IOException {
+    public Block getBlock(int index) throws Exception {
         Object result = rpc.call("getblock", index);
         try {
             Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
@@ -187,7 +187,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Block getBlock(String hash) throws ConnectorException, IOException {
+    public Block getBlock(String hash) throws Exception {
         Object result = rpc.call("getblock", hash.toString());
         try {
             Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);

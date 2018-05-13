@@ -21,7 +21,9 @@ package com.github.ontio.crypto;
 
 import java.util.Arrays;
 
+import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.UInt256;
+import com.github.ontio.sdk.exception.SDKException;
 
 /**
  *  MerkleTree
@@ -35,7 +37,7 @@ public class MerkleTree {
 	 /*
     public static UInt256 computeRoot(UInt256[] hashes) {
         if (hashes.length == 0) {
-            throw new IllegalArgumentException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         if (hashes.length == 1) {
             return hashes[0];
@@ -44,9 +46,9 @@ public class MerkleTree {
     }
 	*/
 
-    private static byte[] computeRoot(byte[][] hashes) {
+    private static byte[] computeRoot(byte[][] hashes) throws Exception {
         if (hashes.length == 0) {
-            throw new IllegalArgumentException(); 
+            throw new SDKException(ErrorCode.ParamError);
         }
         if (hashes.length == 1) {
             return hashes[0];

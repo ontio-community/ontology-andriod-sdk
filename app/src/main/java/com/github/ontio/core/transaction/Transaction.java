@@ -48,11 +48,11 @@ public abstract class Transaction extends Inventory {
         this.txType = type;
     }
 
-    public static Transaction deserializeFrom(byte[] value) throws IOException {
+    public static Transaction deserializeFrom(byte[] value) throws Exception {
         return deserializeFrom(value, 0);
     }
 
-    public static Transaction deserializeFrom(byte[] value, int offset) throws IOException {
+    public static Transaction deserializeFrom(byte[] value, int offset) throws Exception {
         try (ByteArrayInputStream ms = new ByteArrayInputStream(value, offset, value.length - offset)) {
             try (BinaryReader reader = new BinaryReader(ms)) {
                 return deserializeFrom(reader);
@@ -60,7 +60,7 @@ public abstract class Transaction extends Inventory {
         }
     }
 
-    public static Transaction deserializeFrom(BinaryReader reader) throws IOException {
+    public static Transaction deserializeFrom(BinaryReader reader) throws Exception {
         try {
             byte ver = reader.readByte();
             TransactionType type = TransactionType.valueOf(reader.readByte());
@@ -80,7 +80,7 @@ public abstract class Transaction extends Inventory {
     }
 
     @Override
-    public void deserialize(BinaryReader reader) throws IOException {
+    public void deserialize(BinaryReader reader) throws Exception {
         deserializeUnsigned(reader);
         try {
             sigs = reader.readSerializableArray(Sig.class);
@@ -90,7 +90,7 @@ public abstract class Transaction extends Inventory {
     }
 
     @Override
-    public void deserializeUnsigned(BinaryReader reader) throws IOException {
+    public void deserializeUnsigned(BinaryReader reader) throws Exception {
         version = reader.readByte();
         if (txType.value() != reader.readByte()) {
             throw new IOException();
@@ -98,7 +98,7 @@ public abstract class Transaction extends Inventory {
         deserializeUnsignedWithoutType(reader);
     }
 
-    private void deserializeUnsignedWithoutType(BinaryReader reader) throws IOException {
+    private void deserializeUnsignedWithoutType(BinaryReader reader) throws Exception {
         try {
             deserializeExclusiveData(reader);
             attributes = reader.readSerializableArray(Attribute.class);
@@ -113,17 +113,17 @@ public abstract class Transaction extends Inventory {
         }
     }
 
-    protected void deserializeExclusiveData(BinaryReader reader) throws IOException {
+    protected void deserializeExclusiveData(BinaryReader reader) throws Exception {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         serializeUnsigned(writer);
         writer.writeSerializableArray(sigs);
     }
 
     @Override
-    public void serializeUnsigned(BinaryWriter writer) throws IOException {
+    public void serializeUnsigned(BinaryWriter writer) throws Exception {
         writer.writeByte(version);
         writer.writeByte(txType.value());
         writer.writeInt(nonce);
@@ -133,7 +133,7 @@ public abstract class Transaction extends Inventory {
         writer.writeLong(networkFee);
     }
 
-    protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+    protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
     }
 
     @Override
@@ -148,12 +148,22 @@ public abstract class Transaction extends Inventory {
             return false;
         }
         Transaction tx = (Transaction) obj;
-        return hash().equals(tx.hash());
+        try {
+            return hash().equals(tx.hash());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return hash().hashCode();
+        try {
+            return hash().hashCode();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
 //    public Address[] getAddressU160ForVerifying() {
@@ -166,7 +176,7 @@ public abstract class Transaction extends Inventory {
         return InventoryType.TX;
     }
 
-    public Object json() {
+    public Object json() throws Exception {
         Map json = new HashMap();
         json.put("Hash", hash().toString());
         json.put("Version", (int) version);

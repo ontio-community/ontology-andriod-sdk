@@ -47,7 +47,7 @@ public class Contract extends Serializable {
         this.args = args;
     }
     @Override
-    public void deserialize(BinaryReader reader) throws IOException {
+    public void deserialize(BinaryReader reader) throws Exception {
         try {
             version = reader.readByte();
             code = reader.readVarBytes();
@@ -63,7 +63,7 @@ public class Contract extends Serializable {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         writer.writeByte(version);
         writer.writeVarBytes(code);
         writer.writeSerializable(constracHash);

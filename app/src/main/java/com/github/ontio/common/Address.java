@@ -40,18 +40,17 @@ import java.util.Arrays;
  *
  */
 public class Address extends UIntBase implements Comparable<Address> {
-    public static final Address ZERO = new Address();
     public static final byte COIN_VERSION = 0x41;
 
-    public Address() {
+    public Address() throws Exception {
         this(null);
     }
 
-    public Address(byte[] value) {
+    public Address(byte[] value) throws Exception {
         super(20, value);
     }
 
-    public static Address parse(String value) throws SDKException {
+    public static Address parse(String value) throws Exception {
         if (value == null) {
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -59,7 +58,7 @@ public class Address extends UIntBase implements Comparable<Address> {
             value = value.substring(2);
         }
         if (value.length() != 40) {
-            throw new IllegalArgumentException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] v = Helper.hexToBytes(value);
         return new Address(v);
@@ -76,7 +75,7 @@ public class Address extends UIntBase implements Comparable<Address> {
         }
     }
 
-    public static Address addressFromPubKey(String publicKey) {
+    public static Address addressFromPubKey(String publicKey) throws Exception {
         return  addressFromPubKey(Helper.hexToBytes(publicKey));
     }
 
@@ -125,7 +124,7 @@ public class Address extends UIntBase implements Comparable<Address> {
 //
 //    public static Address addressFromMultiPubKeys(int m, ECPoint... publicKeys) {
 //        if(m<=0 || m > publicKeys.length || publicKeys.length > 24){
-//            throw new IllegalArgumentException();
+//            throw new SDKException(ErrorCode.ParamError);
 //        }
 //        try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
 //            try (BinaryWriter writer = new BinaryWriter(ms)) {
@@ -171,7 +170,7 @@ public class Address extends UIntBase implements Comparable<Address> {
         return new Address(buffer);
     }
 
-    public static Address toScriptHash(byte[] script) {
+    public static Address toScriptHash(byte[] script) throws Exception {
         return new Address(Digest.hash160(script));
     }
 

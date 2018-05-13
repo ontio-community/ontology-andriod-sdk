@@ -43,7 +43,7 @@ public class State extends Serializable {
         this.value = amount;
     }
     @Override
-    public void deserialize(BinaryReader reader) throws IOException {
+    public void deserialize(BinaryReader reader) throws Exception {
         try {
             version = reader.readByte();
             from = reader.readSerializable(Address.class);
@@ -57,7 +57,7 @@ public class State extends Serializable {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         writer.writeByte((byte)0);
         writer.writeSerializable(from);
         writer.writeSerializable(to);

@@ -130,18 +130,18 @@ public class Account {
      * @param wif
      * @return
      */
-    public static byte[] getPrivateKeyFromWIF(String wif) throws SDKException {
+    public static byte[] getPrivateKeyFromWIF(String wif) throws Exception {
         if (wif == null) {
             throw new SDKException(ErrorCode.ParamError);
         }
         byte[] data = Base58.decode(wif);
         if (data.length != 38 || data[0] != (byte) 0x80 || data[33] != 0x01) {
-            throw new IllegalArgumentException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] checksum = Digest.sha256(Digest.sha256(data, 0, data.length - 4));
         for (int i = 0; i < 4; i++) {
             if (data[data.length - 4 + i] != checksum[i]) {
-                throw new IllegalArgumentException();
+                throw new SDKException(ErrorCode.ParamError);
             }
         }
         byte[] privateKey = new byte[32];

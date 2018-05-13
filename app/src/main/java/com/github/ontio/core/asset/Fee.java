@@ -40,7 +40,7 @@ public class Fee extends Serializable {
         this.payer = payer;
     }
     @Override
-    public void deserialize(BinaryReader reader) throws IOException {
+    public void deserialize(BinaryReader reader) throws Exception {
         amount = reader.readLong();
         try {
             payer = reader.readSerializable(Address.class);
@@ -53,7 +53,7 @@ public class Fee extends Serializable {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         writer.writeLong(amount);
         writer.writeSerializable(payer);
     }
