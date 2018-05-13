@@ -61,7 +61,7 @@ public  abstract class Serializable {
 	            return ms.toByteArray();
 	        }
         } catch (IOException ex) {
-			throw new UnsupportedOperationException(ex);
+			throw new SDKException(ex);
 		}
     }
     

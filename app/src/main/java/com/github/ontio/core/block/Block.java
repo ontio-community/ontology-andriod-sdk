@@ -266,7 +266,7 @@ public class Block extends Inventory {
                 return ms.toByteArray();
             }
         } catch (IOException ex) {
-            throw new UnsupportedOperationException(ex);
+            throw new IOException(ex);
         }
     }
 

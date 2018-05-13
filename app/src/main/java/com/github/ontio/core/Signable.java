@@ -37,7 +37,7 @@ public abstract class Signable extends Serializable {
 
 	public abstract void serializeUnsigned(BinaryWriter writer) throws Exception;
 
-	public abstract Address[] getAddressU160ForVerifying();
+	public abstract Address[] getAddressU160ForVerifying() throws Exception;
     
     public byte[] getHashData() throws Exception {
     	try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
@@ -47,7 +47,7 @@ public abstract class Signable extends Serializable {
 	            return ms.toByteArray();
 	        }
     	} catch (IOException ex) {
-    		throw new UnsupportedOperationException(ex);
+    		throw new IOException(ex);
     	}
     }
 	public byte[] sign(Account account, SignatureScheme scheme) throws Exception {

@@ -394,7 +394,7 @@ public class Account {
 
     }
 
-    public String exportCtrEncryptedPrikey(String passphrase, int n) {
+    public String exportCtrEncryptedPrikey(String passphrase, int n) throws Exception {
         int N = n;
         int r = 8;
         int p = 8;

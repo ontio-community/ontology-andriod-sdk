@@ -58,7 +58,7 @@ public class DataSignature extends Signable {
     }
 
     @Override
-    public Address[] getAddressU160ForVerifying() {
+    public Address[] getAddressU160ForVerifying() throws Exception {
         HashSet<Address> hashes = new HashSet<Address>();
         hashes.add(Address.addressFromPubKey(account.serializePublicKey()));
         return null;
