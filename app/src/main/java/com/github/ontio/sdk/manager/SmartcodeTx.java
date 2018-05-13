@@ -48,9 +48,11 @@ import java.util.*;
 public class SmartcodeTx {
     private OntSdk sdk;
     private String contractAddress = null;
+
     public String getCodeAddress() {
         return contractAddress;
     }
+
     public void setCodeAddress(String codeHash) {
         this.contractAddress = codeHash.replace("0x", "");
     }
@@ -77,7 +79,7 @@ public class SmartcodeTx {
     }
 
     public String sendInvokeSmartCodeWithSign(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
-        Transaction tx = invokeTransaction( ontid, password, abiFunction, vmtype);
+        Transaction tx = invokeTransaction(ontid, password, abiFunction, vmtype);
         sdk.signTx(tx, new Account[][]{{sdk.getWalletMgr().getAccount(ontid, password)}});
         boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
         if (!b) {
@@ -95,7 +97,7 @@ public class SmartcodeTx {
      * @throws Exception
      */
     public Object sendInvokeTransactionPreExec(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
-        Transaction tx = invokeTransaction( ontid, password, abiFunction, vmtype);
+        Transaction tx = invokeTransaction(ontid, password, abiFunction, vmtype);
         return sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
     }
 
@@ -134,7 +136,7 @@ public class SmartcodeTx {
                 throw new SDKException("type error");
             }
         }
-        if(list.size()>0) {
+        if (list.size() > 0) {
             list.add(tmp);
         }
         byte[] params = sdk.getSmartcodeTx().createCodeParamsScript(list);
@@ -142,12 +144,12 @@ public class SmartcodeTx {
         Transaction tx = null;
         if (ontid == null && password == null) {
             Fee[] fees = new Fee[0];
-            tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress,null,params, vmtype, fees);
+            tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, fees);
         } else {
             Fee[] fees = new Fee[1];
             AccountInfo info = sdk.getWalletMgr().getAccountInfo(ontid, password);
             fees[0] = new Fee(0, Address.addressFromPubKey(info.pubkey));
-            tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress,null,params, vmtype, fees);
+            tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, fees);
         }
         return tx;
     }
@@ -174,40 +176,38 @@ public class SmartcodeTx {
         }
         return tx.hash().toString();
     }
-    public static byte[] Int2Bytes_LittleEndian(int iValue){
+
+    public static byte[] Int2Bytes_LittleEndian(int iValue) {
         byte[] rst = new byte[4];
-        rst[0] = (byte)(iValue & 0xFF);
-        rst[1] = (byte)((iValue & 0xFF00) >> 8 );
-        rst[2] = (byte)((iValue & 0xFF0000) >> 16 );
-        rst[3] = (byte)((iValue & 0xFF000000) >> 24 );
+        rst[0] = (byte) (iValue & 0xFF);
+        rst[1] = (byte) ((iValue & 0xFF00) >> 8);
+        rst[2] = (byte) ((iValue & 0xFF0000) >> 16);
+        rst[3] = (byte) ((iValue & 0xFF000000) >> 24);
         return rst;
     }
+
     /**
      * @param builder
      * @param list
      * @return
      */
-    private byte[] createCodeParamsScript(ScriptBuilder builder, List<Object> list) {
-        try {
-            for (int i = list.size() - 1; i >= 0; i--) {
-                Object val = list.get(i);
-                if (val instanceof byte[]) {
-                    builder.push((byte[]) val);
-                } else if (val instanceof Boolean) {
-                    builder.push((Boolean) val);
-                } else if (val instanceof Integer) {
-                    builder.push(new BigInteger(Int2Bytes_LittleEndian((int)val)));
-                } else if (val instanceof List) {
-                    List tmp = (List) val;
-                    createCodeParamsScript(builder, tmp);
-                    builder.push(new BigInteger(String.valueOf(tmp.size())));
-                    builder.pushPack();
-
-                } else {
-                }
+    private byte[] createCodeParamsScript(ScriptBuilder builder, List<Object> list) throws SDKException {
+        for (int i = list.size() - 1; i >= 0; i--) {
+            Object val = list.get(i);
+            if (val instanceof byte[]) {
+                builder.push((byte[]) val);
+            } else if (val instanceof Boolean) {
+                builder.push((Boolean) val);
+            } else if (val instanceof Integer) {
+                builder.push(new BigInteger(Int2Bytes_LittleEndian((int) val)));
+            } else if (val instanceof List) {
+                List tmp = (List) val;
+                createCodeParamsScript(builder, tmp);
+                builder.push(new BigInteger(String.valueOf(tmp.size())));
+                builder.pushPack();
+            } else {
+                //wtf
             }
-        } catch (Exception e) {
-            //to do exception logic
         }
         return builder.toArray();
     }
@@ -216,27 +216,24 @@ public class SmartcodeTx {
      * @param list
      * @return
      */
-    public byte[] createCodeParamsScript(List<Object> list) {
+    public byte[] createCodeParamsScript(List<Object> list) throws SDKException {
         ScriptBuilder sb = new ScriptBuilder();
-        try {
-            for (int i = list.size() - 1; i >= 0; i--) {
-                Object val = list.get(i);
-                if (val instanceof byte[]) {
-                    sb.push((byte[]) val);
-                } else if (val instanceof Boolean) {
-                    sb.push((Boolean) val);
-                } else if (val instanceof Integer) {
-                    sb.push(new BigInteger(Int2Bytes_LittleEndian((int)val)));
-                } else if (val instanceof List) {
-                    List tmp = (List) val;
-                    createCodeParamsScript(sb, tmp);
-                    sb.push(new BigInteger(String.valueOf(tmp.size())));
-                    sb.pushPack();
-                } else {
-                }
+        for (int i = list.size() - 1; i >= 0; i--) {
+            Object val = list.get(i);
+            if (val instanceof byte[]) {
+                sb.push((byte[]) val);
+            } else if (val instanceof Boolean) {
+                sb.push((Boolean) val);
+            } else if (val instanceof Integer) {
+                sb.push(new BigInteger(Int2Bytes_LittleEndian((int) val)));
+            } else if (val instanceof List) {
+                List tmp = (List) val;
+                createCodeParamsScript(sb, tmp);
+                sb.push(new BigInteger(String.valueOf(tmp.size())));
+                sb.pushPack();
+            } else {
+                //wtf
             }
-        } catch (Exception e) {
-            //to do exception logic
         }
         return sb.toArray();
     }
@@ -247,65 +244,66 @@ public class SmartcodeTx {
             Object val = objs[i];
             if (val instanceof String) {
                 Map map = new HashMap();
-                map.put("type","string");
-                map.put("value",val);
+                map.put("type", "string");
+                map.put("value", val);
                 params.add(map);
             } else if (val instanceof Integer) {
                 Map map = new HashMap();
-                map.put("type","int");
-                map.put("value",String.valueOf(val));
+                map.put("type", "int");
+                map.put("value", String.valueOf(val));
                 params.add(map);
             } else if (val instanceof Long) {
                 Map map = new HashMap();
-                map.put("type","int64");
-                map.put("value",String.valueOf(val));
+                map.put("type", "int64");
+                map.put("value", String.valueOf(val));
                 params.add(map);
             } else if (val instanceof int[]) {
                 Map map = new HashMap();
-                map.put("type","int_array");
-                map.put("value",val);
+                map.put("type", "int_array");
+                map.put("value", val);
                 params.add(map);
             } else if (val instanceof long[]) {
                 Map map = new HashMap();
-                map.put("type","int_array");
-                map.put("value",val);
+                map.put("type", "int_array");
+                map.put("value", val);
                 params.add(map);
             } else {
                 continue;
             }
         }
         Map result = new HashMap();
-        result.put("Params",params);
+        result.put("Params", params);
         return JSON.toJSONString(result);
     }
+
     public byte[] buildWasmContractRawParam(List<Object> list) {
         List params = new ArrayList();
         for (int i = 0; i < list.size(); i++) {
             Object val = list.get(i);
             if (val instanceof String) {
                 Map map = new HashMap();
-                map.put("type","string");
-                map.put("value",val);
+                map.put("type", "string");
+                map.put("value", val);
                 params.add(map);
             } else if (val instanceof Integer) {
                 Map map = new HashMap();
-                map.put("type","int");
-                map.put("value",val);
+                map.put("type", "int");
+                map.put("value", val);
                 params.add(map);
             } else if (val instanceof Long) {
                 Map map = new HashMap();
-                map.put("type","int64");
-                map.put("value",val);
+                map.put("type", "int64");
+                map.put("value", val);
                 params.add(map);
             } else if (val instanceof int[]) {
                 Map map = new HashMap();
-                map.put("type","int_array");
-                map.put("value",val);
+                map.put("type", "int_array");
+                map.put("value", val);
                 params.add(map);
             } else if (val instanceof long[]) {
                 Map map = new HashMap();
-                map.put("type","int_array");
-                map.put("value",val);
+                map.put("type", "int_array");
+                map.put("value", val);
                 params.add(map);
             } else {
                 continue;
@@ -313,6 +311,7 @@ public class SmartcodeTx {
         }
         return JSON.toJSONString(params).getBytes();
     }
+
     /**
      * @param codeStr
      * @param needStorage
@@ -350,13 +349,13 @@ public class SmartcodeTx {
      * @return
      * @throws SDKException
      */
-    public InvokeCode makeInvokeCodeTransaction(String codeAddr,String method,byte[] params, byte vmtype, Fee[] fees) throws Exception {
-        if(vmtype == VmType.NEOVM.value()) {
+    public InvokeCode makeInvokeCodeTransaction(String codeAddr, String method, byte[] params, byte vmtype, Fee[] fees) throws Exception {
+        if (vmtype == VmType.NEOVM.value()) {
             Contract contract = new Contract((byte) 0, null, Address.parse(codeAddr), "", params);
             params = Helper.addBytes(new byte[]{0x67}, contract.toArray());
 //            params = Helper.addBytes(params, new byte[]{0x69});
 //            params = Helper.addBytes(params, Helper.hexToBytes(codeAddress));
-        }else if(vmtype == VmType.WASMVM.value()) {
+        } else if (vmtype == VmType.WASMVM.value()) {
             Contract contract = new Contract((byte) 1, null, Address.parse(codeAddr), method, params);
             params = contract.toArray();
         }

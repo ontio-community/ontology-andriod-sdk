@@ -44,12 +44,8 @@ public class Enrollment extends Transaction {
 
     @Override
     protected void deserializeExclusiveData(BinaryReader reader) throws IOException {
-        try {
-            pubKey = ECC.secp256r1.getCurve().createPoint(
-                    new BigInteger(1, reader.readVarBytes()), new BigInteger(1, reader.readVarBytes()));
-        } catch (Exception e) {
-            //to do exception logic
-        }
+        pubKey = ECC.secp256r1.getCurve().createPoint(
+                new BigInteger(1, reader.readVarBytes()), new BigInteger(1, reader.readVarBytes()));
     }
 
     @Override

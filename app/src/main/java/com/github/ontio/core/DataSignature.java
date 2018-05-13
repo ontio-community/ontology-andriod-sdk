@@ -50,13 +50,9 @@ public class DataSignature extends Signable {
     public String getData(){
         return data;
     }
-    public byte[] signature() throws SDKException {
-        try {
-            byte[] signData = this.sign(account,scheme);
-            return signData;
-        } catch (Exception e) {
-            throw new SDKException(ErrorCode.InvalidSignatureData);
-        }
+    public byte[] signature() throws Exception {
+        byte[] signData = this.sign(account, scheme);
+        return signData;
     }
 
     @Override

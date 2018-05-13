@@ -34,12 +34,8 @@ import com.github.ontio.sdk.exception.SDKException;
 public class RpcClient extends AbstractConnector {
     private Interfaces rpc;
 
-    public RpcClient(String url) {
-        try {
-            this.rpc = new Interfaces(url);
-        } catch (MalformedURLException e) {
-            //to do exception logic
-        }
+    public RpcClient(String url) throws MalformedURLException {
+        this.rpc = new Interfaces(url);
     }
 
     @Override
@@ -50,11 +46,7 @@ public class RpcClient extends AbstractConnector {
     @Override
     public Object getBalance(String address) throws Exception {
         Object result = null;
-        try {
-            result = rpc.call("getbalance", address);
-        } catch (IOException e) {
-            //to do exception logic
-        }
+        result = rpc.call("getbalance", address);
         return result;
     }
 
@@ -67,9 +59,9 @@ public class RpcClient extends AbstractConnector {
     @Override
     public Object sendRawTransaction(boolean preExec, String userid, String sData) throws Exception, IOException {
         Object result = null;
-        if(preExec){
-            result = rpc.call("sendrawtransaction", sData,1);
-        }else {
+        if (preExec) {
+            result = rpc.call("sendrawtransaction", sData, 1);
+        } else {
             result = rpc.call("sendrawtransaction", sData);
         }
         return result;
@@ -84,11 +76,7 @@ public class RpcClient extends AbstractConnector {
     @Override
     public String getRawTransactionJson(String txhash) throws Exception {
         Object result = null;
-        try {
-            result = rpc.call("getrawtransaction", txhash.toString(), 1);
-        } catch (IOException e) {
-            //to do exception logic
-        }
+        result = rpc.call("getrawtransaction", txhash.toString(), 1);
         return result.toString();
     }
 
@@ -113,44 +101,28 @@ public class RpcClient extends AbstractConnector {
     @Override
     public Object getBlockJson(int index) throws Exception {
         Object result = null;
-        try {
-            result = rpc.call("getblock", index, 1);
-        } catch (IOException e) {
-            //to do exception logic
-        }
+        result = rpc.call("getblock", index, 1);
         return result;
     }
 
     @Override
     public Object getBlockJson(String hash) throws Exception {
         Object result = null;
-        try {
-            result = rpc.call("getblock", hash, 1);
-        } catch (IOException e) {
-            //to do exception logic
-        }
+        result = rpc.call("getblock", hash, 1);
         return result;
     }
 
     @Override
     public Object getContract(String hash) throws Exception {
         Object result = null;
-        try {
-            result = rpc.call("getcontractstate", hash);
-        } catch (IOException e) {
-            //to do exception logic
-        }
+        result = rpc.call("getcontractstate", hash);
         return result;
     }
 
     @Override
     public Object getContractJson(String hash) throws Exception {
         Object result = null;
-        try {
-            result = rpc.call("getcontractstate", hash,1);
-        } catch (IOException e) {
-            //to do exception logic
-        }
+        result = rpc.call("getcontractstate", hash, 1);
         return result;
     }
 
@@ -162,23 +134,15 @@ public class RpcClient extends AbstractConnector {
 
     public Block getBlock(UInt256 hash) throws Exception {
         Object result = rpc.call("getblock", hash.toString());
-        try {
-            Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
-            return bb;
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new SDKException(ErrorCode.InvalidData);
-        }
+        Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
+        return bb;
     }
 
     @Override
     public Block getBlock(int index) throws Exception {
         Object result = rpc.call("getblock", index);
-        try {
-            Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
-            return bb;
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new SDKException(ErrorCode.InvalidData);
-        }
+        Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
+        return bb;
     }
 
     public int getBlockCount() throws Exception, IOException {
@@ -189,61 +153,38 @@ public class RpcClient extends AbstractConnector {
     @Override
     public Block getBlock(String hash) throws Exception {
         Object result = rpc.call("getblock", hash.toString());
-        try {
-            Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
-            return bb;
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new SDKException(ErrorCode.InvalidData);
-        }
+        Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
+        return bb;
     }
 
     @Override
     public Object getSmartCodeEvent(int height) throws Exception, IOException, SDKException {
         Object result = rpc.call("getsmartcodeevent", height);
-        try {
-            return result;
-        } catch (Exception e) {
-            throw new SDKException(ErrorCode.InvalidData);
-        }
+        return result;
     }
 
     @Override
     public Object getSmartCodeEvent(String hash) throws Exception, IOException, SDKException {
         Object result = rpc.call("getsmartcodeevent", hash.toString());
-        try {
-            return result;
-        } catch (Exception e) {
-            throw new SDKException(ErrorCode.InvalidData);
-        }
+        return result;
     }
 
     @Override
     public int getBlockHeightByTxHash(String hash) throws Exception, IOException, SDKException {
         Object result = rpc.call("getblockheightbytxhash", hash.toString());
-        try {
-            return (int)result;
-        } catch (Exception e) {
-            throw new SDKException(ErrorCode.InvalidData);
-        }
+        return (int) result;
     }
 
     @Override
     public String getStorage(String codehash, String key) throws Exception, IOException, SDKException {
         Object result = rpc.call("getstorage", codehash, key);
-        try {
-            return (String)result;
-        } catch (Exception e) {
-            throw new SDKException(ErrorCode.InvalidData);
-        }
+        return (String) result;
     }
+
     @Override
     public Object getMerkleProof(String hash) throws Exception, IOException, SDKException {
         Object result = rpc.call("getmerkleproof", hash);
-        try {
-            return result;
-        } catch (Exception e) {
-            throw new SDKException(ErrorCode.InvalidData);
-        }
+        return result;
     }
 }
 

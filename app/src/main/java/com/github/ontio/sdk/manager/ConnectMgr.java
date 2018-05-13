@@ -19,6 +19,7 @@
 
 package com.github.ontio.sdk.manager;
 
+import java.net.MalformedURLException;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
@@ -41,7 +42,7 @@ public class ConnectMgr {
             setConnector(new WebsocketClient(url,lock));
         }
     }
-    public ConnectMgr(String url, String type) {
+    public ConnectMgr(String url, String type) throws MalformedURLException {
         if (type.equals("rpc")) {
             setConnector(new RpcClient(url));
         } else if (type.equals("restful")){

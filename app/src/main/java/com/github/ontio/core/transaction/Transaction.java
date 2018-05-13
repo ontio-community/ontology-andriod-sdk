@@ -62,22 +62,18 @@ public abstract class Transaction extends Inventory {
     }
 
     public static Transaction deserializeFrom(BinaryReader reader) throws Exception {
-        try {
-            byte ver = reader.readByte();
-            TransactionType type = TransactionType.valueOf(reader.readByte());
-            String typeName = "com.github.ontio.core.payload." + type.toString();
-            Transaction transaction = (Transaction) Class.forName(typeName).newInstance();
-            transaction.nonce = reader.readInt();
-            transaction.version = ver;
-            transaction.deserializeUnsignedWithoutType(reader);
-            transaction.sigs = new Sig[(int) reader.readVarInt()];
-            for (int i = 0; i < transaction.sigs.length; i++) {
-                transaction.sigs[i] = reader.readSerializable(Sig.class);
-            }
-            return transaction;
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            throw new IOException(ex);
+        byte ver = reader.readByte();
+        TransactionType type = TransactionType.valueOf(reader.readByte());
+        String typeName = "com.github.ontio.core.payload." + type.toString();
+        Transaction transaction = (Transaction) Class.forName(typeName).newInstance();
+        transaction.nonce = reader.readInt();
+        transaction.version = ver;
+        transaction.deserializeUnsignedWithoutType(reader);
+        transaction.sigs = new Sig[(int) reader.readVarInt()];
+        for (int i = 0; i < transaction.sigs.length; i++) {
+            transaction.sigs[i] = reader.readSerializable(Sig.class);
         }
+        return transaction;
     }
 
     @Override
@@ -96,18 +92,14 @@ public abstract class Transaction extends Inventory {
     }
 
     private void deserializeUnsignedWithoutType(BinaryReader reader) throws Exception {
-        try {
-            deserializeExclusiveData(reader);
-            attributes = reader.readSerializableArray(Attribute.class);
-            int len = (int) reader.readVarInt();
-            fee = new Fee[len];
-            for (int i = 0; i < len; i++) {
-                fee[i] = new Fee(reader.readLong(), reader.readSerializable(Address.class));
-            }
-            networkFee = reader.readLong();
-        } catch (InstantiationException | IllegalAccessException ex) {
-            throw new IOException(ex);
+        deserializeExclusiveData(reader);
+        attributes = reader.readSerializableArray(Attribute.class);
+        int len = (int) reader.readVarInt();
+        fee = new Fee[len];
+        for (int i = 0; i < len; i++) {
+            fee[i] = new Fee(reader.readLong(), reader.readSerializable(Address.class));
         }
+        networkFee = reader.readLong();
     }
 
     protected void deserializeExclusiveData(BinaryReader reader) throws Exception {
@@ -147,20 +139,18 @@ public abstract class Transaction extends Inventory {
         Transaction tx = (Transaction) obj;
         try {
             return hash().equals(tx.hash());
-        } catch (Exception e) {
-            //to do exception logic
+        }catch (Exception e){
+            return false;
         }
-        return false;
     }
 
     @Override
     public int hashCode() {
         try {
             return hash().hashCode();
-        } catch (Exception e) {
-            //to do exception logic
+        }catch (Exception e){
+            return -1;
         }
-        return -1;
     }
 
 //    public Address[] getAddressU160ForVerifying() {
@@ -180,15 +170,15 @@ public abstract class Transaction extends Inventory {
         json.put("Nonce", nonce);
         json.put("TxType", txType.value() & Byte.MAX_VALUE);
         Object[] attrs = new Object[attributes.length];
-        for(int i=0;i<attributes.length;i++){
+        for (int i = 0; i < attributes.length; i++) {
             attrs[i] = attributes[i].json();
         }
         Object[] fees = new Object[fee.length];
-        for(int i=0;i<fee.length;i++){
+        for (int i = 0; i < fee.length; i++) {
             fees[i] = fee[i].json();
         }
         Object[] s = new Object[fee.length];
-        for(int i=0;i<sigs.length;i++){
+        for (int i = 0; i < sigs.length; i++) {
             s[i] = sigs[i].json();
         }
         json.put("Attributes", attrs);

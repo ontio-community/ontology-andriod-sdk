@@ -34,21 +34,16 @@ public class Transfers extends Serializable {
     public byte version = 0;
     public State[] states;
 
-    public Transfers(State[] states){
+    public Transfers(State[] states) {
         this.states = states;
     }
+
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
         version = reader.readByte();
-        int len = (int)reader.readVarInt();
-        for(int i = 0;i <len;i++){
-            try {
-                states[i] = reader.readSerializable(State.class);
-            } catch (InstantiationException e) {
-                //to do exception logic
-            } catch (IllegalAccessException e) {
-                //to do exception logic
-            }
+        int len = (int) reader.readVarInt();
+        for (int i = 0; i < len; i++) {
+            states[i] = reader.readSerializable(State.class);
         }
     }
 

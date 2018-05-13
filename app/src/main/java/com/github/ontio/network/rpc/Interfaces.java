@@ -76,24 +76,19 @@ class Interfaces {
     }
 
     private Object send(Object request) throws IOException {
-        try {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
-            try (OutputStreamWriter w = new OutputStreamWriter(connection.getOutputStream())) {
-                w.write(JSON.toJSONString(request));
-            }
-            try (InputStreamReader r = new InputStreamReader(connection.getInputStream())) {
-                StringBuffer temp = new StringBuffer();
-                int c = 0;
-                while ((c = r.read()) != -1) {
-                    temp.append((char) c);
-                }
-                //System.out.println("result:"+temp.toString());
-                return JSON.parseObject(temp.toString(), Map.class);
-            }
-        } catch (IOException e) {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        try (OutputStreamWriter w = new OutputStreamWriter(connection.getOutputStream())) {
+            w.write(JSON.toJSONString(request));
         }
-        return null;
+        try (InputStreamReader r = new InputStreamReader(connection.getInputStream())) {
+            StringBuffer temp = new StringBuffer();
+            int c = 0;
+            while ((c = r.read()) != -1) {
+                temp.append((char) c);
+            }
+            return JSON.parseObject(temp.toString(), Map.class);
+        }
     }
 }

@@ -40,7 +40,7 @@ public class Claim {
     private String id = UUID.randomUUID().toString();
     private Map<String, Object> claim = new HashMap<String, Object>();
 
-    public Claim(SignatureScheme scheme, Account acct, String ctx, Map claimMap, Map metadata,String publicKeyId) throws NoSuchAlgorithmException, SDKException {
+    public Claim(SignatureScheme scheme, Account acct, String ctx, Map claimMap, Map metadata,String publicKeyId) throws Exception {
         context = ctx;
         claim.put("Context", context);
         if (claimMap != null) {

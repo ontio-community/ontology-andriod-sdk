@@ -27,42 +27,35 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 
 public class Digest {
-	static {
-		Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
-	}
-	
-	public static byte[] hash160(byte[] value) throws NoSuchAlgorithmException {
-		return ripemd160(sha256(value));
-	}
-	
-	public static byte[] hash256(byte[] value) throws NoSuchAlgorithmException {
-		return sha256(sha256(value));
-	}
-	
-	public static byte[] ripemd160(byte[] value) throws NoSuchAlgorithmException {
-		try {
-			MessageDigest md = MessageDigest.getInstance("RipeMD160");
-			return md.digest(value);
-		} catch (NoSuchAlgorithmException ex) {
-			throw new NoSuchAlgorithmException();
-		}
-	}
-	
-	public static byte[] sha256(byte[] value) throws NoSuchAlgorithmException {
-		try {
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-			return md.digest(value);
-		} catch (NoSuchAlgorithmException ex) {
-			throw new NoSuchAlgorithmException(ex);
-		}
-	}
-	
-	public static byte[] sha256(byte[] value, int offset, int length) throws NoSuchAlgorithmException {
-		if (offset != 0 || length != value.length) {
-			byte[] array = new byte[length];
-			System.arraycopy(value, offset, array, 0, length);
-			value = array;
-		}
-		return sha256(value);
-	}
+    static {
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+    }
+
+    public static byte[] hash160(byte[] value) throws NoSuchAlgorithmException {
+        return ripemd160(sha256(value));
+    }
+
+    public static byte[] hash256(byte[] value) throws NoSuchAlgorithmException {
+        return sha256(sha256(value));
+    }
+
+    public static byte[] ripemd160(byte[] value) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("RipeMD160");
+        return md.digest(value);
+
+    }
+
+    public static byte[] sha256(byte[] value) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        return md.digest(value);
+    }
+
+    public static byte[] sha256(byte[] value, int offset, int length) throws NoSuchAlgorithmException {
+        if (offset != 0 || length != value.length) {
+            byte[] array = new byte[length];
+            System.arraycopy(value, offset, array, 0, length);
+            value = array;
+        }
+        return sha256(value);
+    }
 }

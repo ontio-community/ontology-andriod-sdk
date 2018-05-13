@@ -37,7 +37,7 @@ public class Contract extends Serializable {
     public String method;
     public byte[] args;
 
-    public Contract(byte version,byte[] code,Address constracHash, String method,byte[] args){
+    public Contract(byte version, byte[] code, Address constracHash, String method, byte[] args) {
         this.version = version;
         if (code != null) {
             this.code = code;
@@ -46,20 +46,14 @@ public class Contract extends Serializable {
         this.method = method;
         this.args = args;
     }
+
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
-        try {
-            version = reader.readByte();
-            code = reader.readVarBytes();
-            constracHash = reader.readSerializable(Address.class);
-            method = new String(reader.readVarBytes());
-            args = reader.readVarBytes();
-        } catch (InstantiationException e) {
-            //to do exception logic
-        } catch (IllegalAccessException e) {
-            //to do exception logic
-        }
-
+        version = reader.readByte();
+        code = reader.readVarBytes();
+        constracHash = reader.readSerializable(Address.class);
+        method = new String(reader.readVarBytes());
+        args = reader.readVarBytes();
     }
 
     @Override

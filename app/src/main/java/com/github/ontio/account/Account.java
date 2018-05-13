@@ -25,6 +25,7 @@ import org.spongycastle.jce.spec.ECNamedCurveSpec;
 import org.spongycastle.util.Strings;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -41,6 +42,7 @@ import java.security.spec.ECPoint;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.ECPublicKeySpec;
 import java.util.Arrays;
+
 import android.util.Base64;
 
 import javax.crypto.Cipher;
@@ -113,13 +115,13 @@ public class Account {
                 throw new Exception(ErrorCode.UnsupportedKeyType);
         }
     }
+
     // construct an account from a serialized pubic key or private key
     public Account(boolean fromPrivate, byte[] data) throws Exception {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
         if (fromPrivate) {
             //parsePrivateKey(data);
-        }
-        else {
+        } else {
             parsePublicKey(data);
         }
     }
@@ -149,7 +151,6 @@ public class Account {
         Arrays.fill(data, (byte) 0);
         return privateKey;
     }
-
 
 
     /**
@@ -204,28 +205,29 @@ public class Account {
         return priKey;
     }
 
-    private static byte[] XOR(byte[] x, byte[] y) throws Exception
-    {
+    private static byte[] XOR(byte[] x, byte[] y) throws Exception {
         if (x.length != y.length) {
             throw new SDKException("Prikey length error");
         }
         byte[] ret = new byte[x.length];
-        for (int i=0; i < x.length; i++) {
-            ret[i] = (byte)(x[i] ^ y[i]);
+        for (int i = 0; i < x.length; i++) {
+            ret[i] = (byte) (x[i] ^ y[i]);
         }
         return ret;
     }
 
-    public Address getAddressU160(){
+    public Address getAddressU160() {
         return addressU160;
     }
 
-    public PublicKey getPublicKey(){
+    public PublicKey getPublicKey() {
         return publicKey;
     }
-    public PrivateKey getPrivateKey(){
+
+    public PrivateKey getPrivateKey() {
         return privateKey;
     }
+
     public byte[] generateSignature(byte[] msg, SignatureScheme scheme, Object param) throws Exception {
         if (msg == null || msg.length == 0) {
             throw new Exception(ErrorCode.InvalidMessage);
@@ -238,7 +240,7 @@ public class Account {
         AlgorithmParameterSpec paramSpec = null;
         if (scheme == SignatureScheme.SM3WITHSM2 && param != null) {
             if (param instanceof String) {
-                paramSpec = new SM2ParameterSpec(Strings.toByteArray((String)param));
+                paramSpec = new SM2ParameterSpec(Strings.toByteArray((String) param));
             } else {
                 throw new Exception("invalid SM2 signature parameter, ID (String) excepted");
             }
@@ -263,27 +265,23 @@ public class Account {
         return ctx.verifySignature(publicKey, msg, sig.getValue());
     }
 
-    public byte[] serializePublicKey() {
+    public byte[] serializePublicKey() throws Exception {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         bs.write(this.keyType.getLabel());
-        try {
-            switch (this.keyType) {
-                case ECDSA:
-                case SM2:
-                    BCECPublicKey pub = (BCECPublicKey)publicKey;
-                    bs.write(Curve.valueOf(pub.getParameters().getCurve()).getLabel());
-                    bs.write(pub.getQ().getEncoded(true));
-                    break;
-                default:
-                    // Should not reach here
-                    throw new Exception(ErrorCode.UnknownKeyType);
-            }
+
+        switch (this.keyType) {
+            case ECDSA:
+            case SM2:
+                BCECPublicKey pub = (BCECPublicKey) publicKey;
+                bs.write(Curve.valueOf(pub.getParameters().getCurve()).getLabel());
+                bs.write(pub.getQ().getEncoded(true));
+                break;
+            default:
+                // Should not reach here
+                throw new Exception(ErrorCode.UnknownKeyType);
         }
-        catch (Exception e) {
-            // Should not reach here
-            //to do exception logic
-            return null;
-        }
+
+
         return bs.toByteArray();
     }
 
@@ -323,9 +321,9 @@ public class Account {
                 BCECPrivateKey pri = (BCECPrivateKey) this.privateKey;
                 String curveName = Curve.valueOf(pri.getParameters().getCurve()).toString();
                 byte[] d = new byte[32];
-                if(pri.getD().toByteArray().length == 33) {
+                if (pri.getD().toByteArray().length == 33) {
                     System.arraycopy(pri.getD().toByteArray(), 1, d, 0, 32);
-                }else {
+                } else {
                     return pri.getD().toByteArray();
                 }
                 return d;
@@ -335,7 +333,7 @@ public class Account {
         }
     }
 
-    public int compareTo(Account o) {
+    public int compareTo(Account o) throws Exception {
         byte[] pub0 = serializePublicKey();
         byte[] pub1 = o.serializePublicKey();
         for (int i = 0; i < pub0.length && i < pub1.length; i++) {
@@ -360,7 +358,7 @@ public class Account {
         return wif;
     }
 
-    public String exportEcbEncryptedPrikey(String passphrase) throws Exception{
+    public String exportEcbEncryptedPrikey(String passphrase) throws Exception {
 
         int N = 256;
         int r = 8;
@@ -368,8 +366,8 @@ public class Account {
         Address script_hash = Address.addressFromPubKey(serializePublicKey());
         String address = script_hash.toBase58();
 
-        byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes())) ;
-        byte[] addresshash =  Arrays.copyOfRange(addresshashTmp, 0, 4);
+        byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
+        byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
 
         byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
 //        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, 64);
@@ -382,9 +380,9 @@ public class Account {
         Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
         byte[] derived = XOR(serializePrivateKey(), derivedhalf1);
-        byte[] encryptedkey = cipher.doFinal( derived);
+        byte[] encryptedkey = cipher.doFinal(derived);
 
-        byte[] buffer = new byte[encryptedkey.length+7];
+        byte[] buffer = new byte[encryptedkey.length + 7];
         buffer[0] = (byte) 0x01;
         buffer[1] = (byte) 0x42;
         buffer[2] = (byte) 0xe0;
@@ -406,21 +404,17 @@ public class Account {
         byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
         byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
 
-//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[16];
         System.arraycopy(derivedkey, 0, iv, 0, 16);
         System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32);
-        try {
-            SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
-            Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(iv));
-            byte[] encryptedkey = cipher.doFinal(serializePrivateKey());
-            return new String(Base64.encode(encryptedkey, Base64.DEFAULT));
-        } catch (Exception e) {
-            //to do exception logic
-        }
-        return null;
+
+        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
+        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+        byte[] encryptedkey = cipher.doFinal(serializePrivateKey());
+        return new String(Base64.encode(encryptedkey, Base64.DEFAULT));
+
     }
 
     public static String getCtrDecodedPrivateKey(String encryptedPriKey, String passphrase, String address, int n, SignatureScheme scheme) throws Exception {
@@ -455,7 +449,6 @@ public class Account {
     }
 
     /**
-     *
      * @param encryptedPriKey
      * @param passphrase
      * @param prefix
@@ -488,8 +481,8 @@ public class Account {
         byte[] rawkey = cipher.doFinal(encryptedkey);
         String address = new Account(rawkey, scheme).getAddressU160().toBase58();
         byte[] addresshashTmp2 = Digest.sha256(Digest.sha256(address.getBytes()));
-        for(int i = 0; i < prefix.length; i++) {
-            if(prefix[i] != addresshashTmp2[i]){
+        for (int i = 0; i < prefix.length; i++) {
+            if (prefix[i] != addresshashTmp2[i]) {
                 throw new SDKException(ErrorCode.OtherError("encryptedPriKey address password not match."));
             }
         }
@@ -508,7 +501,7 @@ public class Account {
     }
 
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return addressU160.hashCode();
     }
 

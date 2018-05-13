@@ -44,16 +44,10 @@ public class State extends Serializable {
     }
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
-        try {
             version = reader.readByte();
             from = reader.readSerializable(Address.class);
             to = reader.readSerializable(Address.class);
             value = new BigInteger(reader.readVarBytes());
-        } catch (InstantiationException e) {
-            //to do exception logic
-        } catch (IllegalAccessException e) {
-            //to do exception logic
-        }
     }
 
     @Override

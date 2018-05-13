@@ -68,11 +68,7 @@ public class RestClient extends AbstractConnector {
         String rs = api.getTransaction(txhash, true);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
-            try {
-                return Transaction.deserializeFrom(Helper.hexToBytes((String) rr.Result));
-            } catch (IOException e) {
-                throw new Exception(ErrorCode.TxDeserializeError, e);
-            }
+            return Transaction.deserializeFrom(Helper.hexToBytes((String) rr.Result));
         }
         throw new Exception(to(rr));
     }
@@ -115,11 +111,7 @@ public class RestClient extends AbstractConnector {
         String rs = api.getBlock(height, "1");
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
-            try {
-                return Serializable.from(Helper.hexToBytes((String) rr.Result), Block.class);
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new Exception(ErrorCode.BlockDeserializeError, e);
-            }
+            return Serializable.from(Helper.hexToBytes((String) rr.Result), Block.class);
         }
         throw new Exception(to(rr));
     }
@@ -129,15 +121,10 @@ public class RestClient extends AbstractConnector {
     public Block getBlock(String hash) throws Exception {
         String rs = api.getBlock(hash, "1");
         Result rr = JSON.parseObject(rs, Result.class);
-        if (rr.Error == 0) {
-            try {
-                return Serializable.from(Helper.hexToBytes((String) rr.Result), Block.class);
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new Exception(ErrorCode.BlockDeserializeError, e);
-            }
+        if (rr.Error != 0) {
+            throw new Exception(to(rr));
         }
-        throw new Exception(to(rr));
-
+        return Serializable.from(Helper.hexToBytes((String) rr.Result), Block.class);
     }
 
     @Override
@@ -227,22 +214,23 @@ public class RestClient extends AbstractConnector {
         String rs = api.getBlockHeightByTxHash(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
-            return (int)rr.Result;
+            return (int) rr.Result;
         }
         throw new Exception(to(rr));
     }
 
     @Override
-    public String getStorage(String codehash,String key) throws Exception, IOException {
-        String rs = api.getStorage(codehash,key);
+    public String getStorage(String codehash, String key) throws Exception, IOException {
+        String rs = api.getStorage(codehash, key);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
-            return (String)rr.Result;
+            return (String) rr.Result;
         }
         throw new Exception(to(rr));
     }
+
     @Override
-    public Object getMerkleProof(String hash) throws Exception, IOException{
+    public Object getMerkleProof(String hash) throws Exception, IOException {
         String rs = api.getMerkleProof(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
@@ -250,6 +238,7 @@ public class RestClient extends AbstractConnector {
         }
         throw new Exception(to(rr));
     }
+
     private String to(Result rr) {
         return JSON.toJSONString(rr);
     }

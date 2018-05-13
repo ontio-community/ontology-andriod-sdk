@@ -39,30 +39,25 @@ public class TransferFrom extends Serializable {
     public Address to;
     public BigInteger value;
 
-    public TransferFrom(Address sender,Address from, Address to, BigInteger amount){
+    public TransferFrom(Address sender, Address from, Address to, BigInteger amount) {
         this.sender = sender;
         this.from = from;
         this.to = to;
         this.value = amount;
     }
+
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
-        try {
-            version = reader.readByte();
-            sender = reader.readSerializable(Address.class);
-            from = reader.readSerializable(Address.class);
-            to = reader.readSerializable(Address.class);
-            value = new BigInteger(reader.readVarBytes());
-        } catch (InstantiationException e) {
-            //to do exception logic
-        } catch (IllegalAccessException e) {
-            //to do exception logic
-        }
+        version = reader.readByte();
+        sender = reader.readSerializable(Address.class);
+        from = reader.readSerializable(Address.class);
+        to = reader.readSerializable(Address.class);
+        value = new BigInteger(reader.readVarBytes());
     }
 
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
-        writer.writeByte((byte)0);
+        writer.writeByte((byte) 0);
         writer.writeSerializable(sender);
         writer.writeSerializable(from);
         writer.writeSerializable(to);

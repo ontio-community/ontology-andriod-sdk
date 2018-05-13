@@ -70,10 +70,9 @@ public class Parameter {
                 throw new SDKException("type error");
             }
             return true;
-        } catch (Exception e) {
-            //to do exception logic
+        }catch  (Exception e) {
+            return false;
         }
-        return false;
     }
 
     @Override

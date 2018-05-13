@@ -58,7 +58,7 @@ public class UInt256 extends UIntBase implements Comparable<UInt256> {
             UInt256 v = parse(s);
             result.data_bytes = v.data_bytes;
             return true;
-        } catch (Exception e) {
+        }catch  (Exception e) {
             return false;
         }
     }
