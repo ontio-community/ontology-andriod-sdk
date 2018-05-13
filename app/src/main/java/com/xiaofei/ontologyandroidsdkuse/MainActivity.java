@@ -1,25 +1,9 @@
 package com.xiaofei.ontologyandroidsdkuse;
 
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.github.ontio.OntSdk;
-import com.github.ontio.network.exception.ConnectorException;
 import com.github.ontio.sdk.wallet.Identity;
-
-import org.spongycastle.jcajce.provider.symmetric.Threefish;
-
-import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-
-import io.reactivex.Flowable;
-import io.reactivex.functions.Consumer;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 

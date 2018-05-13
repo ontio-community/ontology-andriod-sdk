@@ -19,16 +19,13 @@
 
 package com.github.ontio.sdk.manager;
 
-import java.io.IOException;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
-import com.github.ontio.OntSdk;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.block.Block;
 import com.github.ontio.network.rpc.RpcClient;
 import com.github.ontio.core.transaction.Transaction;
-import com.github.ontio.network.exception.ConnectorException;
 import com.github.ontio.network.connect.IConnector;
 import com.github.ontio.network.rest.RestClient;
 import com.github.ontio.network.rest.Result;

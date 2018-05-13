@@ -20,8 +20,6 @@
 package com.github.ontio.network.rest;
 
 
-import com.github.ontio.network.exception.RestfulException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +37,7 @@ class Interfaces {
         return url;
     }
 
-    public String sendTransaction(boolean preExec, String userid, String action, String version, String data) throws RestfulException {
+    public String sendTransaction(boolean preExec, String userid, String action, String version, String data) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         if (userid != null) {
             params.put("userid", userid);
@@ -54,11 +52,11 @@ class Interfaces {
         try {
             return http.post(url + UrlConsts.Url_send_transaction, params, body);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getTransaction(String txhash, boolean raw) throws RestfulException {
+    public String getTransaction(String txhash, boolean raw) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         if (raw) {
             params.put("raw", "1");
@@ -66,152 +64,152 @@ class Interfaces {
         try {
             return http.get(url + UrlConsts.Url_get_transaction + txhash, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getGenerateBlockTime() throws RestfulException {
+    public String getGenerateBlockTime() throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_generate_block_time, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getNodeCount() throws RestfulException {
+    public String getNodeCount() throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_node_count, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getBlockHeight() throws RestfulException {
+    public String getBlockHeight() throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_block_height, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getBlock(int height, String raw) throws RestfulException {
+    public String getBlock(int height, String raw) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("raw", raw);
         try {
             return http.get(url + UrlConsts.Url_get_block_by_height + height, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getBlock(String hash, String raw) throws RestfulException {
+    public String getBlock(String hash, String raw) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("raw", raw);
         try {
             return http.get(url + UrlConsts.Url_get_block_by_hash + hash, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getContract(String hash) throws RestfulException {
+    public String getContract(String hash) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("raw","1");
         try {
             return http.get(url + UrlConsts.Url_get_contract_state + hash, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getContractJson(String hash) throws RestfulException {
+    public String getContractJson(String hash) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_contract_state + hash, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getSmartCodeEvent(int height) throws RestfulException {
+    public String getSmartCodeEvent(int height) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_smartcodeevent_txs_by_height + height, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getSmartCodeEvent(String hash) throws RestfulException {
+    public String getSmartCodeEvent(String hash) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_smartcodeevent_by_txhash + hash, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getBlockHeightByTxHash(String hash) throws RestfulException {
+    public String getBlockHeightByTxHash(String hash) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_block_height_by_txhash + hash, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getStorage(String codehash,String key) throws RestfulException {
+    public String getStorage(String codehash,String key) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_storage + codehash+"/"+key, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
-    public String getMerkleProof(String hash) throws RestfulException {
+    public String getMerkleProof(String hash) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_merkleproof + hash, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
-    public String getBalance(String address) throws RestfulException {
+    public String getBalance(String address) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_account_balance + address, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getTransactionJson(String txhash) throws RestfulException {
+    public String getTransactionJson(String txhash) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_transaction + txhash, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getBlockJson(int height) throws RestfulException {
+    public String getBlockJson(int height) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_block_by_height + height, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 
-    public String getBlockJson(String hash) throws RestfulException {
+    public String getBlockJson(String hash) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         try {
             return http.get(url + UrlConsts.Url_get_block_by_hash + hash, params);
         } catch (Exception e) {
-            throw new RestfulException("Invalid url:" + url + "," + e.getMessage(), e);
+            throw new Exception("Invalid url:" + url + "," + e.getMessage(), e);
         }
     }
 }

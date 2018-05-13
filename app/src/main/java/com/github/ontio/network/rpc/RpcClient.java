@@ -29,8 +29,6 @@ import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.io.Serializable;
 import com.github.ontio.network.connect.AbstractConnector;
-import com.github.ontio.network.exception.ConnectorException;
-import com.github.ontio.network.exception.RpcException;
 import com.github.ontio.sdk.exception.SDKException;
 
 public class RpcClient extends AbstractConnector {
@@ -50,7 +48,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Object getBalance(String address) throws ConnectorException {
+    public Object getBalance(String address) throws Exception {
         Object result = null;
         try {
             result = rpc.call("getbalance", address);
@@ -61,13 +59,13 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public String sendRawTransaction(String sData) throws RpcException, IOException {
+    public String sendRawTransaction(String sData) throws Exception, IOException {
         Object result = rpc.call("sendrawtransaction", sData);
         return (String) result;
     }
 
     @Override
-    public Object sendRawTransaction(boolean preExec, String userid, String sData) throws RpcException, IOException {
+    public Object sendRawTransaction(boolean preExec, String userid, String sData) throws Exception, IOException {
         Object result = null;
         if(preExec){
             result = rpc.call("sendrawtransaction", sData,1);
@@ -84,7 +82,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public String getRawTransactionJson(String txhash) throws RpcException {
+    public String getRawTransactionJson(String txhash) throws Exception {
         Object result = null;
         try {
             result = rpc.call("getrawtransaction", txhash.toString(), 1);
@@ -95,25 +93,25 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public int getGenerateBlockTime() throws RpcException, IOException {
+    public int getGenerateBlockTime() throws Exception, IOException {
         Object result = rpc.call("getgenerateblocktime");
         return (int) result;
     }
 
     @Override
-    public int getNodeCount() throws RpcException, IOException {
+    public int getNodeCount() throws Exception, IOException {
         Object result = rpc.call("getconnectioncount");
         return (int) result;
     }
 
     @Override
-    public int getBlockHeight() throws RpcException, IOException {
+    public int getBlockHeight() throws Exception, IOException {
         Object result = rpc.call("getblockcount");
         return (int) result;
     }
 
     @Override
-    public Object getBlockJson(int index) throws RpcException {
+    public Object getBlockJson(int index) throws Exception {
         Object result = null;
         try {
             result = rpc.call("getblock", index, 1);
@@ -124,7 +122,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Object getBlockJson(String hash) throws RpcException {
+    public Object getBlockJson(String hash) throws Exception {
         Object result = null;
         try {
             result = rpc.call("getblock", hash, 1);
@@ -135,7 +133,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Object getContract(String hash) throws RpcException {
+    public Object getContract(String hash) throws Exception {
         Object result = null;
         try {
             result = rpc.call("getcontractstate", hash);
@@ -146,7 +144,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Object getContractJson(String hash) throws RpcException {
+    public Object getContractJson(String hash) throws Exception {
         Object result = null;
         try {
             result = rpc.call("getcontractstate", hash,1);
@@ -156,7 +154,7 @@ public class RpcClient extends AbstractConnector {
         return result;
     }
 
-    public String getRawTransaction(UInt256 txhash) throws RpcException, IOException {
+    public String getRawTransaction(UInt256 txhash) throws Exception, IOException {
         Object result = rpc.call("getrawtransaction", txhash.toString());
         return (String) result;
     }
@@ -183,7 +181,7 @@ public class RpcClient extends AbstractConnector {
         }
     }
 
-    public int getBlockCount() throws RpcException, IOException {
+    public int getBlockCount() throws Exception, IOException {
         Object result = rpc.call("getblockcount");
         return (int) result;
     }
@@ -200,7 +198,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Object getSmartCodeEvent(int height) throws ConnectorException, IOException, SDKException {
+    public Object getSmartCodeEvent(int height) throws Exception, IOException, SDKException {
         Object result = rpc.call("getsmartcodeevent", height);
         try {
             return result;
@@ -210,7 +208,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Object getSmartCodeEvent(String hash) throws ConnectorException, IOException, SDKException {
+    public Object getSmartCodeEvent(String hash) throws Exception, IOException, SDKException {
         Object result = rpc.call("getsmartcodeevent", hash.toString());
         try {
             return result;
@@ -220,7 +218,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public int getBlockHeightByTxHash(String hash) throws ConnectorException, IOException, SDKException {
+    public int getBlockHeightByTxHash(String hash) throws Exception, IOException, SDKException {
         Object result = rpc.call("getblockheightbytxhash", hash.toString());
         try {
             return (int)result;
@@ -230,7 +228,7 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public String getStorage(String codehash, String key) throws ConnectorException, IOException, SDKException {
+    public String getStorage(String codehash, String key) throws Exception, IOException, SDKException {
         Object result = rpc.call("getstorage", codehash, key);
         try {
             return (String)result;
@@ -239,7 +237,7 @@ public class RpcClient extends AbstractConnector {
         }
     }
     @Override
-    public Object getMerkleProof(String hash) throws ConnectorException, IOException, SDKException {
+    public Object getMerkleProof(String hash) throws Exception, IOException, SDKException {
         Object result = rpc.call("getmerkleproof", hash);
         try {
             return result;

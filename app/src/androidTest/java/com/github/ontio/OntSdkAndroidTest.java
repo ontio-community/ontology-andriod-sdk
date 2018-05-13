@@ -4,9 +4,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
-import com.github.ontio.network.exception.ConnectorException;
 import com.github.ontio.sdk.manager.ConnectMgr;
-import com.github.ontio.sdk.manager.WalletMgr;
 
 import org.junit.After;
 import org.junit.Before;

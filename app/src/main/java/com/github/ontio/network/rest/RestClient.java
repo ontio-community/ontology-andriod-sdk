@@ -26,11 +26,9 @@ import com.github.ontio.common.Helper;
 import com.github.ontio.core.block.Block;
 import com.github.ontio.io.Serializable;
 import com.github.ontio.network.connect.AbstractConnector;
-import com.github.ontio.network.exception.ConnectorException;
 import com.github.ontio.core.transaction.Transaction;
 
 import com.alibaba.fastjson.JSON;
-import com.github.ontio.network.exception.RestfulException;
 
 public class RestClient extends AbstractConnector {
     private Interfaces api;
@@ -46,23 +44,23 @@ public class RestClient extends AbstractConnector {
     }
 
     @Override
-    public String sendRawTransaction(String hexData) throws RestfulException {
+    public String sendRawTransaction(String hexData) throws Exception {
         String rs = api.sendTransaction(false, null, action, version, hexData);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rs;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
-    public String sendRawTransaction(boolean preExec, String userid, String hexData) throws RestfulException {
+    public String sendRawTransaction(boolean preExec, String userid, String hexData) throws Exception {
         String rs = api.sendTransaction(preExec, userid, action, version, hexData);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rs;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
@@ -73,42 +71,42 @@ public class RestClient extends AbstractConnector {
             try {
                 return Transaction.deserializeFrom(Helper.hexToBytes((String) rr.Result));
             } catch (IOException e) {
-                throw new RestfulException(ErrorCode.TxDeserializeError, e);
+                throw new Exception(ErrorCode.TxDeserializeError, e);
             }
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
-    public int getGenerateBlockTime() throws RestfulException {
+    public int getGenerateBlockTime() throws Exception {
         String rs = api.getGenerateBlockTime();
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return (int) rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
 
     }
 
     @Override
-    public int getNodeCount() throws RestfulException {
+    public int getNodeCount() throws Exception {
         String rs = api.getNodeCount();
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return (int) rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
 
     }
 
     @Override
-    public int getBlockHeight() throws RestfulException {
+    public int getBlockHeight() throws Exception {
         String rs = api.getBlockHeight();
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return (int) rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
 
     }
 
@@ -120,10 +118,10 @@ public class RestClient extends AbstractConnector {
             try {
                 return Serializable.from(Helper.hexToBytes((String) rr.Result), Block.class);
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new RestfulException(ErrorCode.BlockDeserializeError, e);
+                throw new Exception(ErrorCode.BlockDeserializeError, e);
             }
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
 
@@ -135,122 +133,122 @@ public class RestClient extends AbstractConnector {
             try {
                 return Serializable.from(Helper.hexToBytes((String) rr.Result), Block.class);
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new RestfulException(ErrorCode.BlockDeserializeError, e);
+                throw new Exception(ErrorCode.BlockDeserializeError, e);
             }
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
 
     }
 
     @Override
-    public Object getBalance(String address) throws RestfulException {
+    public Object getBalance(String address) throws Exception {
         String rs = api.getBalance(address);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
-    public Object getRawTransactionJson(String txhash) throws RestfulException {
+    public Object getRawTransactionJson(String txhash) throws Exception {
         String rs = api.getTransaction(txhash, false);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
-    public Object getBlockJson(int height) throws RestfulException {
+    public Object getBlockJson(int height) throws Exception {
         String rs = api.getBlock(height, "0");
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
-    public Object getBlockJson(String hash) throws RestfulException {
+    public Object getBlockJson(String hash) throws Exception {
         String rs = api.getBlock(hash, "0");
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
 
     }
 
     @Override
-    public Object getContract(String hash) throws RestfulException {
+    public Object getContract(String hash) throws Exception {
         String rs = api.getContract(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
-    public Object getContractJson(String hash) throws RestfulException {
+    public Object getContractJson(String hash) throws Exception {
         String rs = api.getContract(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
-    public Object getSmartCodeEvent(int height) throws ConnectorException, IOException {
+    public Object getSmartCodeEvent(int height) throws Exception, IOException {
         String rs = api.getSmartCodeEvent(height);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
 
     }
 
     @Override
-    public Object getSmartCodeEvent(String hash) throws ConnectorException, IOException {
+    public Object getSmartCodeEvent(String hash) throws Exception, IOException {
         String rs = api.getSmartCodeEvent(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
-    public int getBlockHeightByTxHash(String hash) throws ConnectorException, IOException {
+    public int getBlockHeightByTxHash(String hash) throws Exception, IOException {
         String rs = api.getBlockHeightByTxHash(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return (int)rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
 
     @Override
-    public String getStorage(String codehash,String key) throws ConnectorException, IOException {
+    public String getStorage(String codehash,String key) throws Exception, IOException {
         String rs = api.getStorage(codehash,key);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return (String)rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
     @Override
-    public Object getMerkleProof(String hash) throws ConnectorException, IOException{
+    public Object getMerkleProof(String hash) throws Exception, IOException{
         String rs = api.getMerkleProof(hash);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return rr.Result;
         }
-        throw new RestfulException(to(rr));
+        throw new Exception(to(rr));
     }
     private String to(Result rr) {
         return JSON.toJSONString(rr);

@@ -2,7 +2,6 @@ package com.github.ontio;
 
 import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
-import com.github.ontio.network.exception.ConnectorException;
 
 import org.junit.After;
 import org.junit.Before;

@@ -6,10 +6,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
-import com.github.ontio.account.Account;
-import com.github.ontio.common.Address;
 import com.github.ontio.common.Helper;
-import com.github.ontio.network.exception.ConnectorException;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.OntAssetTx;
 import com.github.ontio.sdk.manager.WalletMgr;
