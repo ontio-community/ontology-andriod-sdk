@@ -29,6 +29,7 @@ import com.github.ontio.sdk.exception.SDKException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.Arrays;
 
@@ -124,7 +125,7 @@ public class Address extends UIntBase implements Comparable<Address> {
         return 0;
     }
 
-    public String toBase58() {
+    public String toBase58() throws NoSuchAlgorithmException {
         byte[] data = new byte[25];
         data[0] = COIN_VERSION;
         System.arraycopy(toArray(), 0, data, 1, 20);

@@ -23,6 +23,7 @@ import com.github.ontio.common.ErrorCode;
 import com.github.ontio.sdk.exception.SDKException;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class Base58 {
@@ -78,7 +79,7 @@ public class Base58 {
         }
         return sb.toString();
     }
-    public static String checkSumEncode(byte[] in) {
+    public static String checkSumEncode(byte[] in) throws NoSuchAlgorithmException {
         byte[] hash = Digest.sha256(Digest.sha256(in));
         byte[] checksum = Arrays.copyOfRange(hash, 0, 4);
         byte[] input = new byte[in.length+4];

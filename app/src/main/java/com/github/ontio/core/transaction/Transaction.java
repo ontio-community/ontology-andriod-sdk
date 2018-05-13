@@ -29,6 +29,7 @@ import com.github.ontio.core.InventoryType;
 import com.github.ontio.core.asset.Fee;
 import com.github.ontio.core.asset.Sig;
 import com.github.ontio.io.*;
+import com.github.ontio.sdk.exception.SDKException;
 
 /**
  *
@@ -82,11 +83,7 @@ public abstract class Transaction extends Inventory {
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
         deserializeUnsigned(reader);
-        try {
-            sigs = reader.readSerializableArray(Sig.class);
-        } catch (InstantiationException | IllegalAccessException ex) {
-            throw new RuntimeException(ex);
-        }
+        sigs = reader.readSerializableArray(Sig.class);
     }
 
     @Override

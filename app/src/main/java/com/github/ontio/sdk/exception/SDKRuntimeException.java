@@ -21,7 +21,7 @@ package com.github.ontio.sdk.exception;
 
 import com.alibaba.fastjson.JSON;
 
-public class SDKRuntimeException extends RuntimeException {
+public class SDKRuntimeException extends SDKException {
 
 	private static final long serialVersionUID = 2005335065357755315L;
 	public SDKRuntimeException(String message) {

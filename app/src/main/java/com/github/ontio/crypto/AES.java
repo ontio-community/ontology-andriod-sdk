@@ -63,7 +63,7 @@ public class AES {
 			cipher.init(Cipher.DECRYPT_MODE, secretKey, params);
 			return cipher.doFinal(encryptedData);
 		} catch (NoSuchAlgorithmException | InvalidParameterSpecException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | NoSuchProviderException ex) {
-			throw new RuntimeException(ex);
+			throw new SDKException(ex);
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class AES {
 			cipher.init(Cipher.ENCRYPT_MODE, secretKey, params);
 			return cipher.doFinal(data);
 		} catch (NoSuchAlgorithmException | InvalidParameterSpecException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | NoSuchProviderException ex) {
-			throw new RuntimeException(ex);
+			throw new SDKException(ex);
 		}
 	}
 	
@@ -90,7 +90,7 @@ public class AES {
 		return iv;
 	}
 	
-	public static byte[] generateKey() {
+	public static byte[] generateKey() throws NoSuchAlgorithmException {
 		SecretKey key = null;
 		try {
 			KeyGenerator keyGenerator = KeyGenerator.getInstance(KEY_ALGORITHM);
@@ -98,18 +98,18 @@ public class AES {
 			key = keyGenerator.generateKey();
 			return key.getEncoded();
 		} catch (NoSuchAlgorithmException ex) {
-			throw new RuntimeException(ex);
+			throw new NoSuchAlgorithmException(ex);
 		}
 	}
 	
-	public static byte[] generateKey(String password) {
+	public static byte[] generateKey(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		byte[] passwordBytes = null, passwordHash = null;
 		try {
 			passwordBytes = password.getBytes("UTF-8");
 			passwordHash = Digest.sha256(passwordBytes);
 			return Digest.sha256(passwordHash);
 		} catch (UnsupportedEncodingException ex) {
-			throw new RuntimeException(ex);
+			throw new UnsupportedEncodingException();
 		} finally {
 			if (passwordBytes != null) {
 				Arrays.fill(passwordBytes, (byte)0);

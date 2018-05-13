@@ -487,7 +487,7 @@ public class WalletMgr {
         return account;
     }
 
-    private com.github.ontio.account.Account getAccountByAddress(Address address, String password) {
+    private com.github.ontio.account.Account getAccountByAddress(Address address, String password) throws SDKRuntimeException {
         try {
             for (Account e : wallet.getAccounts()) {
                 if (e.address.equals(address.toBase58())) {

@@ -47,11 +47,11 @@ public class ScriptBuilder implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
         try {
 			ms.close();
 		} catch (IOException ex) {
-			throw new RuntimeException(ex);
+			throw new IOException(ex);
 		}
     }
     public ScriptBuilder push(boolean b) {

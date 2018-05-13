@@ -22,6 +22,7 @@ package com.github.ontio.network.rpc;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
 import com.github.ontio.common.UInt256;
 import com.github.ontio.core.block.Block;
@@ -30,6 +31,7 @@ import com.github.ontio.io.Serializable;
 import com.github.ontio.network.connect.AbstractConnector;
 import com.github.ontio.network.exception.ConnectorException;
 import com.github.ontio.network.exception.RpcException;
+import com.github.ontio.sdk.exception.SDKException;
 
 public class RpcClient extends AbstractConnector {
     private Interfaces rpc;
@@ -166,7 +168,7 @@ public class RpcClient extends AbstractConnector {
             Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
             return bb;
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new SDKException(ErrorCode.InvalidData);
         }
     }
 
@@ -177,7 +179,7 @@ public class RpcClient extends AbstractConnector {
             Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
             return bb;
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new SDKException(ErrorCode.InvalidData);
         }
     }
 
@@ -193,56 +195,56 @@ public class RpcClient extends AbstractConnector {
             Block bb = Serializable.from(Helper.hexToBytes((String) result), Block.class);
             return bb;
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new SDKException(ErrorCode.InvalidData);
         }
     }
 
     @Override
-    public Object getSmartCodeEvent(int height) throws ConnectorException, IOException {
+    public Object getSmartCodeEvent(int height) throws ConnectorException, IOException, SDKException {
         Object result = rpc.call("getsmartcodeevent", height);
         try {
             return result;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SDKException(ErrorCode.InvalidData);
         }
     }
 
     @Override
-    public Object getSmartCodeEvent(String hash) throws ConnectorException, IOException {
+    public Object getSmartCodeEvent(String hash) throws ConnectorException, IOException, SDKException {
         Object result = rpc.call("getsmartcodeevent", hash.toString());
         try {
             return result;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SDKException(ErrorCode.InvalidData);
         }
     }
 
     @Override
-    public int getBlockHeightByTxHash(String hash) throws ConnectorException, IOException {
+    public int getBlockHeightByTxHash(String hash) throws ConnectorException, IOException, SDKException {
         Object result = rpc.call("getblockheightbytxhash", hash.toString());
         try {
             return (int)result;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SDKException(ErrorCode.InvalidData);
         }
     }
 
     @Override
-    public String getStorage(String codehash, String key) throws ConnectorException, IOException {
+    public String getStorage(String codehash, String key) throws ConnectorException, IOException, SDKException {
         Object result = rpc.call("getstorage", codehash, key);
         try {
             return (String)result;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SDKException(ErrorCode.InvalidData);
         }
     }
     @Override
-    public Object getMerkleProof(String hash) throws ConnectorException, IOException {
+    public Object getMerkleProof(String hash) throws ConnectorException, IOException, SDKException {
         Object result = rpc.call("getmerkleproof", hash);
         try {
             return result;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SDKException(ErrorCode.InvalidData);
         }
     }
 }
