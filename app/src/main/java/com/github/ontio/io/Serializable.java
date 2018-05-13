@@ -19,11 +19,11 @@
 
 package com.github.ontio.io;
 
-import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
-import com.github.ontio.sdk.exception.SDKException;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * Serialize interface

@@ -29,7 +29,6 @@ import com.github.ontio.core.InventoryType;
 import com.github.ontio.core.asset.Fee;
 import com.github.ontio.core.asset.Sig;
 import com.github.ontio.io.*;
-import com.github.ontio.sdk.exception.SDKException;
 
 /**
  *

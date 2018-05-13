@@ -21,6 +21,7 @@ package com.github.ontio.sdk.manager;
 
 import com.github.ontio.account.Account;
 import com.github.ontio.common.Address;
+import com.github.ontio.common.ErrorCode;
 import com.github.ontio.core.VmType;
 import com.github.ontio.core.asset.Contract;
 import com.github.ontio.core.transaction.Attribute;
@@ -73,7 +74,7 @@ public class SmartcodeTx {
         Transaction tx = invokeTransaction(null, null, abiFunction, vmtype);
         boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
         if (!b) {
-            throw new SDKException("sendRawTransaction error");
+            throw new SDKException(ErrorCode.SendRawTxError);
         }
         return tx.hash().toString();
     }
@@ -83,7 +84,7 @@ public class SmartcodeTx {
         sdk.signTx(tx, new Account[][]{{sdk.getWalletMgr().getAccount(ontid, password)}});
         boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
         if (!b) {
-            throw new SDKException("sendRawTransaction error");
+            throw new SDKException(ErrorCode.SendRawTxError);
         }
         return tx.hash().toString();
     }
@@ -111,7 +112,7 @@ public class SmartcodeTx {
      */
     public Transaction invokeTransaction(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
         if (contractAddress == null) {
-            throw new SDKException("null codeHash");
+            throw new SDKException(ErrorCode.ParamError);
         }
 
         List list = new ArrayList<Object>();
@@ -133,7 +134,7 @@ public class SmartcodeTx {
             } else if ("Void".equals(obj.getType())) {
 
             } else {
-                throw new SDKException("type error");
+                throw new SDKException(ErrorCode.TypeError);
             }
         }
         if (list.size() > 0) {
@@ -172,7 +173,7 @@ public class SmartcodeTx {
         System.out.println(txHex);
         boolean b = sdk.getConnectMgr().sendRawTransaction(txHex);
         if (!b) {
-            throw new SDKException("sendRawTransaction error");
+            throw new SDKException(ErrorCode.SendRawTxError);
         }
         return tx.hash().toString();
     }

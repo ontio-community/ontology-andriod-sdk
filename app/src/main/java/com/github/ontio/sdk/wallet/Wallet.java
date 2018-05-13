@@ -20,6 +20,7 @@
 package com.github.ontio.sdk.wallet;
 
 import com.alibaba.fastjson.JSON;
+import com.github.ontio.common.ErrorCode;
 import com.github.ontio.sdk.exception.SDKException;
 
 import java.text.SimpleDateFormat;
@@ -152,7 +153,7 @@ public class Wallet {
     }
     public void setDefaultAccount(int index) throws Exception{
         if(index >= accounts.size()){
-            throw new SDKException("index error");
+            throw new SDKException(ErrorCode.ParamError);
         }
         for(Account e:accounts){
             e.isDefault = false;
@@ -172,7 +173,7 @@ public class Wallet {
     }
     public void setDefaultIdentity(int index) throws Exception{
         if(index >= identities.size()){
-            throw new SDKException("index error");
+            throw new SDKException(ErrorCode.ParamError);
         }
         for(Identity e:identities){
             e.isDefault = false;

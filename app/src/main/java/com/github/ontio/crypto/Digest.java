@@ -20,7 +20,6 @@
 package com.github.ontio.crypto;
 
 import com.github.ontio.common.ErrorCode;
-import com.github.ontio.sdk.exception.SDKException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

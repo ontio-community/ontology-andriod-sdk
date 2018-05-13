@@ -152,7 +152,7 @@ public class OntIdTx {
 
     private Identity sendRegister(String label, String password, boolean preExec) throws Exception {
         if (contractAddress == null) {
-            throw new SDKException("null codeHash");
+            throw new SDKException(ErrorCode.ParamError);
         }
         IdentityInfo info = sdk.getWalletMgr().createIdentityInfo(password);
         String ontid = info.ontid;
@@ -768,7 +768,7 @@ public class OntIdTx {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
         if (key.length >= 255) {
-            throw new SDKException("param error");
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] did = (ontid).getBytes();
         String addr = ontid.replace(Common.didont, "");
@@ -942,7 +942,7 @@ public class OntIdTx {
         String txhash = (String) prf.get("TxnHash");
         int height = sdk.getConnectMgr().getBlockHeightByTxHash(txhash);
         if (height != (int) prf.get("BlockHeight")) {
-            throw new SDKException("BlockHeight not match");
+            throw new SDKException(ErrorCode.BlockHeightNotMatch);
         }
         Map proof = (Map) sdk.getConnectMgr().getMerkleProof(txhash);
         UInt256 txroot = UInt256.parse((String) proof.get("TransactionsRoot"));

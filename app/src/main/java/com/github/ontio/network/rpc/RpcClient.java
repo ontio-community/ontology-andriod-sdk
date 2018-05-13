@@ -29,7 +29,6 @@ import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.io.Serializable;
 import com.github.ontio.network.connect.AbstractConnector;
-import com.github.ontio.sdk.exception.SDKException;
 
 public class RpcClient extends AbstractConnector {
     private Interfaces rpc;
@@ -158,31 +157,31 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public Object getSmartCodeEvent(int height) throws Exception, IOException, SDKException {
+    public Object getSmartCodeEvent(int height) throws Exception {
         Object result = rpc.call("getsmartcodeevent", height);
         return result;
     }
 
     @Override
-    public Object getSmartCodeEvent(String hash) throws Exception, IOException, SDKException {
+    public Object getSmartCodeEvent(String hash) throws Exception {
         Object result = rpc.call("getsmartcodeevent", hash.toString());
         return result;
     }
 
     @Override
-    public int getBlockHeightByTxHash(String hash) throws Exception, IOException, SDKException {
+    public int getBlockHeightByTxHash(String hash) throws Exception {
         Object result = rpc.call("getblockheightbytxhash", hash.toString());
         return (int) result;
     }
 
     @Override
-    public String getStorage(String codehash, String key) throws Exception, IOException, SDKException {
+    public String getStorage(String codehash, String key) throws Exception {
         Object result = rpc.call("getstorage", codehash, key);
         return (String) result;
     }
 
     @Override
-    public Object getMerkleProof(String hash) throws Exception, IOException, SDKException {
+    public Object getMerkleProof(String hash) throws Exception {
         Object result = rpc.call("getmerkleproof", hash);
         return result;
     }

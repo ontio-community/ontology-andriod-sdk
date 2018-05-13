@@ -22,6 +22,7 @@ package com.github.ontio.sdk.manager;
 import com.github.ontio.OntSdk;
 import com.github.ontio.account.Account;
 import com.github.ontio.common.Address;
+import com.github.ontio.common.ErrorCode;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.core.transaction.Attribute;
 import com.github.ontio.core.transaction.AttributeUsage;
@@ -76,7 +77,7 @@ public class OntAssetTx {
         } else if (assetName.equals("ont")) {
             contractAddr = ontContract;
         } else {
-            throw new SDKException("asset name error");
+            throw new SDKException(ErrorCode.AssetNameError);
         }
         amount = amount * precision;
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
@@ -105,7 +106,7 @@ public class OntAssetTx {
         } else if (assetName.equals("ont")) {
             contractAddr = ontContract;
         } else {
-            throw new SDKException("asset name error");
+            throw new SDKException(ErrorCode.AssetNameError);
         }
 
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
@@ -146,7 +147,7 @@ public class OntAssetTx {
         } else if (assetName.equals("ont")) {
             contractAddr = ontContract;
         } else {
-            throw new SDKException("asset name error");
+            throw new SDKException(ErrorCode.AssetNameError);
         }
         if (sendAddr == null || sendAddr.length != password.length) {
             throw new Exception("");

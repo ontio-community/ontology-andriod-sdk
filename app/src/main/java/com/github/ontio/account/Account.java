@@ -207,7 +207,7 @@ public class Account {
 
     private static byte[] XOR(byte[] x, byte[] y) throws Exception {
         if (x.length != y.length) {
-            throw new SDKException("Prikey length error");
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] ret = new byte[x.length];
         for (int i = 0; i < x.length; i++) {
