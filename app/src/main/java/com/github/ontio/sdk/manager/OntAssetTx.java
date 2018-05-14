@@ -178,6 +178,9 @@ public class OntAssetTx {
     }
 
     public String sendOngTransferFrom(String sendAddr, String password, String to, long amount) throws Exception {
+        if (amount <= 0){
+            throw new SDKException(ErrorCode.NullKeyOrValue);
+        }
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         TransferFrom transferFrom = new TransferFrom(Address.addressFromPubKey(sender.pubkey), Address.parse(ontContract), Address.decodeBase58(to), new BigInteger(String.valueOf(amount)));
         Contract contract = new Contract((byte) 0, null, Address.parse(ongContract), "transferFrom", transferFrom.toArray());

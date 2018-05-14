@@ -105,6 +105,9 @@ public class Account {
                 this.privateKey = kf.generatePrivate(priSpec);
 
                 org.spongycastle.math.ec.ECPoint Q = spec.getG().multiply(d).normalize();
+                if (Q == null||Q.getAffineXCoord() ==null||Q.getAffineYCoord()==null){
+                    throw new SDKException(ErrorCode.KeyAddressPwdNotMatch);
+                }
                 ECPublicKeySpec pubSpec = new ECPublicKeySpec(
                         new ECPoint(Q.getAffineXCoord().toBigInteger(), Q.getAffineYCoord().toBigInteger()),
                         paramSpec);
@@ -461,6 +464,9 @@ public class Account {
         if (encryptedPriKey == null) {
             throw new SDKException(ErrorCode.ParamError);
         }
+        if (prefix.length ==0){
+            throw new SDKException(ErrorCode.ParamError);
+        }
         byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.NO_PADDING);
 
         int N = n;
@@ -483,7 +489,7 @@ public class Account {
         byte[] addresshashTmp2 = Digest.sha256(Digest.sha256(address.getBytes()));
         for (int i = 0; i < prefix.length; i++) {
             if (prefix[i] != addresshashTmp2[i]) {
-                throw new SDKException(ErrorCode.PrefixNotMatch);
+                throw new SDKException(ErrorCode.KeyAddressPwdNotMatch);
             }
         }
         return Helper.toHexString(rawkey);
