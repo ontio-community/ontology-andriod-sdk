@@ -29,6 +29,7 @@ import com.github.ontio.sdk.exception.SDKException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.Arrays;
 
@@ -40,26 +41,25 @@ import java.util.Arrays;
  *
  */
 public class Address extends UIntBase implements Comparable<Address> {
-    public static final Address ZERO = new Address();
     public static final byte COIN_VERSION = 0x41;
 
-    public Address() {
+    public Address() throws Exception {
         this(null);
     }
 
-    public Address(byte[] value) {
+    public Address(byte[] value) throws Exception {
         super(20, value);
     }
 
-    public static Address parse(String value) {
+    public static Address parse(String value) throws Exception {
         if (value == null) {
-            throw new NullPointerException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         if (value.startsWith("0x")) {
             value = value.substring(2);
         }
         if (value.length() != 40) {
-            throw new IllegalArgumentException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] v = Helper.hexToBytes(value);
         return new Address(v);
@@ -71,99 +71,36 @@ public class Address extends UIntBase implements Comparable<Address> {
             Address v = parse(s);
             result.data_bytes = v.data_bytes;
             return true;
-        } catch (Exception e) {
+        }catch  (Exception e) {
             return false;
         }
     }
 
-    public static Address addressFromPubKey(String publicKey) {
+    public static Address addressFromPubKey(String publicKey) throws Exception {
         return  addressFromPubKey(Helper.hexToBytes(publicKey));
     }
 
-    public static Address addressFromPubKey(byte[] publicKey) {
-        try {
-            byte[] bys = Digest.hash160(publicKey);
-            bys[0] = 0x01;
-            Address u160 = new Address(bys);
-            return u160;
-        } catch (Exception e) {
-            throw new UnsupportedOperationException(e);
-        }
-    }
+    public static Address addressFromPubKey(byte[] publicKey) throws Exception {
 
-//    public static Address addressFromPubKey(PublicKey publicKey) {
-//        publicKey
-//        try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
-//            try (BinaryWriter writer = new BinaryWriter(ms)) {
-//                writer.writeVarBytes(Helper.removePrevZero(publicKey.getXCoord().toBigInteger().toByteArray()));
-//                writer.writeVarBytes(Helper.removePrevZero(publicKey.getYCoord().toBigInteger().toByteArray()));
-//                writer.flush();
-//                byte[] bys = Digest.hash160(ms.toByteArray());
-//                bys[0] = 0x01;
-//                Address u160 = new Address(bys);
-//                return u160;
-//            }
-//        } catch (IOException ex) {
-//            throw new UnsupportedOperationException(ex);
-//        }
-//    }
-//    public static Address addressFromPubKey(ECPoint publicKey) {
-//        try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
-//            try (BinaryWriter writer = new BinaryWriter(ms)) {
-//                writer.writeVarBytes(Helper.removePrevZero(publicKey.getXCoord().toBigInteger().toByteArray()));
-//                writer.writeVarBytes(Helper.removePrevZero(publicKey.getYCoord().toBigInteger().toByteArray()));
-//                writer.flush();
-//                byte[] bys = Digest.hash160(ms.toByteArray());
-//                bys[0] = 0x01;
-//                Address u160 = new Address(bys);
-//                return u160;
-//            }
-//        } catch (IOException ex) {
-//            throw new UnsupportedOperationException(ex);
-//        }
-//    }
-//
-//    public static Address addressFromMultiPubKeys(int m, ECPoint... publicKeys) {
-//        if(m<=0 || m > publicKeys.length || publicKeys.length > 24){
-//            throw new IllegalArgumentException();
-//        }
-//        try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
-//            try (BinaryWriter writer = new BinaryWriter(ms)) {
-//                writer.writeByte((byte)publicKeys.length);
-//                writer.writeByte((byte)m);
-//                ECPoint[] ecPoint = Arrays.stream(publicKeys).sorted((o1, o2) -> {
-//                    if (o1.getXCoord().toString().compareTo(o2.getXCoord().toString()) <= 0) {
-//                        return -1;
-//                    }
-//                    return 1;
-//                }).toArray(ECPoint[]::new);
-//                for(ECPoint publicKey:ecPoint) {
-//                    writer.writeVarBytes(Helper.removePrevZero(publicKey.getXCoord().toBigInteger().toByteArray()));
-//                    writer.writeVarBytes(Helper.removePrevZero(publicKey.getYCoord().toBigInteger().toByteArray()));
-//                }
-//                writer.flush();
-//                byte[] bys = Digest.hash160(ms.toByteArray());
-//                bys[0] = 0x02;
-//                Address u160 = new Address(bys);
-//                return u160;
-//            }
-//        } catch (IOException ex) {
-//            throw new UnsupportedOperationException(ex);
-//        }
-//    }
+        byte[] bys = Digest.hash160(publicKey);
+        bys[0] = 0x01;
+        Address u160 = new Address(bys);
+        return u160;
+
+    }
 
     public static Address decodeBase58(String address) throws Exception{
         byte[] data = Base58.decode(address);
         if (data.length != 25) {
-            throw new SDKException("decode error");
+            throw new SDKException(ErrorCode.ParamError);
         }
         if (data[0] != COIN_VERSION) {
-            throw new SDKException("decode error");
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] checksum = Digest.sha256(Digest.sha256(data, 0, 21));
         for (int i = 0; i < 4; i++) {
             if (data[data.length - 4 + i] != checksum[i]) {
-                throw new SDKException("decode error");
+                throw new SDKException(ErrorCode.ParamError);
             }
         }
         byte[] buffer = new byte[20];
@@ -171,7 +108,7 @@ public class Address extends UIntBase implements Comparable<Address> {
         return new Address(buffer);
     }
 
-    public static Address toScriptHash(byte[] script) {
+    public static Address toScriptHash(byte[] script) throws Exception {
         return new Address(Digest.hash160(script));
     }
 
@@ -188,7 +125,7 @@ public class Address extends UIntBase implements Comparable<Address> {
         return 0;
     }
 
-    public String toBase58() {
+    public String toBase58() throws NoSuchAlgorithmException {
         byte[] data = new byte[25];
         data[0] = COIN_VERSION;
         System.arraycopy(toArray(), 0, data, 1, 20);

@@ -20,8 +20,10 @@
 package com.github.ontio.crypto;
 
 import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 public class Base58 {
@@ -36,12 +38,12 @@ public class Base58 {
      * @param input
      * @return
      */
-    public static byte[] decode(String input) {
+    public static byte[] decode(String input) throws Exception {
         BigInteger bi = BigInteger.ZERO;
         for (int i = input.length() - 1; i >= 0; i--) {
             int index = ALPHABET.indexOf(input.charAt(i));
             if (index == -1) {
-                throw new IllegalArgumentException();
+                throw new SDKException(ErrorCode.ParamError);
             }
             bi = bi.add(BASE.pow(input.length() - 1 - i).multiply(BigInteger.valueOf(index)));
         }
@@ -77,7 +79,7 @@ public class Base58 {
         }
         return sb.toString();
     }
-    public static String checkSumEncode(byte[] in) {
+    public static String checkSumEncode(byte[] in) throws NoSuchAlgorithmException {
         byte[] hash = Digest.sha256(Digest.sha256(in));
         byte[] checksum = Arrays.copyOfRange(hash, 0, 4);
         byte[] input = new byte[in.length+4];

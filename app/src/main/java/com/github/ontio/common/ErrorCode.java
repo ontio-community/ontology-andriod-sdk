@@ -37,6 +37,7 @@ public class ErrorCode {
     }
     //account error
     public static String InvalidParams = getError(51001,"Account Error,invalid params");
+    public static String InvalidParams(String msg ) { return getError(51001,msg);};
     public static String UnsupportedKeyType = getError(51002,"Account Error,unsupported key type");
     public static String InvalidMessage = getError(51003,"Account Error,invalid message");
     public static String WithoutPrivate = getError(51004,"Account Error,account without private key cannot generate signature");
@@ -49,6 +50,9 @@ public class ErrorCode {
     public static String Decoded3bytesError = getError(51011,"Account Error,decoded 3 bytes error");
     public static String DecodePrikeyPassphraseError = getError(51012,"Account Error,decode prikey passphrase error.");
     public static String PrikeyLengthError = getError(51013,"Account Error,Prikey length error");
+    public static String PrefixNotMatch = getError(51014,"Key Password and Prefix not match");
+    public static String NotSetCodeAddress = getError(51015, "Not Set Code Address");
+    public static String KeyAddressPwdNotMatch = getError(51015, "Key Address and Password Not Match");
 
     public static String InputError = getError(52001,"Uint256 Error,input error");
     public static String ChecksumNotValidate = getError(52002,"Base58 Error,Checksum does not validate");
@@ -99,7 +103,4 @@ public class ErrorCode {
     public static String InvalidUrl = getError(58022,"Interfaces Error,Invalid url:");
     public static String AESailed = getError(58023,"ECIES Error,AES failed initialisation -");
 
-    public static String OtherError(String msg) {
-        return getError(59000, "Other Error," + msg);
-    }
 }

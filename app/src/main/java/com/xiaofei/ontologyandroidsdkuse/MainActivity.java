@@ -1,32 +1,44 @@
 package com.xiaofei.ontologyandroidsdkuse;
 
-import android.os.Environment;
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.github.ontio.OntSdk;
-import com.github.ontio.network.exception.ConnectorException;
 import com.github.ontio.sdk.wallet.Identity;
 
-import org.spongycastle.jcajce.provider.symmetric.Threefish;
-
 import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 
-import io.reactivex.Flowable;
-import io.reactivex.functions.Consumer;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
+    OkHttpClient client = new OkHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Request request = new Request.Builder()
+                .url("http://www.baidu.com")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.i("enene", "onFailure: ");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.i("enene", "onResponse: ");
+            }
+        });
         //Log.i("aaa", "onCreate: ");
 
 
@@ -66,32 +78,32 @@ public class MainActivity extends AppCompatActivity {
 ////
 ////        Log.i("mid", "mid: ");
 
-
-
-        FutureTask<Identity> identityFutureTask = new FutureTask<>(new Callable<Identity>() {
-            @Override
-            public Identity call() throws Exception {
-                OntSdk ontSdk = OntSdk.getInstance();
-                ontSdk.setRestful("http://polaris1.ont.io:20334");
-                String filepath = Environment.getExternalStoragePublicDirectory("") + "/wallet.json";
-                //ontSdk.openWalletFile(filepath);
-                ontSdk.setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
-
-                //Identity identity = ontSdk.getWalletMgr().createIdentity("123456");
-
-                Identity identity1 = ontSdk.getOntIdTx().sendRegisterPreExec("123456");
-                return identity1;
-            }
-        });
-
-        new Thread(identityFutureTask).start();
-        Flowable.just(identityFutureTask).subscribe(new Consumer<FutureTask<Identity>>() {
-            @Override
-            public void accept(FutureTask<Identity> identityFutureTask) throws Exception {
-                myIdentity = identityFutureTask.get();
-                Log.i("haha", "myIdentity: "+myIdentity.toString());
-            }
-        });
+//
+//
+//        FutureTask<Identity> identityFutureTask = new FutureTask<>(new Callable<Identity>() {
+//            @Override
+//            public Identity call() throws Exception {
+//                OntSdk ontSdk = OntSdk.getInstance();
+//                ontSdk.setRestful("http://polaris1.ont.io:20334");
+//                String filepath = Environment.getExternalStoragePublicDirectory("") + "/wallet.json";
+//                //ontSdk.openWalletFile(filepath);
+//                ontSdk.setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
+//
+//                //Identity identity = ontSdk.getWalletMgr().createIdentity("123456");
+//
+//                Identity identity1 = ontSdk.getOntIdTx().sendRegisterPreExec("123456");
+//                return identity1;
+//            }
+//        });
+//
+//        new Thread(identityFutureTask).start();
+//        Flowable.just(identityFutureTask).subscribe(new Consumer<FutureTask<Identity>>() {
+//            @Override
+//            public void accept(FutureTask<Identity> identityFutureTask) throws Exception {
+//                myIdentity = identityFutureTask.get();
+//                Log.i("haha", "myIdentity: "+myIdentity.toString());
+//            }
+//        });
 
     }
 

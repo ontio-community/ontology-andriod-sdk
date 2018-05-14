@@ -53,7 +53,7 @@ public class Sig extends Serializable {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
     	writer.writeVarInt(pubKeys.length);
     	for(int i=0;i<pubKeys.length;i++) {
             writer.writeVarBytes(pubKeys[i]);

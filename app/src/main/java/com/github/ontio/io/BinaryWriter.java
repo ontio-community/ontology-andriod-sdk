@@ -19,6 +19,9 @@
 
 package com.github.ontio.io;
 
+import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
+
 import java.io.*;
 import java.nio.*;
 
@@ -67,16 +70,16 @@ public class BinaryWriter implements AutoCloseable {
 		writer.write(v.getEncoded(true));
 	}
 	
-	public void writeFixedString(String v, int length) throws IOException {
+	public void writeFixedString(String v, int length) throws Exception{
 		if (v == null) {
-			throw new IllegalArgumentException();
+			throw new SDKException(ErrorCode.ParamError);
 		}
 		if (v.length() > length) {
-			throw new IllegalArgumentException();
+			throw new SDKException(ErrorCode.ParamError);
 		}
 		byte[] bytes = v.getBytes("UTF-8");
 		if (bytes.length > length) {
-			throw new IllegalArgumentException();
+			throw new SDKException(ErrorCode.ParamError);
 		}
 		writer.write(bytes);
 		if (bytes.length < length) {
@@ -99,18 +102,18 @@ public class BinaryWriter implements AutoCloseable {
 		writer.write(array, 0, 8);
 	}
 	
-	public void writeSerializable(Serializable v) throws IOException {
+	public void writeSerializable(Serializable v) throws Exception {
 		v.serialize(this);
 	}
 	
-	public void writeSerializableArray(Serializable[] v) throws IOException {
+	public void writeSerializableArray(Serializable[] v) throws Exception {
 		writeVarInt(v.length);
 		for (int i = 0; i < v.length; i++) {
 			v[i].serialize(this);
 		}
 	}
 	
-	public void writeSerializableArray2(Serializable[] v) throws IOException {
+	public void writeSerializableArray2(Serializable[] v) throws Exception {
 		writeInt(v.length);
 		for (int i = 0; i < v.length; i++) {
 			v[i].serialize(this);
@@ -122,14 +125,14 @@ public class BinaryWriter implements AutoCloseable {
 		writer.write(array, 0, 2);
 	}
 	
-	public void writeVarBytes(byte[] v) throws IOException {
+	public void writeVarBytes(byte[] v) throws Exception {
 		writeVarInt(v.length);
 		writer.write(v);
 	}
 	
-	public void writeVarInt(long v) throws IOException {
+	public void writeVarInt(long v) throws Exception {
         if (v < 0) {
-            throw new IllegalArgumentException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         if (v < 0xFD) {
             writeByte((byte)v);
@@ -145,7 +148,7 @@ public class BinaryWriter implements AutoCloseable {
         }
 	}
 	
-	public void writeVarString(String v) throws IOException {
+	public void writeVarString(String v) throws Exception {
 		writeVarBytes(v.getBytes("UTF-8"));
 	}
 }

@@ -44,12 +44,8 @@ public class Enrollment extends Transaction {
 
     @Override
     protected void deserializeExclusiveData(BinaryReader reader) throws IOException {
-        try {
-            pubKey = ECC.secp256r1.getCurve().createPoint(
-                    new BigInteger(1, reader.readVarBytes()), new BigInteger(1, reader.readVarBytes()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        pubKey = ECC.secp256r1.getCurve().createPoint(
+                new BigInteger(1, reader.readVarBytes()), new BigInteger(1, reader.readVarBytes()));
     }
 
     @Override
@@ -58,7 +54,7 @@ public class Enrollment extends Transaction {
     }
 
     @Override
-    protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+    protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
         writer.writeVarBytes(Helper.removePrevZero(pubKey.getXCoord().toBigInteger().toByteArray()));
         writer.writeVarBytes(Helper.removePrevZero(pubKey.getYCoord().toBigInteger().toByteArray()));
     }

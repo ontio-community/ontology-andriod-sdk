@@ -53,7 +53,7 @@ public class MerkleVerifier {
     }
 
     public static UInt256 calculate_root_hash_from_audit_path(UInt256 leaf_hash,
-                                                              int node_index, UInt256[] audit_path, int tree_size) {
+                                                              int node_index, UInt256[] audit_path, int tree_size) throws Exception {
         UInt256 calculated_hash = leaf_hash;
         int last_node = tree_size - 1;
         int pos = 0;
@@ -80,7 +80,7 @@ public class MerkleVerifier {
         return calculated_hash;
     }
 
-    public static List getProof(UInt256 leaf_hash, int node_index, UInt256[] audit_path, int tree_size) {
+    public static List getProof(UInt256 leaf_hash, int node_index, UInt256[] audit_path, int tree_size) throws Exception {
         List nodes = new ArrayList<>();
         int last_node = tree_size - 1;
         int pos = 0;

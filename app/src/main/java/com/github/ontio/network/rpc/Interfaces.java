@@ -20,7 +20,7 @@
 package com.github.ontio.network.rpc;
 
 import com.alibaba.fastjson.JSON;
-import com.github.ontio.network.exception.RpcException;
+import com.github.ontio.common.ErrorCode;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,7 +30,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 /**
  *
@@ -54,15 +53,15 @@ class Interfaces {
         return url.getHost() + " " + url.getPort();
     }
 
-    public Object call(String method, Object... params) throws RpcException, IOException {
+    public Object call(String method, Object... params) throws Exception {
         Map req = makeRequest(method, params);
         Map response = (Map) send(req);
         if (response == null) {
-            throw new RpcException(0, "response is null. maybe is connect error");
+            throw new Exception(ErrorCode.ResultIsNull);
         } else if ((int) response.get("error") == 0) {
             return response.get("result");
         } else {
-            throw new RpcException(0, JSON.toJSONString(response));
+            throw new Exception(ErrorCode.ResultIsNull);
         }
     }
 
@@ -77,24 +76,19 @@ class Interfaces {
     }
 
     private Object send(Object request) throws IOException {
-        try {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
-            try (OutputStreamWriter w = new OutputStreamWriter(connection.getOutputStream())) {
-                w.write(JSON.toJSONString(request));
-            }
-            try (InputStreamReader r = new InputStreamReader(connection.getInputStream())) {
-                StringBuffer temp = new StringBuffer();
-                int c = 0;
-                while ((c = r.read()) != -1) {
-                    temp.append((char) c);
-                }
-                //System.out.println("result:"+temp.toString());
-                return JSON.parseObject(temp.toString(), Map.class);
-            }
-        } catch (IOException e) {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        try (OutputStreamWriter w = new OutputStreamWriter(connection.getOutputStream())) {
+            w.write(JSON.toJSONString(request));
         }
-        return null;
+        try (InputStreamReader r = new InputStreamReader(connection.getInputStream())) {
+            StringBuffer temp = new StringBuffer();
+            int c = 0;
+            while ((c = r.read()) != -1) {
+                temp.append((char) c);
+            }
+            return JSON.parseObject(temp.toString(), Map.class);
+        }
     }
 }

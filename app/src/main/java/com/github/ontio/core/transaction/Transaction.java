@@ -48,11 +48,11 @@ public abstract class Transaction extends Inventory {
         this.txType = type;
     }
 
-    public static Transaction deserializeFrom(byte[] value) throws IOException {
+    public static Transaction deserializeFrom(byte[] value) throws Exception {
         return deserializeFrom(value, 0);
     }
 
-    public static Transaction deserializeFrom(byte[] value, int offset) throws IOException {
+    public static Transaction deserializeFrom(byte[] value, int offset) throws Exception {
         try (ByteArrayInputStream ms = new ByteArrayInputStream(value, offset, value.length - offset)) {
             try (BinaryReader reader = new BinaryReader(ms)) {
                 return deserializeFrom(reader);
@@ -60,37 +60,29 @@ public abstract class Transaction extends Inventory {
         }
     }
 
-    public static Transaction deserializeFrom(BinaryReader reader) throws IOException {
-        try {
-            byte ver = reader.readByte();
-            TransactionType type = TransactionType.valueOf(reader.readByte());
-            String typeName = "com.github.ontio.core.payload." + type.toString();
-            Transaction transaction = (Transaction) Class.forName(typeName).newInstance();
-            transaction.nonce = reader.readInt();
-            transaction.version = ver;
-            transaction.deserializeUnsignedWithoutType(reader);
-            transaction.sigs = new Sig[(int) reader.readVarInt()];
-            for (int i = 0; i < transaction.sigs.length; i++) {
-                transaction.sigs[i] = reader.readSerializable(Sig.class);
-            }
-            return transaction;
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            throw new IOException(ex);
+    public static Transaction deserializeFrom(BinaryReader reader) throws Exception {
+        byte ver = reader.readByte();
+        TransactionType type = TransactionType.valueOf(reader.readByte());
+        String typeName = "com.github.ontio.core.payload." + type.toString();
+        Transaction transaction = (Transaction) Class.forName(typeName).newInstance();
+        transaction.nonce = reader.readInt();
+        transaction.version = ver;
+        transaction.deserializeUnsignedWithoutType(reader);
+        transaction.sigs = new Sig[(int) reader.readVarInt()];
+        for (int i = 0; i < transaction.sigs.length; i++) {
+            transaction.sigs[i] = reader.readSerializable(Sig.class);
         }
+        return transaction;
     }
 
     @Override
-    public void deserialize(BinaryReader reader) throws IOException {
+    public void deserialize(BinaryReader reader) throws Exception {
         deserializeUnsigned(reader);
-        try {
-            sigs = reader.readSerializableArray(Sig.class);
-        } catch (InstantiationException | IllegalAccessException ex) {
-            throw new RuntimeException(ex);
-        }
+        sigs = reader.readSerializableArray(Sig.class);
     }
 
     @Override
-    public void deserializeUnsigned(BinaryReader reader) throws IOException {
+    public void deserializeUnsigned(BinaryReader reader) throws Exception {
         version = reader.readByte();
         if (txType.value() != reader.readByte()) {
             throw new IOException();
@@ -98,32 +90,28 @@ public abstract class Transaction extends Inventory {
         deserializeUnsignedWithoutType(reader);
     }
 
-    private void deserializeUnsignedWithoutType(BinaryReader reader) throws IOException {
-        try {
-            deserializeExclusiveData(reader);
-            attributes = reader.readSerializableArray(Attribute.class);
-            int len = (int) reader.readVarInt();
-            fee = new Fee[len];
-            for (int i = 0; i < len; i++) {
-                fee[i] = new Fee(reader.readLong(), reader.readSerializable(Address.class));
-            }
-            networkFee = reader.readLong();
-        } catch (InstantiationException | IllegalAccessException ex) {
-            throw new IOException(ex);
+    private void deserializeUnsignedWithoutType(BinaryReader reader) throws Exception {
+        deserializeExclusiveData(reader);
+        attributes = reader.readSerializableArray(Attribute.class);
+        int len = (int) reader.readVarInt();
+        fee = new Fee[len];
+        for (int i = 0; i < len; i++) {
+            fee[i] = new Fee(reader.readLong(), reader.readSerializable(Address.class));
         }
+        networkFee = reader.readLong();
     }
 
-    protected void deserializeExclusiveData(BinaryReader reader) throws IOException {
+    protected void deserializeExclusiveData(BinaryReader reader) throws Exception {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         serializeUnsigned(writer);
         writer.writeSerializableArray(sigs);
     }
 
     @Override
-    public void serializeUnsigned(BinaryWriter writer) throws IOException {
+    public void serializeUnsigned(BinaryWriter writer) throws Exception {
         writer.writeByte(version);
         writer.writeByte(txType.value());
         writer.writeInt(nonce);
@@ -133,7 +121,7 @@ public abstract class Transaction extends Inventory {
         writer.writeLong(networkFee);
     }
 
-    protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+    protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
     }
 
     @Override
@@ -148,12 +136,20 @@ public abstract class Transaction extends Inventory {
             return false;
         }
         Transaction tx = (Transaction) obj;
-        return hash().equals(tx.hash());
+        try {
+            return hash().equals(tx.hash());
+        }catch (Exception e){
+            return false;
+        }
     }
 
     @Override
     public int hashCode() {
-        return hash().hashCode();
+        try {
+            return hash().hashCode();
+        }catch (Exception e){
+            return -1;
+        }
     }
 
 //    public Address[] getAddressU160ForVerifying() {
@@ -166,22 +162,22 @@ public abstract class Transaction extends Inventory {
         return InventoryType.TX;
     }
 
-    public Object json() {
+    public Object json() throws Exception {
         Map json = new HashMap();
         json.put("Hash", hash().toString());
         json.put("Version", (int) version);
         json.put("Nonce", nonce);
         json.put("TxType", txType.value() & Byte.MAX_VALUE);
         Object[] attrs = new Object[attributes.length];
-        for(int i=0;i<attributes.length;i++){
+        for (int i = 0; i < attributes.length; i++) {
             attrs[i] = attributes[i].json();
         }
         Object[] fees = new Object[fee.length];
-        for(int i=0;i<fee.length;i++){
+        for (int i = 0; i < fee.length; i++) {
             fees[i] = fee[i].json();
         }
         Object[] s = new Object[fee.length];
-        for(int i=0;i<sigs.length;i++){
+        for (int i = 0; i < sigs.length; i++) {
             s[i] = sigs[i].json();
         }
         json.put("Attributes", attrs);

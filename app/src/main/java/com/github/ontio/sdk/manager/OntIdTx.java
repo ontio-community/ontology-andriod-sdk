@@ -100,7 +100,7 @@ public class OntIdTx {
             String result = (String) sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
             b = Integer.parseInt(result) > 0 ? true : false;
             if (!b) {
-                throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error"));
+                throw new SDKException(ErrorCode.SendRawTxError);
             }
         } else {
             b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
@@ -152,7 +152,7 @@ public class OntIdTx {
 
     private Identity sendRegister(String label, String password, boolean preExec) throws Exception {
         if (contractAddress == null) {
-            throw new SDKException("null codeHash");
+            throw new SDKException(ErrorCode.NotSetCodeAddress);
         }
         IdentityInfo info = sdk.getWalletMgr().createIdentityInfo(password);
         String ontid = info.ontid;
@@ -167,7 +167,7 @@ public class OntIdTx {
             System.out.println(result);
             b = Integer.parseInt(result) > 0 ? true : false;
             if (!b) {
-                throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error"));
+                throw new SDKException(ErrorCode.SendRawTxError);
             }
         } else {
             b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
@@ -536,7 +536,7 @@ public class OntIdTx {
             String result = (String) sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
             b = Integer.parseInt(result) > 0 ? true : false;
             if (!b) {
-                throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error"));
+                throw new SDKException(ErrorCode.SendRawTxError);
             }
         } else {
             b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
@@ -615,7 +615,7 @@ public class OntIdTx {
      * @param obj
      * @return
      */
-    private Map parseDdoData(String ontid, String obj) {
+    private Map parseDdoData(String ontid, String obj) throws Exception {
         byte[] bys = Helper.hexToBytes(obj);
         int elen = parse4bytes(bys, 0);
         int offset = 4;
@@ -768,7 +768,7 @@ public class OntIdTx {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
         if (key.length >= 255) {
-            throw new SDKException("param error");
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] did = (ontid).getBytes();
         String addr = ontid.replace(Common.didont, "");
@@ -803,39 +803,35 @@ public class OntIdTx {
         Claim claim = null;
         Map contentMap = sortMap(claimMap);
 
-        try {
-            String sendDid = (String) metaData.get("Issuer");
-            String receiverDid = (String) metaData.get("Subject");
-            if (sendDid == null || receiverDid == null) {
-                throw new SDKException(ErrorCode.DidNull);
-            }
-            String issuerDdo = sendGetDDO(sendDid);
-            System.out.println("DDO:" + issuerDdo);
-            JSONArray owners = JSON.parseObject(issuerDdo).getJSONArray("Owners");
-            if (owners == null) {
-                throw new SDKException(ErrorCode.NotExistCliamIssuer);
-            }
-            String pubkeyId = null;
-            com.github.ontio.account.Account acct = sdk.getWalletMgr().getAccount(signerOntid, password);
-            for (int i = 0; i < owners.size(); i++) {
-                JSONObject obj = owners.getJSONObject(i);
-                if (obj.getString("Value").equals(Helper.toHexString(acct.serializePublicKey()))) {
-                    pubkeyId = obj.getString("PublicKeyId");
-                    break;
-                }
-            }
-            if (pubkeyId == null) {
-                throw new SDKException(ErrorCode.NotFoundPublicKeyId);
-            }
-            String[] receiverDidStr = receiverDid.split(":");
-            if (receiverDidStr.length != 3) {
-                throw new SDKException(ErrorCode.DidError);
-            }
-            claim = new Claim(sdk.getWalletMgr().getSignatureScheme(), acct, context, contentMap, sortMap(metaData), pubkeyId);
-            return claim.getClaim();
-        } catch (SDKException e) {
-            throw new SDKException(e);
+        String sendDid = (String) metaData.get("Issuer");
+        String receiverDid = (String) metaData.get("Subject");
+        if (sendDid == null || receiverDid == null) {
+            throw new SDKException(ErrorCode.DidNull);
         }
+        String issuerDdo = sendGetDDO(sendDid);
+        System.out.println("DDO:" + issuerDdo);
+        JSONArray owners = JSON.parseObject(issuerDdo).getJSONArray("Owners");
+        if (owners == null) {
+            throw new SDKException(ErrorCode.NotExistCliamIssuer);
+        }
+        String pubkeyId = null;
+        com.github.ontio.account.Account acct = sdk.getWalletMgr().getAccount(signerOntid, password);
+        for (int i = 0; i < owners.size(); i++) {
+            JSONObject obj = owners.getJSONObject(i);
+            if (obj.getString("Value").equals(Helper.toHexString(acct.serializePublicKey()))) {
+                pubkeyId = obj.getString("PublicKeyId");
+                break;
+            }
+        }
+        if (pubkeyId == null) {
+            throw new SDKException(ErrorCode.NotFoundPublicKeyId);
+        }
+        String[] receiverDidStr = receiverDid.split(":");
+        if (receiverDidStr.length != 3) {
+            throw new SDKException(ErrorCode.DidError);
+        }
+        claim = new Claim(sdk.getWalletMgr().getSignatureScheme(), acct, context, contentMap, sortMap(metaData), pubkeyId);
+        return claim.getClaim();
     }
 
     public Map sortMap(Map<String, Object> claimMap) {
@@ -879,40 +875,36 @@ public class OntIdTx {
      */
     public boolean verifyOntIdClaim(String claim) throws Exception {
         DataSignature sign = null;
-        try {
-            JSONObject obj = JSON.parseObject(claim);
-            String issuerDid = obj.getJSONObject("Metadata").getString("Issuer");
-            String[] str = issuerDid.split(":");
-            if (str.length != 3) {
-                throw new SDKException(ErrorCode.DidError);
-            }
-            String issuerDdo = sendGetDDO(issuerDid);
-            JSONArray owners = JSON.parseObject(issuerDdo).getJSONArray("Owners");
-            if (owners == null) {
-                throw new SDKException(ErrorCode.NotExistCliamIssuer);
-            }
-            String signature = obj.getJSONObject("Signature").getString("Value");
-            String publicKeyId = obj.getJSONObject("Signature").getString("PublicKeyId");
-            boolean verify = false;
-            for (int i = 0; i < owners.size(); i++) {
-                JSONObject o = owners.getJSONObject(i);
-                if (o.getString("PublicKeyId").equals(publicKeyId)) {
-                    verify = true;
-                    break;
-                }
-            }
-            if (!verify) {
-                throw new SDKException(ErrorCode.PublicKeyIdErr);
-            }
-            String pubkeyStr = owners.getJSONObject(0).getString("Value");
-            obj.remove("Signature");
-            sign = new DataSignature();
-            byte[] data = JSON.toJSONString(obj).getBytes();
-            return sign.verifySignature(new Account(false, Helper.hexToBytes(pubkeyStr)), data, Base64.decode(signature,Base64.DEFAULT));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new SDKException(e);
+        JSONObject obj = JSON.parseObject(claim);
+        String issuerDid = obj.getJSONObject("Metadata").getString("Issuer");
+        String[] str = issuerDid.split(":");
+        if (str.length != 3) {
+            throw new SDKException(ErrorCode.DidError);
         }
+        String issuerDdo = sendGetDDO(issuerDid);
+        JSONArray owners = JSON.parseObject(issuerDdo).getJSONArray("Owners");
+        if (owners == null) {
+            throw new SDKException(ErrorCode.NotExistCliamIssuer);
+        }
+        String signature = obj.getJSONObject("Signature").getString("Value");
+        String publicKeyId = obj.getJSONObject("Signature").getString("PublicKeyId");
+        boolean verify = false;
+        for (int i = 0; i < owners.size(); i++) {
+            JSONObject o = owners.getJSONObject(i);
+            if (o.getString("PublicKeyId").equals(publicKeyId)) {
+                verify = true;
+                break;
+            }
+        }
+        if (!verify) {
+            throw new SDKException(ErrorCode.PublicKeyIdErr);
+        }
+        String pubkeyStr = owners.getJSONObject(0).getString("Value");
+        obj.remove("Signature");
+        sign = new DataSignature();
+        byte[] data = JSON.toJSONString(obj).getBytes();
+        return sign.verifySignature(new Account(false, Helper.hexToBytes(pubkeyStr)), data, Base64.decode(signature, Base64.DEFAULT));
+
     }
 
     public Object getProof(String txhash) throws Exception {
@@ -945,33 +937,28 @@ public class OntIdTx {
      * @throws Exception
      */
     public boolean verifyMerkleProof(String claim) throws Exception {
-        try {
-            JSONObject obj = JSON.parseObject(claim);
-            Map prf = (Map) obj.getJSONObject("Proof");
-            String txhash = (String) prf.get("TxnHash");
-            int height = sdk.getConnectMgr().getBlockHeightByTxHash(txhash);
-            if (height != (int) prf.get("BlockHeight")) {
-                throw new SDKException("BlockHeight not match");
-            }
-            Map proof = (Map) sdk.getConnectMgr().getMerkleProof(txhash);
-            UInt256 txroot = UInt256.parse((String) proof.get("TransactionsRoot"));
-            int blockHeight = (int) proof.get("BlockHeight");
-            UInt256 curBlockRoot = UInt256.parse((String) proof.get("CurBlockRoot"));
-            int curBlockHeight = (int) proof.get("CurBlockHeight");
-            List hashes = (List) proof.get("TargetHashes");
-            UInt256[] targetHashes = new UInt256[hashes.size()];
-            for (int i = 0; i < hashes.size(); i++) {
-                targetHashes[i] = UInt256.parse((String) hashes.get(i));
-            }
-            List nodes = (List) prf.get("Nodes");
-            if (!nodes.equals(MerkleVerifier.getProof(txroot, blockHeight, targetHashes, curBlockHeight + 1))) {
-                throw new SDKException(ErrorCode.NodesNotMatch);
-            }
-            return MerkleVerifier.VerifyLeafHashInclusion(txroot, blockHeight, targetHashes, curBlockRoot, curBlockHeight + 1);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new SDKException(e);
+        JSONObject obj = JSON.parseObject(claim);
+        Map prf = (Map) obj.getJSONObject("Proof");
+        String txhash = (String) prf.get("TxnHash");
+        int height = sdk.getConnectMgr().getBlockHeightByTxHash(txhash);
+        if (height != (int) prf.get("BlockHeight")) {
+            throw new SDKException(ErrorCode.BlockHeightNotMatch);
         }
+        Map proof = (Map) sdk.getConnectMgr().getMerkleProof(txhash);
+        UInt256 txroot = UInt256.parse((String) proof.get("TransactionsRoot"));
+        int blockHeight = (int) proof.get("BlockHeight");
+        UInt256 curBlockRoot = UInt256.parse((String) proof.get("CurBlockRoot"));
+        int curBlockHeight = (int) proof.get("CurBlockHeight");
+        List hashes = (List) proof.get("TargetHashes");
+        UInt256[] targetHashes = new UInt256[hashes.size()];
+        for (int i = 0; i < hashes.size(); i++) {
+            targetHashes[i] = UInt256.parse((String) hashes.get(i));
+        }
+        List nodes = (List) prf.get("Nodes");
+        if (!nodes.equals(MerkleVerifier.getProof(txroot, blockHeight, targetHashes, curBlockHeight + 1))) {
+            throw new SDKException(ErrorCode.NodesNotMatch);
+        }
+        return MerkleVerifier.VerifyLeafHashInclusion(txroot, blockHeight, targetHashes, curBlockRoot, curBlockHeight + 1);
     }
 
     /**
@@ -985,14 +972,10 @@ public class OntIdTx {
      */
     public boolean verifySign(String ontid, byte[] data, byte[] signature) throws Exception {
         DataSignature sign = null;
-        try {
-            String issuerDdo = sendGetDDO(ontid);
-            String pubkeyStr = JSON.parseObject(issuerDdo).getJSONArray("Owners").getJSONObject(0).getString("Value");
-            sign = new DataSignature();
-            return sign.verifySignature(new Account(false, Helper.hexToBytes(pubkeyStr)), data, signature);
-        } catch (Exception e) {
-            throw new SDKException(e);
-        }
+        String issuerDdo = sendGetDDO(ontid);
+        String pubkeyStr = JSON.parseObject(issuerDdo).getJSONArray("Owners").getJSONObject(0).getString("Value");
+        sign = new DataSignature();
+        return sign.verifySignature(new Account(false, Helper.hexToBytes(pubkeyStr)), data, signature);
     }
 
 

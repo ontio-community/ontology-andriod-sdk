@@ -33,6 +33,7 @@ import com.github.ontio.sdk.manager.*;
 import com.github.ontio.network.websocket.WebsocketClient;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 /**
  * Ont Sdk
@@ -174,11 +175,11 @@ public class OntSdk {
     }
 
 
-    public void setRpc(String url) {
+    public void setRpc(String url) throws MalformedURLException {
         this.connRpc = new ConnectMgr(url, "rpc");
     }
 
-    public void setRestful(String url) {
+    public void setRestful(String url) throws MalformedURLException {
         this.connRestful = new ConnectMgr(url,"restful");
     }
 
@@ -234,12 +235,12 @@ public class OntSdk {
      */
     public Transaction signTx(Transaction tx, Account[][] accounts, int[] M) throws Exception {
         if (M.length != accounts.length) {
-            throw new SDKException("M Error");
+            throw new SDKException(ErrorCode.ParamError);
         }
         tx = signTx(tx,accounts);
         for (int i = 0; i < tx.sigs.length; i++) {
             if (M[i] > tx.sigs[i].pubKeys.length || M[i] < 0) {
-                throw new SDKException("M Error");
+                throw new SDKException(ErrorCode.ParamError);
             }
             tx.sigs[i].M = M[i];
         }

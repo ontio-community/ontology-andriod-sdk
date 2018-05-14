@@ -20,6 +20,9 @@
 package com.github.ontio.core.transaction;
 
 
+import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
+
 public enum AttributeUsage {
 
 	Nonce(0x00),
@@ -38,12 +41,12 @@ public enum AttributeUsage {
         return value;
     }
     
-    public static AttributeUsage valueOf(byte v) {
+    public static AttributeUsage valueOf(byte v) throws Exception {
     	for (AttributeUsage e : AttributeUsage.values()) {
     		if (e.value == v) {
     			return e;
     		}
     	}
-    	throw new IllegalArgumentException();
+    	throw new SDKException(ErrorCode.ParamError);
     }
 }

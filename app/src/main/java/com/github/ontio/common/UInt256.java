@@ -20,6 +20,7 @@
 package com.github.ontio.common;
 
 import com.alibaba.fastjson.JSON;
+import com.github.ontio.sdk.exception.SDKException;
 
 /**
  * Custom type which inherits base class defines 32-bit data, 
@@ -28,25 +29,24 @@ import com.alibaba.fastjson.JSON;
  *
  */
 public class UInt256 extends UIntBase implements Comparable<UInt256> {
-    public static final UInt256 ZERO = new UInt256();
 
-    public UInt256() {
+    public UInt256() throws Exception {
         this(null);
     }
 
-    public UInt256(byte[] value) {
+    public UInt256(byte[] value) throws Exception {
         super(32, value);
     }
 
-    public static UInt256 parse(String s) {
+    public static UInt256 parse(String s) throws Exception {
         if (s == null) {
-            throw new NullPointerException();
+            throw new SDKException(ErrorCode.ParamError);
         }
         if (s.startsWith("0x")) {
             s = s.substring(2);
         }
         if (s.length() != 64) {
-            throw new IllegalArgumentException(ErrorCode.InputError);
+            throw new SDKException(ErrorCode.ParamError);
         }
         byte[] v = Helper.hexToBytes(s);
         return new UInt256(v);
@@ -58,7 +58,7 @@ public class UInt256 extends UIntBase implements Comparable<UInt256> {
             UInt256 v = parse(s);
             result.data_bytes = v.data_bytes;
             return true;
-        } catch (Exception e) {
+        }catch  (Exception e) {
             return false;
         }
     }

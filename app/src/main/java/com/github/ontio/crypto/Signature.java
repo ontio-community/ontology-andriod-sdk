@@ -2,6 +2,7 @@ package com.github.ontio.crypto;
 
 import com.github.ontio.account.SM2ParameterSpec;
 import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class Signature {
     // parse a serialized bytes to signature structure
     public Signature(byte[] data) throws Exception {
         if (data == null) {
-            throw new Exception("null input");
+            throw new SDKException(ErrorCode.ParamError);
         }
 
         if (data.length < 2) {
@@ -32,7 +33,7 @@ public class Signature {
         this.scheme = SignatureScheme.values()[data[0]];
         if (scheme == SignatureScheme.SM3WITHSM2) {
             int i = 0;
-            while (i < data.length && data[i] != 0){
+            while (i < data.length && data[i] != 0) {
                 i++;
             }
             if (i >= data.length) {
@@ -44,27 +45,23 @@ public class Signature {
     }
 
     // serialize to byte array
-    public byte[] toBytes() {
+    public byte[] toBytes() throws IOException {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        try {
-            byte[] res = new byte[this.value.length + 1];
-            bs.write((byte)scheme.ordinal());
-            if (scheme == SignatureScheme.SM3WITHSM2) {
-                // adding the ID
-                bs.write(((SM2ParameterSpec)param).getID());
-                // padding a 0 as the terminator
-                bs.write((byte)0);
-            }
-            bs.write(value);
+        byte[] res = new byte[this.value.length + 1];
+        bs.write((byte) scheme.ordinal());
+        if (scheme == SignatureScheme.SM3WITHSM2) {
+            // adding the ID
+            bs.write(((SM2ParameterSpec) param).getID());
+            // padding a 0 as the terminator
+            bs.write((byte) 0);
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        bs.write(value);
         return bs.toByteArray();
     }
 
-    public SignatureScheme getScheme() { return scheme; }
+    public SignatureScheme getScheme() {
+        return scheme;
+    }
 
     public byte[] getValue() {
         return this.value;

@@ -26,6 +26,7 @@ import com.github.ontio.io.BinaryWriter;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.crypto.ECC;
 import com.github.ontio.io.BinaryReader;
+
 import org.spongycastle.math.ec.ECPoint;
 
 import java.io.IOException;
@@ -37,31 +38,31 @@ import java.math.BigInteger;
 public class Vote extends Transaction {
     public ECPoint[] pubKeys;
     public Address account;
+
     public Vote() {
         super(TransactionType.Vote);
     }
+
     @Override
-    protected void deserializeExclusiveData(BinaryReader reader) throws IOException {
-        try {
-            int len = reader.readInt();
-            pubKeys = new ECPoint[len];
-            for (int i = 0; i < len; i++) {
-                pubKeys[i] = ECC.secp256r1.getCurve().createPoint(
-                        new BigInteger(1, reader.readVarBytes()), new BigInteger(1, reader.readVarBytes()));
-            }
-            account = reader.readSerializable(Address.class);
-        } catch (Exception e) {
-            e.printStackTrace();
+    protected void deserializeExclusiveData(BinaryReader reader) throws Exception {
+        int len = reader.readInt();
+        pubKeys = new ECPoint[len];
+        for (int i = 0; i < len; i++) {
+            pubKeys[i] = ECC.secp256r1.getCurve().createPoint(
+                    new BigInteger(1, reader.readVarBytes()), new BigInteger(1, reader.readVarBytes()));
         }
+        account = reader.readSerializable(Address.class);
     }
+
     @Override
-    public  Address[] getAddressU160ForVerifying(){
+    public Address[] getAddressU160ForVerifying() {
         return null;
     }
+
     @Override
-    protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+    protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
         writer.writeInt(pubKeys.length);
-        for(ECPoint pubkey:pubKeys) {
+        for (ECPoint pubkey : pubKeys) {
             writer.writeVarBytes(Helper.removePrevZero(pubkey.getXCoord().toBigInteger().toByteArray()));
             writer.writeVarBytes(Helper.removePrevZero(pubkey.getYCoord().toBigInteger().toByteArray()));
         }

@@ -1,5 +1,8 @@
 package com.github.ontio.account;
 
+import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
+
 import org.spongycastle.util.Arrays;
 
 import java.security.spec.AlgorithmParameterSpec;
@@ -17,14 +20,10 @@ public class SM2ParameterSpec
      *
      * @param id the ID string associated with this usage of SM2.
      */
-    public SM2ParameterSpec(
-        byte[] id)
-    {
-        if (id == null)
-        {
-            throw new NullPointerException("id string cannot be null");
+    public SM2ParameterSpec(byte[] id) throws SDKException {
+        if (id == null){
+            throw new SDKException(ErrorCode.ParamError);
         }
-
         this.id = Arrays.clone(id);
     }
 

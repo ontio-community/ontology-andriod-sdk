@@ -20,6 +20,9 @@
 package com.github.ontio.core;
 
 
+import com.github.ontio.common.ErrorCode;
+import com.github.ontio.sdk.exception.SDKException;
+
 public enum InventoryType {
     TX(0x01),
     Block(0x02),
@@ -33,13 +36,13 @@ public enum InventoryType {
         return value;
     }
     
-    public static InventoryType from(byte b) {
+    public static InventoryType from(byte b) throws Exception {
     	for(InventoryType t: InventoryType.values()) {
     		if(t.value() == b) {
     			return t;
     		}
     	}
-    	throw new IllegalArgumentException();
+    	throw new SDKException(ErrorCode.ParamError);
     }
 }
 

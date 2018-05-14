@@ -32,28 +32,24 @@ import java.util.Map;
 public class Fee extends Serializable {
     public long amount;
     public Address payer;
-    public Fee(){
+
+    public Fee() {
 
     }
-    public Fee(long amount,Address payer){
+
+    public Fee(long amount, Address payer) {
         this.amount = amount;
         this.payer = payer;
     }
-    @Override
-    public void deserialize(BinaryReader reader) throws IOException {
-        amount = reader.readLong();
-        try {
-            payer = reader.readSerializable(Address.class);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
 
+    @Override
+    public void deserialize(BinaryReader reader) throws Exception {
+        amount = reader.readLong();
+        payer = reader.readSerializable(Address.class);
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         writer.writeLong(amount);
         writer.writeSerializable(payer);
     }

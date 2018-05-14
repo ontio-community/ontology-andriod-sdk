@@ -27,6 +27,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.crypto.SignatureScheme;
 
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -38,7 +39,7 @@ public class Claim {
     private String id = UUID.randomUUID().toString();
     private Map<String, Object> claim = new HashMap<String, Object>();
 
-    public Claim(SignatureScheme scheme, Account acct, String ctx, Map claimMap, Map metadata,String publicKeyId) {
+    public Claim(SignatureScheme scheme, Account acct, String ctx, Map claimMap, Map metadata,String publicKeyId) throws Exception {
         context = ctx;
         claim.put("Context", context);
         if (claimMap != null) {

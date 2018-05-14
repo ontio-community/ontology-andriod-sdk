@@ -59,27 +59,6 @@ public class Block extends Inventory {
     public UInt256 hash;
     private Block _header = null;
 
-//    public static Block fromTrimmedData(byte[] data, int index, Function<UInt256, Transaction> txSelector) throws IOException {
-//        Block block = new Block();
-//        try (ByteArrayInputStream ms = new ByteArrayInputStream(data, index, data.length - index)) {
-//            try (BinaryReader reader = new BinaryReader(ms)) {
-//                block.deserializeUnsigned(reader);
-//                reader.readByte();
-//                if (txSelector == null) {
-//                    block.transactions = new Transaction[0];
-//                } else {
-//                    block.transactions = new Transaction[(int) reader.readVarInt(0x10000000)];
-//                    for (int i = 0; i < block.transactions.length; i++) {
-//                        block.transactions[i] = txSelector.apply(reader.readSerializable(UInt256.class));
-//                    }
-//                }
-//            } catch (InstantiationException | IllegalAccessException ex) {
-//                throw new IOException(ex);
-//            }
-//        }
-//        return block;
-//    }
-
     public Block header() {
         if (isHeader()) {
             return this;
@@ -110,7 +89,7 @@ public class Block extends Inventory {
     }
 
     @Override
-    public void deserialize(BinaryReader reader) throws IOException {
+    public void deserialize(BinaryReader reader) throws Exception {
         deserializeUnsigned(reader);
         int len = (int) reader.readVarInt();
         sigData = new String[len];
@@ -131,32 +110,28 @@ public class Block extends Inventory {
     }
 
     @Override
-    public void deserializeUnsigned(BinaryReader reader) throws IOException {
-        try {
-            version = reader.readInt();
-            prevBlockHash = reader.readSerializable(UInt256.class);
-            transactionsRoot = reader.readSerializable(UInt256.class);
-            blockRoot = reader.readSerializable(UInt256.class);
-            timestamp = reader.readInt();
-            height = reader.readInt();
-            consensusData = Long.valueOf(reader.readLong());
-            nextBookkeeper = reader.readSerializable(Address.class);
-            int len = (int) reader.readVarInt();
-            bookkeepers = new byte[len][];
-            for (int i = 0; i < len; i++) {
-                this.bookkeepers[i] = reader.readVarBytes();
-            }
-            transactions = new Transaction[0];
-        } catch (InstantiationException | IllegalAccessException ex) {
-            throw new IOException(ex);
+    public void deserializeUnsigned(BinaryReader reader) throws Exception {
+        version = reader.readInt();
+        prevBlockHash = reader.readSerializable(UInt256.class);
+        transactionsRoot = reader.readSerializable(UInt256.class);
+        blockRoot = reader.readSerializable(UInt256.class);
+        timestamp = reader.readInt();
+        height = reader.readInt();
+        consensusData = Long.valueOf(reader.readLong());
+        nextBookkeeper = reader.readSerializable(Address.class);
+        int len = (int) reader.readVarInt();
+        bookkeepers = new byte[len][];
+        for (int i = 0; i < len; i++) {
+            this.bookkeepers[i] = reader.readVarBytes();
         }
+        transactions = new Transaction[0];
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
+    public void serialize(BinaryWriter writer) throws Exception {
         serializeUnsigned(writer);
         writer.writeVarInt(bookkeepers.length);
-        for(int i=0;i<bookkeepers.length;i++) {
+        for (int i = 0; i < bookkeepers.length; i++) {
             writer.writeVarBytes(bookkeepers[i]);
         }
         writer.writeVarInt(sigData.length);
@@ -164,13 +139,13 @@ public class Block extends Inventory {
             writer.writeVarBytes(Helper.hexToBytes(sigData[i]));
         }
         writer.writeInt(transactions.length);
-        for(int i=0;i<transactions.length;i++) {
+        for (int i = 0; i < transactions.length; i++) {
             writer.writeSerializable(transactions[i]);
         }
     }
 
     @Override
-    public void serializeUnsigned(BinaryWriter writer) throws IOException {
+    public void serializeUnsigned(BinaryWriter writer) throws Exception {
         writer.writeInt(version);
         writer.writeSerializable(prevBlockHash);
         writer.writeSerializable(transactionsRoot);
@@ -189,12 +164,20 @@ public class Block extends Inventory {
         if (!(obj instanceof Block)) {
             return false;
         }
-        return this.hash().equals(((Block) obj).hash());
+        try {
+            return this.hash().equals(((Block) obj).hash());
+        }catch (Exception e){
+            return false;
+        }
     }
 
     @Override
     public int hashCode() {
-        return hash().hashCode();
+        try {
+            return hash().hashCode();
+        }catch (Exception e){
+            return -1;
+        }
     }
 
     @Override
@@ -202,7 +185,7 @@ public class Block extends Inventory {
         return null;
     }
 
-    public Object json() {
+    public Object json() throws Exception {
         Map json = new HashMap();
         Map head = new HashMap();
         json.put("Hash", hash().toString());
@@ -217,7 +200,7 @@ public class Block extends Inventory {
         head.put("NextBookkeeper", nextBookkeeper.toBase58());
         head.put("Hash", hash().toString());
         Object[] bks = new Object[bookkeepers.length];
-        for(int i=0;i<bookkeepers.length;i++){
+        for (int i = 0; i < bookkeepers.length; i++) {
             bks[i] = Helper.toHexString(bookkeepers[i]);
         }
         head.put("SigData", sigData);
@@ -225,7 +208,7 @@ public class Block extends Inventory {
 
         json.put("Header", head);
         Object[] txs = new Object[transactions.length];
-        for(int i=0;i<transactions.length;i++){
+        for (int i = 0; i < transactions.length; i++) {
             Object obj = new Object();
             if (transactions[i] instanceof InvokeCode) {
                 obj = ((InvokeCode) transactions[i]).json();
@@ -234,7 +217,7 @@ public class Block extends Inventory {
             } else if (transactions[i] instanceof Bookkeeping) {
                 obj = ((Bookkeeping) transactions[i]).json();
             } else {
-                obj= transactions[i].json();
+                obj = transactions[i].json();
             }
             txs[i] = obj;
         }
@@ -242,21 +225,19 @@ public class Block extends Inventory {
         return JSON.toJSONString(json);
     }
 
-    public byte[] trim() {
+    public byte[] trim() throws Exception {
         try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
             try (BinaryWriter writer = new BinaryWriter(ms)) {
                 serializeUnsigned(writer);
                 writer.writeByte((byte) 1);
                 UInt256[] txs = new UInt256[transactions.length];
-                for(int i=0;i<transactions.length;i++){
+                for (int i = 0; i < transactions.length; i++) {
                     txs[i] = transactions[i].hash();
                 }
                 writer.writeSerializableArray(txs);
                 writer.flush();
                 return ms.toByteArray();
             }
-        } catch (IOException ex) {
-            throw new UnsupportedOperationException(ex);
         }
     }
 

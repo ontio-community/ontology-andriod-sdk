@@ -21,6 +21,7 @@ package com.github.ontio.core;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
 import com.github.ontio.account.Account;
 import com.github.ontio.crypto.Digest;
 import com.github.ontio.crypto.SignatureScheme;
@@ -33,28 +34,28 @@ import com.github.ontio.common.Address;
 
 public abstract class Signable extends Serializable {
 
-	public abstract void deserializeUnsigned(BinaryReader reader) throws IOException;
+    public abstract void deserializeUnsigned(BinaryReader reader) throws Exception;
 
-	public abstract void serializeUnsigned(BinaryWriter writer) throws IOException;
+    public abstract void serializeUnsigned(BinaryWriter writer) throws Exception;
 
-	public abstract Address[] getAddressU160ForVerifying();
-    
-    public byte[] getHashData() {
-    	try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
-	    	try (BinaryWriter writer = new BinaryWriter(ms)) {
-	            serializeUnsigned(writer);
-	            writer.flush();
-	            return ms.toByteArray();
-	        }
-    	} catch (IOException ex) {
-    		throw new UnsupportedOperationException(ex);
-    	}
+    public abstract Address[] getAddressU160ForVerifying() throws Exception;
+
+    public byte[] getHashData() throws Exception {
+        try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
+            try (BinaryWriter writer = new BinaryWriter(ms)) {
+                serializeUnsigned(writer);
+                writer.flush();
+                return ms.toByteArray();
+            }
+        }
     }
-	public byte[] sign(Account account, SignatureScheme scheme) throws Exception {
-		return account.generateSignature(Digest.sha256(Digest.sha256(getHashData())), scheme,null);
-	}
-	public boolean verifySignature(Account account, byte[] data, byte[] signature) throws Exception {
-		return account.verifySignature(Digest.sha256(Digest.sha256(data)), signature);
-	}
+
+    public byte[] sign(Account account, SignatureScheme scheme) throws Exception {
+        return account.generateSignature(Digest.sha256(Digest.sha256(getHashData())), scheme, null);
+    }
+
+    public boolean verifySignature(Account account, byte[] data, byte[] signature) throws Exception {
+        return account.verifySignature(Digest.sha256(Digest.sha256(data)), signature);
+    }
 
 }
