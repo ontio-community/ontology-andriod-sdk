@@ -37,6 +37,7 @@ public class ErrorCode {
     }
     //account error
     public static String InvalidParams = getError(51001,"Account Error,invalid params");
+    public static String InvalidParams(String msg ) { return getError(51001,msg);};
     public static String UnsupportedKeyType = getError(51002,"Account Error,unsupported key type");
     public static String InvalidMessage = getError(51003,"Account Error,invalid message");
     public static String WithoutPrivate = getError(51004,"Account Error,account without private key cannot generate signature");
