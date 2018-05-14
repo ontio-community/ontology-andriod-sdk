@@ -430,7 +430,7 @@ public class Account {
 
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
         byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
-        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, dkLen);
 
 //        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
         byte[] derivedhalf2 = new byte[32];
@@ -443,7 +443,7 @@ public class Account {
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
         byte[] rawkey = cipher.doFinal(encryptedkey);
         if (!new Account(rawkey, scheme).getAddressU160().toBase58().equals(address)) {
-            throw new SDKException(ErrorCode.GetAccountByAddressErr);
+            throw new SDKException(ErrorCode.KeyAddressPwdNotMatch);
         }
         return Helper.toHexString(rawkey);
     }

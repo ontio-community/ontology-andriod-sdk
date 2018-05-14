@@ -168,7 +168,8 @@ public class WalletMgr {
     }
 
     public Identity importIdentity(String label, String encryptedPrikey, String password, String address) throws Exception {
-        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, address, password, walletFile.getScrypt().getN(), scheme);
+        byte[] prefix = Helper.hexToBytes(Helper.getPrefix(address));
+        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
         IdentityInfo info = createIdentity(label, password, Helper.hexToBytes(prikey));
         storePrivateKey(identityPriKeyMap, info.ontid, password, prikey);
         return getIdentity(info.ontid);

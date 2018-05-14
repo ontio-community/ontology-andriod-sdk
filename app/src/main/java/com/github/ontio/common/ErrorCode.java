@@ -51,6 +51,8 @@ public class ErrorCode {
     public static String DecodePrikeyPassphraseError = getError(51012,"Account Error,decode prikey passphrase error.");
     public static String PrikeyLengthError = getError(51013,"Account Error,Prikey length error");
     public static String PrefixNotMatch = getError(51014,"Key Password and Prefix not match");
+    public static String NotSetCodeAddress = getError(51015, "Not Set Code Address");
+    public static String KeyAddressPwdNotMatch = getError(51015, "Key Address and Password Not Match");
 
     public static String InputError = getError(52001,"Uint256 Error,input error");
     public static String ChecksumNotValidate = getError(52002,"Base58 Error,Checksum does not validate");

@@ -152,7 +152,7 @@ public class OntIdTx {
 
     private Identity sendRegister(String label, String password, boolean preExec) throws Exception {
         if (contractAddress == null) {
-            throw new SDKException(ErrorCode.ParamError);
+            throw new SDKException(ErrorCode.NotSetCodeAddress);
         }
         IdentityInfo info = sdk.getWalletMgr().createIdentityInfo(password);
         String ontid = info.ontid;
