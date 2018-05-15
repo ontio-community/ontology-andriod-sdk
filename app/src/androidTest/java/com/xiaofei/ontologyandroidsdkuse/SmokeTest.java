@@ -170,6 +170,14 @@ public class SmokeTest {
         string = ontIdTx.sendGetDDO(identity.ontid);
         assertTrue(string.contains("claimlalala"));
         assertTrue(string.contains("issuerlalala"));
+
+        String txnId1 = ontIdTx.sendRemoveAttribute(identity.ontid,"123456",prikey.getBytes());
+        assertNotNull(txnId1);
+        assertNotEquals(txnId1,"");
+        Thread.sleep(6000);
+        string = ontIdTx.sendGetDDO(identity.ontid);
+        assertFalse(string.contains("claimlalala"));
+        assertFalse(string.contains("issuerlalala"));
     }
 
 
