@@ -334,4 +334,19 @@ public class SmokeExceptionTest {
         }
 
     }
+
+    @Test
+    public void getBalanceError(){
+        String message="";
+        try {
+            message="";
+            connectMgr.getBalance("");
+        }catch (Exception ex){
+            message = ex.getMessage();
+        }finally {
+            assertNotEquals(message,"");
+
+        }
+
+    }
 }

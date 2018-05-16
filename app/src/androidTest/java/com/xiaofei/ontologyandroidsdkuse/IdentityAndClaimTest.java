@@ -94,6 +94,15 @@ public class IdentityAndClaimTest {
             assertNotEquals(message,"");
         }
 
+        try {
+            message="";
+            wallet.setDefaultIdentity("");
+        }catch (Exception ex){
+            message = ex.getMessage();
+        }finally {
+            assertNotEquals(message,"");
+        }
+
     }
 
     @Test
@@ -130,6 +139,15 @@ public class IdentityAndClaimTest {
         try {
             messasge="";
             wallet.setDefaultAccount(-1);
+        }catch (Exception ex){
+            messasge= ex.getMessage();
+        }finally {
+            assertNotEquals(messasge,"");
+        }
+
+        try {
+            messasge="";
+            wallet.setDefaultAccount("");
         }catch (Exception ex){
             messasge= ex.getMessage();
         }finally {

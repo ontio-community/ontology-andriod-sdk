@@ -64,6 +64,12 @@ public class AssetTest {
     }
 
     @Test
+    public void removeAccountError(){
+        boolean isSuccess =wallet.removeIdentity("");
+        assertFalse(isSuccess);
+    }
+
+    @Test
     public void removeIdentity() throws Exception {
         List<Identity> identities = wallet.getIdentities();
         int origSize = identities.size();
@@ -72,5 +78,11 @@ public class AssetTest {
 
         wallet.removeIdentity(identity.ontid);
         assertEquals(identities.size(),origSize);
+    }
+
+    @Test
+    public void removeIdentityError(){
+        boolean isSuccess = wallet.removeIdentity("");
+        assertFalse(isSuccess);
     }
 }
