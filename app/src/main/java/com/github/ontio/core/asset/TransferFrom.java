@@ -37,9 +37,9 @@ public class TransferFrom extends Serializable {
     public Address sender;
     public Address from;
     public Address to;
-    public BigInteger value;
+    public long value;
 
-    public TransferFrom(Address sender, Address from, Address to, BigInteger amount) {
+    public TransferFrom(Address sender, Address from, Address to, long amount) {
         this.sender = sender;
         this.from = from;
         this.to = to;
@@ -52,7 +52,7 @@ public class TransferFrom extends Serializable {
         sender = reader.readSerializable(Address.class);
         from = reader.readSerializable(Address.class);
         to = reader.readSerializable(Address.class);
-        value = new BigInteger(reader.readVarBytes());
+        value = reader.readLong();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TransferFrom extends Serializable {
         writer.writeSerializable(sender);
         writer.writeSerializable(from);
         writer.writeSerializable(to);
-        writer.writeVarBytes(value.toByteArray());
+        writer.writeLong(value);
 
     }
 
@@ -71,7 +71,7 @@ public class TransferFrom extends Serializable {
         json.put("sender", sender.toHexString());
         json.put("from", from.toHexString());
         json.put("to", to.toHexString());
-        json.put("value", value.longValue());
+        json.put("value", value);
         return json;
     }
 

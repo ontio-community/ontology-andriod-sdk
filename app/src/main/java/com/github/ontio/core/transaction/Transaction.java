@@ -41,7 +41,9 @@ public abstract class Transaction extends Inventory {
     public int nonce = new Random().nextInt();
     public Attribute[] attributes;
     public Fee[] fee = new Fee[0];
-    public long networkFee;
+    public long gasPrice = 0;
+    public long gasLimit = 0;
+    public Address payer;
     public Sig[] sigs = new Sig[0];
 
     protected Transaction(TransactionType type) {
@@ -67,6 +69,8 @@ public abstract class Transaction extends Inventory {
         Transaction transaction = (Transaction) Class.forName(typeName).newInstance();
         transaction.nonce = reader.readInt();
         transaction.version = ver;
+        transaction.gasLimit = reader.readLong();
+        transaction.gasPrice = reader.readLong();
         transaction.deserializeUnsignedWithoutType(reader);
         transaction.sigs = new Sig[(int) reader.readVarInt()];
         for (int i = 0; i < transaction.sigs.length; i++) {
@@ -94,11 +98,9 @@ public abstract class Transaction extends Inventory {
         deserializeExclusiveData(reader);
         attributes = reader.readSerializableArray(Attribute.class);
         int len = (int) reader.readVarInt();
-        fee = new Fee[len];
         for (int i = 0; i < len; i++) {
             fee[i] = new Fee(reader.readLong(), reader.readSerializable(Address.class));
         }
-        networkFee = reader.readLong();
     }
 
     protected void deserializeExclusiveData(BinaryReader reader) throws Exception {
@@ -115,10 +117,11 @@ public abstract class Transaction extends Inventory {
         writer.writeByte(version);
         writer.writeByte(txType.value());
         writer.writeInt(nonce);
+        writer.writeLong(gasPrice);
+        writer.writeLong(gasLimit);
+        writer.writeSerializable(payer);
         serializeExclusiveData(writer);
         writer.writeSerializableArray(attributes);
-        writer.writeSerializableArray(fee);
-        writer.writeLong(networkFee);
     }
 
     protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
@@ -180,6 +183,9 @@ public abstract class Transaction extends Inventory {
         for (int i = 0; i < sigs.length; i++) {
             s[i] = sigs[i].json();
         }
+        json.put("GasPrice",gasPrice& (Long.MAX_VALUE*2-1));
+        json.put("GasLimit",gasLimit& (Long.MAX_VALUE*2-1));
+        json.put("Payer",payer.toBase58());
         json.put("Attributes", attrs);
         json.put("Fee", fees);
         json.put("Sigs", s);

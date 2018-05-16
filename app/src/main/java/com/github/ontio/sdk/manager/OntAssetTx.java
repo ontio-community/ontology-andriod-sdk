@@ -81,7 +81,7 @@ public class OntAssetTx {
         }
         amount = amount * precision;
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
-        State state = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), new BigInteger(String.valueOf(amount)));
+        State state = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), amount);
         Transfers transfers = new Transfers(new State[]{state});
         Contract contract = new Contract((byte) 0, null, Address.parse(contractAddr), "transfer", transfers.toArray());
         Fee[] fees = new Fee[1];
@@ -116,7 +116,7 @@ public class OntAssetTx {
         }
         for (int i = 0; i < recvAddr.length; i++) {
             amount[i] = amount[i] * precision;
-            states[i] = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr[i]), new BigInteger(String.valueOf(amount[i])));
+            states[i] = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr[i]), amount[i]);
         }
         Transfers transfers = new Transfers(states);
         Contract contract = new Contract((byte) 0, null, Address.parse(contractAddr), "transfer", transfers.toArray());
@@ -157,7 +157,7 @@ public class OntAssetTx {
         for (int i = 0; i < sendAddr.length; i++) {
             AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr[i], password[i]);
             amount[i] = amount[i] * precision;
-            states[i] = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), new BigInteger(String.valueOf(amount[i])));
+            states[i] = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), amount[i]);
             fees[i] = new Fee(0, Address.addressFromPubKey(sender.pubkey));
         }
 
@@ -182,7 +182,7 @@ public class OntAssetTx {
             throw new SDKException(ErrorCode.NullKeyOrValue);
         }
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
-        TransferFrom transferFrom = new TransferFrom(Address.addressFromPubKey(sender.pubkey), Address.parse(ontContract), Address.decodeBase58(to), new BigInteger(String.valueOf(amount)));
+        TransferFrom transferFrom = new TransferFrom(Address.addressFromPubKey(sender.pubkey), Address.parse(ontContract), Address.decodeBase58(to), amount);
         Contract contract = new Contract((byte) 0, null, Address.parse(ongContract), "transferFrom", transferFrom.toArray());
         Fee[] fees = new Fee[1];
         fees[0] = new Fee(0, Address.addressFromPubKey(sender.pubkey));

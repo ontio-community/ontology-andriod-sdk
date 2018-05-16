@@ -118,6 +118,7 @@ public class Block extends Inventory {
         timestamp = reader.readInt();
         height = reader.readInt();
         consensusData = Long.valueOf(reader.readLong());
+        consensusPayload = reader.readVarBytes();
         nextBookkeeper = reader.readSerializable(Address.class);
         int len = (int) reader.readVarInt();
         bookkeepers = new byte[len][];
@@ -153,6 +154,7 @@ public class Block extends Inventory {
         writer.writeInt(timestamp);
         writer.writeInt(height);
         writer.writeLong(consensusData);
+        writer.writeVarBytes(consensusPayload);
         writer.writeSerializable(nextBookkeeper);
     }
 
