@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
+import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.block.Block;
 import com.github.ontio.network.rpc.RpcClient;
@@ -31,6 +32,7 @@ import com.github.ontio.network.connect.IConnector;
 import com.github.ontio.network.rest.RestClient;
 import com.github.ontio.network.rest.Result;
 import com.github.ontio.network.websocket.WebsocketClient;
+import com.github.ontio.sdk.exception.SDKException;
 
 /**
  *
@@ -154,6 +156,9 @@ public class ConnectMgr {
     }
 
     public Block getBlock(int height) throws Exception {
+        if (height < 0){
+            throw new SDKException(ErrorCode.BlockHeightLessThanZero);
+        }
         return connector.getBlock(height);
     }
 

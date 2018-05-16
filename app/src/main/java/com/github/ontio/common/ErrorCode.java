@@ -83,6 +83,7 @@ public class ErrorCode {
     public static String NotFoundPublicKeyId = getError(58007,"OntIdTx Error,not found PublicKeyId");
     public static String PublicKeyIdErr = getError(58008,"OntIdTx Error,PublicKeyId err");
     public static String BlockHeightNotMatch = getError(58009,"OntIdTx Error,BlockHeight not match");
+    public static String BlockHeightLessThanZero = getError(58009,"OntIdTx Error,BlockHeight Less Than Zero");
     public static String NodesNotMatch = getError(58010,"OntIdTx Error,nodes not match");
     public static String ResultIsNull = getError(58011,"OntIdTx Error,result is null");
     public static String AssetNameError = getError(58012,"OntAsset Error,asset name error");
