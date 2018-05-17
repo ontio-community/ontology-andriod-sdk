@@ -173,6 +173,7 @@ public class OntSdk {
      * @param scheme
      */
     public void setSignatureScheme(SignatureScheme scheme) {
+        signatureScheme = scheme;
         walletMgr.setSignatureScheme(scheme);
     }
 
