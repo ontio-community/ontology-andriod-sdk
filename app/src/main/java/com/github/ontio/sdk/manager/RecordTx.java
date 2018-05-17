@@ -35,59 +35,57 @@ public class RecordTx {
     }
 
 
-    public String sendPut(String addr,String password,String key,String value) throws Exception {
-        if (codeAddress == null) {
-            throw new SDKException(ErrorCode.NullCodeHash);
-        }
-        if (key == null || value == null || key == "" || value == ""){
-            throw new SDKException(ErrorCode.NullKeyOrValue);
-        }
-        addr = addr.replace(Common.didont,"");
-        byte[] did = (Common.didont + addr).getBytes();
-        AccountInfo info = sdk.getWalletMgr().getAccountInfo(addr, password);
-        byte[] pk = Helper.hexToBytes(info.pubkey);
-        List list = new ArrayList<Object>();
-        list.add("Put".getBytes());
-        List tmp = new ArrayList<Object>();
-        tmp.add(key.getBytes());
-        tmp.add(JSON.toJSONString(constructRecord(value)).getBytes());
-        list.add(tmp);
-        Transaction tx = makeInvokeTransaction(list,info);
-        sdk.signTx(tx, addr, password);
-        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
-        if (b) {
-            return tx.hash().toString();
-        }
-        return null;
-    }
-    public String sendGet(String addr,String password,String key) throws Exception {
-        if (codeAddress == null) {
-            throw new SDKException(ErrorCode.NullCodeHash);
-        }
-        if (key == null || key == ""){
-            throw new SDKException(ErrorCode.NullKey);
-        }
-        byte[] did = (Common.didont + addr).getBytes();
-        AccountInfo info = sdk.getWalletMgr().getAccountInfo(addr, password);
-        byte[] pk = Helper.hexToBytes(info.pubkey);
-        List list = new ArrayList<Object>();
-        list.add("Get".getBytes());
-        List tmp = new ArrayList<Object>();
-        tmp.add(key.getBytes());
-        list.add(tmp);
-        Transaction tx = makeInvokeTransaction(list,info);
-        sdk.signTx(tx, addr, password);
-        Object obj = sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
-        return new String(Helper.hexToBytes((String)obj));
-    }
-
-    public Transaction makeInvokeTransaction(List<Object> list,AccountInfo acctinfo) throws Exception {
-        Fee[] fees = new Fee[1];
-        fees[0] = new Fee(0, Address.addressFromPubKey(acctinfo.pubkey));
-        byte[] params = sdk.getSmartcodeTx().createCodeParamsScript(list);
-        Transaction tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(codeAddress,null,params, VmType.NEOVM.value(), fees);
-        return tx;
-    }
+//    public String sendPut(String addr,String password,String key,String value) throws Exception {
+//        if (codeAddress == null) {
+//            throw new SDKException(ErrorCode.NullCodeHash);
+//        }
+//        if (key == null || value == null || key == "" || value == ""){
+//            throw new SDKException(ErrorCode.NullKeyOrValue);
+//        }
+//        addr = addr.replace(Common.didont,"");
+//        byte[] did = (Common.didont + addr).getBytes();
+//        AccountInfo info = sdk.getWalletMgr().getAccountInfo(addr, password);
+//        byte[] pk = Helper.hexToBytes(info.pubkey);
+//        List list = new ArrayList<Object>();
+//        list.add("Put".getBytes());
+//        List tmp = new ArrayList<Object>();
+//        tmp.add(key.getBytes());
+//        tmp.add(JSON.toJSONString(constructRecord(value)).getBytes());
+//        list.add(tmp);
+//        Transaction tx = makeInvokeTransaction(list,info);
+//        sdk.signTx(tx, addr, password);
+//        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+//        if (b) {
+//            return tx.hash().toString();
+//        }
+//        return null;
+//    }
+//    public String sendGet(String addr,String password,String key) throws Exception {
+//        if (codeAddress == null) {
+//            throw new SDKException(ErrorCode.NullCodeHash);
+//        }
+//        if (key == null || key == ""){
+//            throw new SDKException(ErrorCode.NullKey);
+//        }
+//        byte[] did = (Common.didont + addr).getBytes();
+//        AccountInfo info = sdk.getWalletMgr().getAccountInfo(addr, password);
+//        byte[] pk = Helper.hexToBytes(info.pubkey);
+//        List list = new ArrayList<Object>();
+//        list.add("Get".getBytes());
+//        List tmp = new ArrayList<Object>();
+//        tmp.add(key.getBytes());
+//        list.add(tmp);
+//        Transaction tx = makeInvokeTransaction(list,info,0);
+//        sdk.signTx(tx, addr, password);
+//        Object obj = sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+//        return new String(Helper.hexToBytes((String)obj));
+//    }
+//
+//    public Transaction makeInvokeTransaction(List<Object> list,AccountInfo acctinfo,long gas) throws Exception {
+//        byte[] params = sdk.getSmartcodeTx().createCodeParamsScript(list);
+//        Transaction tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(codeAddress,null,params, VmType.NEOVM.value(), acctinfo.addressBase58,gas);
+//        return tx;
+//    }
 
     private LinkedHashMap<String, Object> constructRecord(String text) {
         LinkedHashMap<String, Object> recordData = new LinkedHashMap<String, Object>();

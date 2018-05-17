@@ -21,6 +21,7 @@ package com.github.ontio.sdk.manager;
 
 import com.github.ontio.account.Account;
 import com.github.ontio.common.Address;
+import com.github.ontio.common.Common;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.core.VmType;
 import com.github.ontio.core.asset.Contract;
@@ -145,12 +146,12 @@ public class SmartcodeTx {
         Transaction tx = null;
         if (ontid == null && password == null) {
             Fee[] fees = new Fee[0];
-            tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, fees);
+            tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
         } else {
             Fee[] fees = new Fee[1];
             AccountInfo info = sdk.getWalletMgr().getAccountInfo(ontid, password);
             fees[0] = new Fee(0, Address.addressFromPubKey(info.pubkey));
-            tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, fees);
+            tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
         }
         return tx;
     }
@@ -167,8 +168,8 @@ public class SmartcodeTx {
      * @return
      * @throws Exception
      */
-    public String DeployCodeTransaction(String codeHexStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype) throws Exception {
-        Transaction tx = makeDeployCodeTransaction(codeHexStr, needStorage, name, codeVersion, author, email, desp, vmtype);
+    public String DeployCodeTransaction(String codeHexStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype,String payer,long gas) throws Exception {
+        Transaction tx = makeDeployCodeTransaction(codeHexStr, needStorage, name, codeVersion, author, email, desp, vmtype,payer,gas);
         String txHex = tx.toHexString();
         System.out.println(txHex);
         boolean b = sdk.getConnectMgr().sendRawTransaction(txHex);
@@ -314,6 +315,7 @@ public class SmartcodeTx {
     }
 
     /**
+     *
      * @param codeStr
      * @param needStorage
      * @param name
@@ -323,10 +325,14 @@ public class SmartcodeTx {
      * @param desp
      * @param vmtype
      * @return
-     * @throws SDKException
+     * @throws Exception
      */
-    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype) throws Exception {
+    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype,String payer,long gas) throws Exception {
+        if (("").equals(payer)){
+            throw new SDKException(ErrorCode.ParamError);
+        }
         DeployCode tx = new DeployCode();
+        tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         tx.attributes = new Attribute[1];
         tx.attributes[0] = new Attribute();
         tx.attributes[0].usage = AttributeUsage.Nonce;
@@ -338,26 +344,32 @@ public class SmartcodeTx {
         tx.name = name;
         tx.author = author;
         tx.email = email;
+        tx.gasPrice = 0;
+        tx.gasLimit = sdk.DEFAULT_GAS_LIMIT;
         tx.description = desp;
         return tx;
     }
 
     /**
+     *
      * @param codeAddr
+     * @param method
      * @param params
      * @param vmtype
-     * @param fees
+     * @param payer
+     * @param gas
      * @return
-     * @throws SDKException
+     * @throws Exception
      */
-    public InvokeCode makeInvokeCodeTransaction(String codeAddr, String method, byte[] params, byte vmtype, Fee[] fees) throws Exception {
-        if (vmtype == VmType.NEOVM.value()) {
+    public InvokeCode makeInvokeCodeTransaction(String codeAddr, String method, byte[] params, byte vmtype, String payer,long gas) throws Exception {
+        if(vmtype == VmType.NEOVM.value()) {
             Contract contract = new Contract((byte) 0, null, Address.parse(codeAddr), "", params);
             params = Helper.addBytes(new byte[]{0x67}, contract.toArray());
-//            params = Helper.addBytes(params, new byte[]{0x69});
-//            params = Helper.addBytes(params, Helper.hexToBytes(codeAddress));
-        } else if (vmtype == VmType.WASMVM.value()) {
+        }else if(vmtype == VmType.WASMVM.value()) {
             Contract contract = new Contract((byte) 1, null, Address.parse(codeAddr), method, params);
+            params = contract.toArray();
+        } else if(vmtype == VmType.Native.value()) {
+            Contract contract = new Contract((byte) 0, null, Address.parse(codeAddr), method, params);
             params = contract.toArray();
         }
         InvokeCode tx = new InvokeCode();
@@ -366,9 +378,16 @@ public class SmartcodeTx {
         tx.attributes[0].usage = AttributeUsage.Nonce;
         tx.attributes[0].data = UUID.randomUUID().toString().getBytes();
         tx.code = params;
-        tx.gasLimit = 0;
+        tx.gasLimit = sdk.DEFAULT_GAS_LIMIT;
+        if(sdk.DEFAULT_GAS_LIMIT == 0){
+            tx.gasPrice = 0;
+        }else {
+            tx.gasPrice = gas / sdk.DEFAULT_GAS_LIMIT;
+        }
+        if(payer != null){
+            tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
+        }
         tx.vmType = vmtype;
-        tx.fee = fees;
         return tx;
     }
 }
