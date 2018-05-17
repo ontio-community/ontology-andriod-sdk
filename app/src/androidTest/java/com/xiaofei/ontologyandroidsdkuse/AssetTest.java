@@ -12,6 +12,8 @@ import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Identity;
 import com.github.ontio.sdk.wallet.Wallet;
+import com.github.ontio.smartcontract.nativevm.NativeOntIdTx;
+import com.github.ontio.smartcontract.nativevm.OntAssetTx;
 
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +32,8 @@ public class AssetTest {
     private WalletMgr walletMgr;
     private Wallet wallet;
     private Context appContext;
-    private OntIdTx ontIdTx;
+    private NativeOntIdTx ontIdTx;
+    String password = "111111";
 
     @Before
     public void setUp() throws Exception {
@@ -41,9 +44,25 @@ public class AssetTest {
         walletMgr = ontSdk.getWalletMgr();
         wallet = walletMgr.getWallet();
         connectMgr = ontSdk.getConnectMgr();
-        ontAssetTx = ontSdk.getOntAssetTx();
-        ontIdTx = ontSdk.getOntIdTx();
-        ontSdk.setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
+        ontAssetTx = ontSdk.nativevm().ont();
+        ontIdTx = ontSdk.nativevm().ontId();
+        ontSdk.vm().setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
+    }
+
+
+
+    @Test
+    public void testTransfer() throws Exception {
+
+        Account account1 = ontSdk.getWalletMgr().createAccountFromPriKey(password,"d6aae3603a82499062fe2ddd68840dce417e2e9e7785fbecb3100dd68c4e2d44");
+        Account account2 = ontSdk.getWalletMgr().createAccount(password);
+        System.out.print("account1 address:" + account2.address);
+        System.out.print("account2 address:" + account2.address);
+
+        System.out.print("account1 balance:" + ontAssetTx.sendBalanceOf("ont",account1.address));
+        System.out.print("account2 balance:" + ontAssetTx.sendBalanceOf("ont",account2.address));
+
+
     }
 
     @After

@@ -23,16 +23,20 @@ import com.github.ontio.OntSdk;
 import com.github.ontio.account.Account;
 import com.github.ontio.common.Address;
 import com.github.ontio.common.ErrorCode;
+import com.github.ontio.common.Helper;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.core.transaction.Attribute;
 import com.github.ontio.core.transaction.AttributeUsage;
 import com.github.ontio.core.VmType;
 import com.github.ontio.core.asset.*;
 import com.github.ontio.core.payload.Vote;
+import com.github.ontio.io.BinaryWriter;
 import com.github.ontio.sdk.exception.SDKException;
 import com.github.ontio.sdk.info.AccountInfo;
 //import org.spongycastle.math.ec.ECPoint;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.UUID;
@@ -87,36 +91,204 @@ public class OntAssetTx {
         return tx;
     }
 
+
     /**
+     *
      * @param assetName
-     * @param sendAddr
-     * @param password
-     * @param amount
-     * @param recvAddr
+     * @param address
      * @return
      * @throws Exception
      */
-    public String sendTransferToMany(String assetName, String sendAddr, String password, String[] recvAddr, long[] amount,long gas) throws Exception {
-        String contractAddr = null;
-        if (assetName.equals("ong")) {
+    public long sendBalanceOf(String assetName, String address) throws Exception {
+        String contractAddr;
+        if (assetName.toUpperCase().equals("ONG")) {
             contractAddr = ongContract;
-        } else if (assetName.equals("ont")) {
+        } else if (assetName.toUpperCase().equals("ONT")) {
             contractAddr = ontContract;
         } else {
             throw new SDKException(ErrorCode.AssetNameError);
         }
+        byte[] parabytes = buildParams(Address.decodeBase58(address).toArray());
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr,"balanceOf", parabytes, VmType.Native.value(), null,0);
+        Object obj = sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+        String res = (String)obj;
+        if (("").equals(res)) {
+            return 0;
+        }
+        return Long.valueOf(res,16);
+    }
 
+    /**
+     *
+     * @param assetName
+     * @param sendAddr
+     * @param password
+     * @param recvAddr
+     * @param amount
+     * @param gas
+     * @return
+     * @throws Exception
+     */
+    public String sendApprove(String assetName ,String sendAddr, String password, String recvAddr, long amount,long gas) throws Exception {
+        String contractAddr;
+        if (assetName.toUpperCase().equals("ONG")) {
+            contractAddr = ongContract;
+        } else if (assetName.toUpperCase().equals("ONT")) {
+            contractAddr = ontContract;
+        } else {
+            throw new SDKException(ErrorCode.AssetNameError);
+        }
+        AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
+        State state = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), amount);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        BinaryWriter binaryWriter = new BinaryWriter(byteArrayOutputStream);
+        state.serialize(binaryWriter);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr,"approve", byteArrayOutputStream.toByteArray(), VmType.Native.value(), sendAddr,gas);
+        sdk.signTx(tx,sendAddr,password);
+        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        if(b){
+            return tx.hash().toHexString();
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param assetName
+     * @param sendAddr
+     * @param password
+     * @param fromAddr
+     * @param toAddr
+     * @param amount
+     * @param gas
+     * @return
+     * @throws Exception
+     */
+    public String sendTransferFrom(String assetName ,String sendAddr, String password, String fromAddr, String toAddr, long amount,long gas) throws Exception {
+        String contractAddr;
+        if (assetName.toUpperCase().equals("ONG")) {
+            contractAddr = ongContract;
+        } else if (assetName.toUpperCase().equals("ONT")) {
+            contractAddr = ontContract;
+        } else {
+            throw new SDKException(ErrorCode.AssetNameError);
+        }
+        AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
+        TransferFrom transferFrom = new TransferFrom(Address.addressFromPubKey(sender.pubkey),Address.decodeBase58(fromAddr), Address.decodeBase58(toAddr), amount);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        BinaryWriter binaryWriter = new BinaryWriter(byteArrayOutputStream);
+        transferFrom.serialize(binaryWriter);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr,"transferFrom", byteArrayOutputStream.toByteArray(), VmType.Native.value(), sendAddr,gas);
+        sdk.signTx(tx,sendAddr,password);
+        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        if(b){
+            return tx.hash().toHexString();
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param assetName
+     * @return
+     * @throws Exception
+     */
+    public String queryName(String assetName) throws Exception {
+        String contractAddr;
+        if (assetName.toUpperCase().equals("ONG")) {
+            contractAddr = ongContract;
+        } else if (assetName.toUpperCase().equals("ONT")) {
+            contractAddr = ontContract;
+        } else {
+            throw new SDKException(ErrorCode.AssetNameError);
+        }
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr,"name", "".getBytes(), VmType.Native.value(), null,0);
+        Object obj = sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+        return new String(Helper.hexToBytes((String) obj));
+    }
+
+    /**
+     *
+     * @param assetName
+     * @return
+     * @throws Exception
+     */
+    public String querySymbol(String assetName) throws Exception {
+        String contractAddr;
+        if (assetName.toUpperCase().equals("ONG")) {
+            contractAddr = ongContract;
+        } else if (assetName.toUpperCase().equals("ONT")) {
+            contractAddr = ontContract;
+        } else {
+            throw new SDKException(ErrorCode.AssetNameError);
+        }
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr,"symbol", "".getBytes(), VmType.Native.value(), null,0);
+        Object obj = sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+        return new String(Helper.hexToBytes((String) obj));
+    }
+
+
+    /**
+     *
+     * @param assetName
+     * @return
+     * @throws Exception
+     */
+    public long queryDecimals(String assetName) throws Exception {
+        String contractAddr;
+        if (assetName.toUpperCase().equals("ONG")) {
+            contractAddr = ongContract;
+        } else if (assetName.toUpperCase().equals("ONT")) {
+            contractAddr = ontContract;
+        } else {
+            throw new SDKException(ErrorCode.AssetNameError);
+        }
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr,"decimals", "".getBytes(), VmType.Native.value(), null,0);
+        Object obj = sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+        String res = (String)obj;
+        if (("").equals(res)) {
+            return 0;
+        }
+        return Long.valueOf(res,16);
+    }
+
+
+    /**
+     *
+     * @param assetName
+     * @param sendAddr
+     * @param password
+     * @param recvAddr
+     * @param amount
+     * @param gas
+     * @return
+     * @throws Exception
+     */
+    public String sendTransferToMany(String assetName, String sendAddr, String password, String[] recvAddr, long[] amount,long gas) throws Exception {
+        for (long amou : amount) {
+            if (amou <= 0) {
+                throw new SDKException(ErrorCode.AmountError);
+            }
+        }
+        String contractAddr = null;
+        if (assetName.toUpperCase().equals("ONG")) {
+            contractAddr = ongContract;
+        } else if (assetName.toUpperCase().equals("ONT")) {
+            contractAddr = ontContract;
+        } else {
+            throw new SDKException(ErrorCode.AssetNameError);
+        }
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         State[] states = new State[recvAddr.length];
         if (amount.length != recvAddr.length) {
-            throw new Exception("");
+            throw new Exception(ErrorCode.ParamError);
         }
         for (int i = 0; i < recvAddr.length; i++) {
             amount[i] = amount[i] * precision;
             states[i] = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr[i]), amount[i]);
         }
         Transfers transfers = new Transfers(states);
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr, "transfer", transfers.toArray(), VmType.Native.value(), sendAddr,gas);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr,"transfer",transfers.toArray(), VmType.Native.value(), sender.addressBase58,gas);
         sdk.signTx(tx, new Account[][]{{sdk.getWalletMgr().getAccount(sendAddr, password)}});
         boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
         if (b) {
@@ -124,6 +296,23 @@ public class OntAssetTx {
         }
         return null;
     }
+
+
+    public byte[] buildParams(byte[] ...params) throws SDKException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        BinaryWriter binaryWriter = new BinaryWriter(byteArrayOutputStream);
+        try {
+            for (byte[] param : params) {
+                binaryWriter.writeVarBytes(param);
+            }
+        } catch (IOException e) {
+            throw new SDKException(ErrorCode.WriteVarBytesError);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return byteArrayOutputStream.toByteArray();
+    }
+
 
     /**
      * @param assetName
@@ -182,25 +371,4 @@ public class OntAssetTx {
         }
         return null;
     }
-//    private String voteTx(String addr, String password, ECPoint... pubKeys) throws Exception {
-//        Vote tx = makeVoteTx(sdk.getWalletMgr().getAccount(addr, password,sdk.keyType,sdk.curveParaSpec).getAddressU160(), pubKeys);
-//        sdk.signTx(tx, new Account[][]{{sdk.getWalletMgr().getAccount(addr, password,sdk.keyType,sdk.curveParaSpec)}});
-//        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
-//        if (b) {
-//            return tx.hash().toString();
-//        }
-//        return null;
-//    }
-//
-//    private Vote makeVoteTx(Address account, ECPoint... pubKeys) {
-//        Vote tx = new Vote();
-//        tx.pubKeys = pubKeys;
-//        tx.account = account;
-//
-//        tx.attributes = new Attribute[1];
-//        tx.attributes[0] = new Attribute();
-//        tx.attributes[0].usage = AttributeUsage.Description;
-//        tx.attributes[0].data = UUID.randomUUID().toString().getBytes();
-//        return tx;
-//    }
 }

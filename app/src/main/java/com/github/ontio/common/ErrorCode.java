@@ -77,6 +77,8 @@ public class ErrorCode {
     public static String SendRawTxError = getError(58001,"SmartCodeTx Error,sendRawTransaction error");
     public static String TypeError = getError(58002,"SmartCodeTx Error,type error");
 
+
+    public static String AmountError = getError(58105,"OntAsset Error,amount is less than or equal to zero");
     public static String WriteVarBytesError = getError(58015,"OntIdTx Error, writeVarBytes error");
 
     public static String ExpireErr = getError(58017,"OntIdTx Error, expire is wrong");
