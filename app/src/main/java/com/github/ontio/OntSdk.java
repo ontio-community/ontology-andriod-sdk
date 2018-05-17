@@ -54,6 +54,8 @@ public class OntSdk {
     public Object[] curveParaSpec = new Object[]{"P-256"};
     public SignatureScheme signatureScheme = SignatureScheme.SHA256WITHECDSA;
 
+    public long DEFAULT_GAS_LIMIT = 0;
+
     public static synchronized OntSdk getInstance(){
         if(instance == null){
             instance = new OntSdk();
