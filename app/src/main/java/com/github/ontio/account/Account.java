@@ -65,15 +65,22 @@ public class Account {
         AlgorithmParameterSpec paramSpec;
         KeyType keyType;
         signatureScheme = scheme;
+
+        if (scheme == SignatureScheme.SHA256WITHECDSA) {
+            this.keyType = KeyType.ECDSA;
+            this.curveParams = new Object[]{Curve.P256.toString()};
+        } else if (scheme == SignatureScheme.SM3WITHSM2) {
+            this.keyType = KeyType.SM2;
+            this.curveParams = new Object[]{Curve.SM2P256V1.toString()};
+        }
+
         switch (scheme) {
             case SHA256WITHECDSA:
-                keyType = KeyType.ECDSA;
-                Object[] params = new Object[]{Curve.P256.toString()};
-                curveParams = params;
-                if (!(params[0] instanceof String)) {
+            case SM3WITHSM2:
+                if (!(curveParams[0] instanceof String)) {
                     throw new Exception(ErrorCode.InvalidParams);
                 }
-                String curveName = (String) params[0];
+                String curveName = (String) curveParams[0];
                 paramSpec = new ECGenParameterSpec(curveName);
                 gen = KeyPairGenerator.getInstance("EC", "SC");
                 break;
@@ -85,20 +92,26 @@ public class Account {
         KeyPair keyPair = gen.generateKeyPair();
         this.privateKey = keyPair.getPrivate();
         this.publicKey = keyPair.getPublic();
-        this.keyType = keyType;
         this.addressU160 = Address.addressFromPubKey(serializePublicKey());
     }
 
     public Account(byte[] data, SignatureScheme scheme) throws Exception {
         Security.addProvider(new BouncyCastleProvider());
         signatureScheme = scheme;
+
+        if (scheme == SignatureScheme.SM3WITHSM2) {
+            this.keyType = KeyType.SM2;
+            this.curveParams = new Object[]{Curve.SM2P256V1.toString()};
+        } else if (scheme == SignatureScheme.SHA256WITHECDSA) {
+            this.keyType = KeyType.ECDSA;
+            this.curveParams = new Object[]{Curve.P256.toString()};
+        }
+
         switch (scheme) {
             case SHA256WITHECDSA:
-                this.keyType = KeyType.ECDSA;
-                Object[] params = new Object[]{Curve.P256.toString()};
-                curveParams = params;
+            case SM3WITHSM2:
                 BigInteger d = new BigInteger(1, data);
-                ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec((String) params[0]);
+                ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec((String) this.curveParams[0]);
                 ECParameterSpec paramSpec = new ECNamedCurveSpec(spec.getName(), spec.getCurve(), spec.getG(), spec.getN());
                 ECPrivateKeySpec priSpec = new ECPrivateKeySpec(d, paramSpec);
                 KeyFactory kf = KeyFactory.getInstance("EC", "SC");
@@ -236,20 +249,22 @@ public class Account {
             throw new Exception(ErrorCode.InvalidMessage);
         }
         if (this.privateKey == null) {
-            throw new Exception("account without private key cannot generate signature");
+            throw new Exception(ErrorCode.WithoutPrivate);
         }
 
-        SignatureHandler ctx = new SignatureHandler(keyType, scheme);
+        SignatureHandler ctx = new SignatureHandler(keyType, signatureScheme);
         AlgorithmParameterSpec paramSpec = null;
-        if (scheme == SignatureScheme.SM3WITHSM2 && param != null) {
+        if (signatureScheme == SignatureScheme.SM3WITHSM2) {
             if (param instanceof String) {
                 paramSpec = new SM2ParameterSpec(Strings.toByteArray((String) param));
+            } else if (param == null) {
+                paramSpec = new SM2ParameterSpec("1234567812345678".getBytes());
             } else {
-                throw new Exception("invalid SM2 signature parameter, ID (String) excepted");
+                throw new Exception(ErrorCode.InvalidSM2Signature);
             }
         }
         byte[] signature = new Signature(
-                scheme,
+                signatureScheme,
                 paramSpec,
                 ctx.generateSignature(privateKey, msg, paramSpec)
         ).toBytes();
@@ -258,7 +273,7 @@ public class Account {
 
     public boolean verifySignature(byte[] msg, byte[] signature) throws Exception {
         if (msg == null || signature == null || msg.length == 0 || signature.length == 0) {
-            throw new Exception("invalid input");
+            throw new Exception(ErrorCode.AccountInvalidInput);
         }
         if (this.publicKey == null) {
             throw new Exception(ErrorCode.AccountWithoutPublicKey);
@@ -268,23 +283,27 @@ public class Account {
         return ctx.verifySignature(publicKey, msg, sig.getValue());
     }
 
-    public byte[] serializePublicKey() throws Exception {
+
+    public byte[] serializePublicKey() {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         bs.write(this.keyType.getLabel());
-
-        switch (this.keyType) {
-            case ECDSA:
-            case SM2:
-                BCECPublicKey pub = (BCECPublicKey) publicKey;
-                bs.write(Curve.valueOf(pub.getParameters().getCurve()).getLabel());
-                bs.write(pub.getQ().getEncoded(true));
-                break;
-            default:
-                // Should not reach here
-                throw new Exception(ErrorCode.UnknownKeyType);
+        try {
+            switch (this.keyType) {
+                case ECDSA:
+                case SM2:
+                    BCECPublicKey pub = (BCECPublicKey) publicKey;
+                    bs.write(Curve.valueOf(pub.getParameters().getCurve()).getLabel());
+                    bs.write(pub.getQ().getEncoded(true));
+                    break;
+                default:
+                    // Should not reach here
+                    throw new Exception(ErrorCode.UnknownKeyType);
+            }
+        } catch (Exception e) {
+            // Should not reach here
+            e.printStackTrace();
+            return null;
         }
-
-
         return bs.toByteArray();
     }
 
@@ -302,6 +321,7 @@ public class Account {
             case ECDSA:
             case SM2:
                 Curve c = Curve.fromLabel(data[1]);
+                this.curveParams = new Object[]{c.toString()};
                 ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec(c.toString());
                 ECParameterSpec param = new ECNamedCurveSpec(spec.getName(), spec.getCurve(), spec.getG(), spec.getN());
                 ECPublicKeySpec pubSpec = new ECPublicKeySpec(
@@ -422,7 +442,7 @@ public class Account {
 
     public static String getCtrDecodedPrivateKey(String encryptedPriKey, String passphrase, String address, int n, SignatureScheme scheme) throws Exception {
         if (encryptedPriKey == null) {
-            throw new SDKException(ErrorCode.ParamError);
+            throw new SDKException(ErrorCode.EncryptedPriKeyError);
         }
         byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.DEFAULT);
 
