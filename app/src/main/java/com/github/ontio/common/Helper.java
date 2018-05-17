@@ -25,6 +25,8 @@ import android.util.Log;
 import com.github.ontio.crypto.Digest;
 import com.github.ontio.sdk.exception.SDKException;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -132,5 +134,11 @@ public class Helper {
         byte[] addresshash = Arrays.copyOfRange(sha256, 0, 4);
         String s = Helper.toHexString(addresshash);
 	    return s;
+    }
+
+    public static int bytes2Int(byte[] src,ByteOrder byteOrder){
+        ByteBuffer buffer = ByteBuffer.wrap(src);
+        buffer.order(byteOrder);
+        return buffer.getInt();
     }
 }

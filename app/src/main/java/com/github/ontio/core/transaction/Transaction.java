@@ -40,7 +40,6 @@ public abstract class Transaction extends Inventory {
     public byte version = 0;
     public int nonce = new Random().nextInt();
     public Attribute[] attributes;
-    public Fee[] fee = new Fee[0];
     public long gasPrice = 0;
     public long gasLimit = 0;
     public Address payer;
@@ -71,6 +70,7 @@ public abstract class Transaction extends Inventory {
         transaction.version = ver;
         transaction.gasLimit = reader.readLong();
         transaction.gasPrice = reader.readLong();
+        transaction.payer = reader.readSerializable(Address.class);
         transaction.deserializeUnsignedWithoutType(reader);
         transaction.sigs = new Sig[(int) reader.readVarInt()];
         for (int i = 0; i < transaction.sigs.length; i++) {
@@ -98,9 +98,6 @@ public abstract class Transaction extends Inventory {
         deserializeExclusiveData(reader);
         attributes = reader.readSerializableArray(Attribute.class);
         int len = (int) reader.readVarInt();
-        for (int i = 0; i < len; i++) {
-            fee[i] = new Fee(reader.readLong(), reader.readSerializable(Address.class));
-        }
     }
 
     protected void deserializeExclusiveData(BinaryReader reader) throws Exception {
@@ -175,11 +172,8 @@ public abstract class Transaction extends Inventory {
         for (int i = 0; i < attributes.length; i++) {
             attrs[i] = attributes[i].json();
         }
-        Object[] fees = new Object[fee.length];
-        for (int i = 0; i < fee.length; i++) {
-            fees[i] = fee[i].json();
-        }
-        Object[] s = new Object[fee.length];
+
+        Object[] s = new Object[sigs.length];
         for (int i = 0; i < sigs.length; i++) {
             s[i] = sigs[i].json();
         }
@@ -187,7 +181,6 @@ public abstract class Transaction extends Inventory {
         json.put("GasLimit",gasLimit& (Long.MAX_VALUE*2-1));
         json.put("Payer",payer.toBase58());
         json.put("Attributes", attrs);
-        json.put("Fee", fees);
         json.put("Sigs", s);
         return json;
     }

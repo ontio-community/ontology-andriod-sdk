@@ -17,7 +17,7 @@
  *
  */
 
-package com.github.ontio.sdk.manager;
+package com.github.ontio.smartcontract.neovm;
 
 import android.util.Base64;
 
@@ -33,7 +33,6 @@ import com.github.ontio.common.Helper;
 import com.github.ontio.common.UInt256;
 import com.github.ontio.core.DataSignature;
 import com.github.ontio.core.VmType;
-import com.github.ontio.core.asset.Fee;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.merkle.MerkleVerifier;
 import com.github.ontio.sdk.claim.Claim;
@@ -736,8 +735,8 @@ public class OntIdTx {
         tmp.add(UUID.randomUUID().toString().getBytes());
         list.add(tmp);
 
-        byte[] params = sdk.getSmartcodeTx().createCodeParamsScript(list);
-        Transaction tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress, null, params, VmType.NEOVM.value(), null,0);
+        byte[] params = sdk.vm().createCodeParamsScript(list);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, VmType.NEOVM.value(), null,0);
         String aa = tx.toHexString();
         Object obj = sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
         if (obj == null || ((String) obj).length() == 0) {
@@ -1021,16 +1020,16 @@ public class OntIdTx {
 
     public Transaction makeInvokeTransaction(List<Object> list, IdentityInfo acctinfo,long gas) throws Exception {
 
-        byte[] params = sdk.getSmartcodeTx().createCodeParamsScript(list);
-        Transaction tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress, null, params, VmType.NEOVM.value(), acctinfo.addressU160,gas);
+        byte[] params = sdk.vm().createCodeParamsScript(list);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, VmType.NEOVM.value(), acctinfo.addressU160,gas);
         return tx;
     }
 
     public Transaction makeInvokeTransaction(List<Object> list, String addr, String password,long gas) throws Exception {
         addr = addr.replace(Common.didont, "");
         AccountInfo acctinfo = sdk.getWalletMgr().getAccountInfo(addr, password);
-        byte[] params = sdk.getSmartcodeTx().createCodeParamsScript(list);
-        Transaction tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddress, null, params, VmType.NEOVM.value(), acctinfo.addressBase58,gas);
+        byte[] params = sdk.vm().createCodeParamsScript(list);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, VmType.NEOVM.value(), acctinfo.addressBase58,gas);
         return tx;
     }
 

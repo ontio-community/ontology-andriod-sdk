@@ -53,6 +53,7 @@ public class ErrorCode {
     public static String PrefixNotMatch = getError(51014,"Key Password and Prefix not match");
     public static String NotSetCodeAddress = getError(51015, "Not Set Code Address");
     public static String KeyAddressPwdNotMatch = getError(51015, "Key Address and Password Not Match");
+    public static String EncryptedPriKeyError = getError(51014,"Account Error,Prikey length error");
 
     public static String InputError = getError(52001,"Uint256 Error,input error");
     public static String ChecksumNotValidate = getError(52002,"Base58 Error,Checksum does not validate");
@@ -64,7 +65,7 @@ public class ErrorCode {
     public static String InvalidSignatureDataLen = getError(52008,"Signature Error,invalid signature data length");
     public static String MalformedSignature = getError(52009,"Signature Error,malformed signature");
     public static String UnsupportedSignatureScheme = getError(52010,"Signature Error,unsupported signature scheme:");
-
+    public static String VerifyOntIdClaimErr = getError(58014,"OntIdTx Error, verifyOntIdClaim error");
 
 
     //transaction
@@ -76,6 +77,9 @@ public class ErrorCode {
     public static String SendRawTxError = getError(58001,"SmartCodeTx Error,sendRawTransaction error");
     public static String TypeError = getError(58002,"SmartCodeTx Error,type error");
 
+    public static String WriteVarBytesError = getError(58015,"OntIdTx Error, writeVarBytes error");
+
+    public static String ExpireErr = getError(58017,"OntIdTx Error, expire is wrong");
     public static String NullCodeHash = getError(58003,"OntIdTx Error,null codeHash");
     public static String ParamError = getError(58004,"OntIdTx Error,param error");
     public static String DidNull  = getError(58005,"OntIdTx Error,SendDid or receiverDid is null in metaData");
@@ -90,6 +94,7 @@ public class ErrorCode {
     public static String DidError = getError(58013,"OntAsset Error,Did error");
     public static String NullPkId = getError(58014,"OntAsset Error,null pkId");
     public static String NullClaimId = getError(58015,"OntAsset Error,null claimId");
+    public static String CreateOntIdClaimErr = getError(58013,"OntIdTx Error, createOntIdClaim error");
 
 
     public static String NullKeyOrValue = getError(58016,"RecordTx Error,null key or value");
@@ -103,5 +108,9 @@ public class ErrorCode {
     public static String SetParamsValueValueNumError = getError(58021,"AbiFunction Error,setParamsValue value num error");
     public static String InvalidUrl = getError(58022,"Interfaces Error,Invalid url:");
     public static String AESailed = getError(58023,"ECIES Error,AES failed initialisation -");
+
+    public static String OtherError(String msg) {
+        return getError(59000, "Other Error," + msg);
+    }
 
 }

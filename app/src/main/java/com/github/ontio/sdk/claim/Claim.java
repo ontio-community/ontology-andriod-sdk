@@ -19,6 +19,7 @@
 
 package com.github.ontio.sdk.claim;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.github.ontio.account.Account;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.DataSignature;
@@ -30,6 +31,7 @@ import com.github.ontio.crypto.SignatureScheme;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import android.util.Base64;
 
 /**
  * Claim
@@ -38,6 +40,7 @@ public class Claim {
     private String context = "";
     private String id = UUID.randomUUID().toString();
     private Map<String, Object> claim = new HashMap<String, Object>();
+    String ClaimStr = "";
 
     public Claim(SignatureScheme scheme, Account acct, String ctx, Map claimMap, Map metadata,String publicKeyId) throws Exception {
         context = ctx;
@@ -54,6 +57,20 @@ public class Claim {
 
     }
 
+    public Claim(SignatureScheme scheme, Account acct, String ctx, Map clmMap, Map<String,String> metadata,Map clmRevMap,String publicKeyId,long expireTime) throws Exception {
+        String iss = metadata.get("Issuer");
+        String sub = metadata.get("Subject");
+        Header header = new Header("","",publicKeyId);
+        Payload payload = new Payload("v1.0",iss,sub,System.currentTimeMillis()/1000,expireTime,ctx,clmMap,clmRevMap);
+        String headerStr = JSONObject.toJSONString(header.getJson());
+        String payloadStr = JSONObject.toJSONString(payload.getJson());
+        byte[] headerBytes = Base64.encode(headerStr.getBytes(),Base64.DEFAULT);
+        byte[] payloadBytes = Base64.encode(payloadStr.getBytes(),Base64.DEFAULT);
+        DataSignature sign = new DataSignature(scheme, acct, new String(headerBytes) + "." + new String(payloadBytes));
+        byte[] signature = sign.signature();
+        ClaimStr += new String(headerBytes) + "." + new String(payloadBytes) + "." + new String(Base64.encode(signature,Base64.DEFAULT));
+    }
+
     public String getClaim() {
         Map tmp = new HashMap<String, Object>();
         for (Map.Entry<String, Object> e : claim.entrySet()) {
@@ -61,8 +78,69 @@ public class Claim {
         }
         return JSONObject.toJSONString(tmp);
     }
+
+    public String getClaimStr() {
+        return ClaimStr;
+    }
 }
 
+
+
+class Header {
+    public String Alg = "ONT-ES256";
+    public String Typ = "JWT-X";
+    public String Kid;
+    public Header(String alg,String typ, String kid) {
+//        Alg = alg;
+//        Typ = typ;
+        Kid = kid;
+    }
+    public Object getJson() {
+        Map<String, Object> header = new HashMap<String, Object>();
+        header.put("alg", Alg);
+        header.put("typ", Typ);
+        header.put("kid", Kid);
+        return header;
+    }
+}
+class Payload {
+    public String Ver;
+    public String Iss;
+    public String Sub;
+    public long Iat;
+    public long Exp;
+    public String Jti;
+    @JSONField(name = "@context")
+    public String Context;
+    public Map<String, Object> ClmMap = new HashMap<String, Object>();
+    public Map<String, Object> ClmRevMap = new HashMap<String, Object>();
+
+    public Payload(String ver,String iss,String sub,long iat,long exp,String ctx,Map clmMap,Map clmRevMap) throws NoSuchAlgorithmException {
+        Ver = ver;
+        Iss = iss;
+        Sub = sub;
+        Iat = iat;
+        Exp = exp;
+        Context = ctx;
+        ClmMap = clmMap;
+        ClmRevMap = clmRevMap;
+        Jti = Helper.toHexString(Digest.sha256(JSON.toJSONString(getJson()).getBytes()));
+    }
+
+    public Object getJson() {
+        Map<String, Object> payload = new HashMap<String, Object>();
+        payload.put("ver", Ver);
+        payload.put("iss", Iss);
+        payload.put("sub", Sub);
+        payload.put("iat", Iat);
+        payload.put("exp", Exp);
+        payload.put("jti", Jti);
+        payload.put("@context", Context);
+        payload.put("clm",ClmMap);
+        payload.put("clm-rev",ClmRevMap);
+        return payload;
+    }
+}
 class Sign {
 
     private String Format = "pgp";

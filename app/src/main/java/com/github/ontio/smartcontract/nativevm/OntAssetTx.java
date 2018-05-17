@@ -17,7 +17,7 @@
  *
  */
 
-package com.github.ontio.sdk.manager;
+package com.github.ontio.smartcontract.nativevm;
 
 import com.github.ontio.OntSdk;
 import com.github.ontio.account.Account;
@@ -83,7 +83,7 @@ public class OntAssetTx {
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         State state = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), amount);
         Transfers transfers = new Transfers(new State[]{state});
-        Transaction tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddr, "transfer", transfers.toArray(), VmType.Native.value(), sendAddr,gas);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr, "transfer", transfers.toArray(), VmType.Native.value(), sendAddr,gas);
         return tx;
     }
 
@@ -116,7 +116,7 @@ public class OntAssetTx {
             states[i] = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr[i]), amount[i]);
         }
         Transfers transfers = new Transfers(states);
-        Transaction tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddr, "transfer", transfers.toArray(), VmType.Native.value(), sendAddr,gas);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr, "transfer", transfers.toArray(), VmType.Native.value(), sendAddr,gas);
         sdk.signTx(tx, new Account[][]{{sdk.getWalletMgr().getAccount(sendAddr, password)}});
         boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
         if (b) {
@@ -147,16 +147,14 @@ public class OntAssetTx {
             throw new Exception("");
         }
         State[] states = new State[sendAddr.length];
-        Fee[] fees = new Fee[sendAddr.length];
         for (int i = 0; i < sendAddr.length; i++) {
             AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr[i], password[i]);
             amount[i] = amount[i] * precision;
             states[i] = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), amount[i]);
-            fees[i] = new Fee(0, Address.addressFromPubKey(sender.pubkey));
         }
 
         Transfers transfers = new Transfers(states);
-        Transaction tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(contractAddr, "transfer", transfers.toArray(), VmType.Native.value(), sendAddr[0],gas);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr, "transfer", transfers.toArray(), VmType.Native.value(), sendAddr[0],gas);
         Account[][] acct = new Account[sendAddr.length][];
         for (int i = 0; i < sendAddr.length; i++) {
             acct[i] = new Account[]{sdk.getWalletMgr().getAccount(sendAddr[i], password[i])};
@@ -176,7 +174,7 @@ public class OntAssetTx {
         }
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         TransferFrom transferFrom = new TransferFrom(Address.addressFromPubKey(sender.pubkey), Address.parse(ontContract), Address.decodeBase58(to), amount);
-        Transaction tx = sdk.getSmartcodeTx().makeInvokeCodeTransaction(ontContract, "transferFrom", transferFrom.toArray(), VmType.Native.value(), sendAddr,gas);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract, "transferFrom", transferFrom.toArray(), VmType.Native.value(), sendAddr,gas);
         sdk.signTx(tx, sendAddr, password);
         boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
         if (b) {

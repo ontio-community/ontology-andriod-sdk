@@ -1,52 +1,35 @@
-/*
- * Copyright (C) 2018 The ontology Authors
- * This file is part of The ontology library.
- *
- *  The ontology is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  The ontology is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
+package com.github.ontio.smartcontract;
 
-package com.github.ontio.sdk.manager;
-
+import com.alibaba.fastjson.JSON;
+import com.github.ontio.OntSdk;
 import com.github.ontio.account.Account;
 import com.github.ontio.common.Address;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.ErrorCode;
+import com.github.ontio.common.Helper;
 import com.github.ontio.core.VmType;
 import com.github.ontio.core.asset.Contract;
-import com.github.ontio.core.transaction.Attribute;
-import com.github.ontio.core.transaction.Transaction;
-import com.github.ontio.core.transaction.AttributeUsage;
-import com.github.ontio.common.Helper;
 import com.github.ontio.core.payload.DeployCode;
 import com.github.ontio.core.payload.InvokeCode;
 import com.github.ontio.core.scripts.ScriptBuilder;
-import com.github.ontio.OntSdk;
-import com.github.ontio.sdk.exception.SDKException;
+import com.github.ontio.core.transaction.Attribute;
+import com.github.ontio.core.transaction.AttributeUsage;
+import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.sdk.abi.AbiFunction;
 import com.github.ontio.sdk.abi.Parameter;
+import com.github.ontio.sdk.exception.SDKException;
 import com.github.ontio.sdk.info.AccountInfo;
-import com.alibaba.fastjson.JSON;
 
 import java.lang.reflect.Array;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-/**
- *
- */
-public class SmartcodeTx {
+public class Vm {
+
     private OntSdk sdk;
     private String contractAddress = null;
 
@@ -58,7 +41,7 @@ public class SmartcodeTx {
         this.contractAddress = codeHash.replace("0x", "");
     }
 
-    public SmartcodeTx(OntSdk sdk) {
+    public Vm(OntSdk sdk) {
         this.sdk = sdk;
     }
 
@@ -140,14 +123,14 @@ public class SmartcodeTx {
         if (list.size() > 0) {
             list.add(tmp);
         }
-        byte[] params = sdk.vm().createCodeParamsScript(list);
+        byte[] params = createCodeParamsScript(list);
 
         Transaction tx = null;
         if (ontid == null && password == null) {
-            tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
+            tx = makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
         } else {
             AccountInfo info = sdk.getWalletMgr().getAccountInfo(ontid, password);
-            tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
+            tx = makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
         }
         return tx;
     }
@@ -323,7 +306,7 @@ public class SmartcodeTx {
      * @return
      * @throws Exception
      */
-    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype,String payer,long gas) throws Exception {
+    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype, String payer, long gas) throws Exception {
         if (("").equals(payer)){
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -357,7 +340,7 @@ public class SmartcodeTx {
      * @return
      * @throws Exception
      */
-    public InvokeCode makeInvokeCodeTransaction(String codeAddr, String method, byte[] params, byte vmtype, String payer,long gas) throws Exception {
+    public InvokeCode makeInvokeCodeTransaction(String codeAddr, String method, byte[] params, byte vmtype, String payer, long gas) throws Exception {
         if(vmtype == VmType.NEOVM.value()) {
             Contract contract = new Contract((byte) 0, null, Address.parse(codeAddr), "", params);
             params = Helper.addBytes(new byte[]{0x67}, contract.toArray());

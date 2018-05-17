@@ -30,7 +30,14 @@ import com.github.ontio.crypto.KeyType;
 import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.exception.SDKException;
 import com.github.ontio.sdk.manager.*;
-import com.github.ontio.network.websocket.WebsocketClient;
+import com.github.ontio.smartcontract.NativeVm;
+import com.github.ontio.smartcontract.NeoVm;
+import com.github.ontio.smartcontract.Vm;
+import com.github.ontio.smartcontract.nativevm.NativeOntIdTx;
+import com.github.ontio.smartcontract.nativevm.OntAssetTx;
+import com.github.ontio.smartcontract.neovm.ClaimRecordTx;
+import com.github.ontio.smartcontract.neovm.OntIdTx;
+import com.github.ontio.smartcontract.neovm.RecordTx;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -45,10 +52,11 @@ public class OntSdk {
     private ConnectMgr connWebSocket;
     private ConnectMgr connDefault;
 
-    private OntIdTx ontIdTx = null;
-    private RecordTx recordTx = null;
-    private SmartcodeTx smartcodeTx = null;
-    private OntAssetTx ontAssetTx = null;
+
+    private Vm smartcodeTx = null;
+    private NativeVm nativevm = null;
+    private NeoVm neovm = null;
+
     private static OntSdk instance = null;
     public KeyType keyType = KeyType.ECDSA;
     public Object[] curveParaSpec = new Object[]{"P-256"};
@@ -64,7 +72,20 @@ public class OntSdk {
     }
     private OntSdk(){
     }
-
+    public NativeVm nativevm() throws SDKException{
+        if(nativevm == null){
+            vm();
+            nativevm = new NativeVm(getInstance());
+        }
+        return nativevm;
+    }
+    public NeoVm neovm() {
+        if(neovm == null){
+            vm();
+            neovm = new NeoVm(getInstance());
+        }
+        return neovm;
+    }
     public ConnectMgr getRpc() throws SDKException{
         if(connRpc == null){
             throw new SDKException(ErrorCode.ConnRestfulNotInit);
@@ -104,50 +125,16 @@ public class OntSdk {
     }
 
     /**
-     * OntId
-     * @return instance
+     *
+     * @return
      */
-    public OntIdTx getOntIdTx() {
-        if(ontIdTx == null){
-            getSmartcodeTx();
-            ontIdTx = new OntIdTx(getInstance());
-        }
-        return ontIdTx;
-    }
-
-    /**
-     * RecordTx
-     * @return instance
-     */
-    public RecordTx getRecordTx() {
-        if(recordTx == null){
-            getSmartcodeTx();
-            recordTx = new RecordTx(getInstance());
-        }
-        return recordTx;
-    }
-
-    /**
-     *  Smartcode Tx
-     * @return instance
-     */
-    public SmartcodeTx getSmartcodeTx() {
+    public Vm vm() {
         if(smartcodeTx == null){
-            smartcodeTx = new SmartcodeTx(getInstance());
+            smartcodeTx = new Vm(getInstance());
         }
         return smartcodeTx;
     }
 
-    /**
-     *  get OntAsset Tx
-     * @return instance
-     */
-    public OntAssetTx getOntAssetTx() {
-        if(ontAssetTx == null){
-            ontAssetTx = new OntAssetTx(getInstance());
-        }
-        return ontAssetTx;
-    }
 
     /**
      * get Wallet Mgr
@@ -158,15 +145,6 @@ public class OntSdk {
     }
 
 
-    /**
-     *
-     * @param codeAddress
-     */
-    public void setCodeAddress(String codeAddress){
-        getOntIdTx().setCodeAddress(codeAddress);
-        getSmartcodeTx().setCodeAddress(codeAddress);
-        getRecordTx().setCodeAddress(codeAddress);
-    }
 
     /**
      *

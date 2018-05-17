@@ -1,4 +1,4 @@
-package com.github.ontio.sdk.manager;
+package com.github.ontio.smartcontract.neovm;
 
 import com.alibaba.fastjson.JSON;
 import com.github.ontio.OntSdk;
