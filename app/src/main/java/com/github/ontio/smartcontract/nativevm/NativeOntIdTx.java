@@ -391,12 +391,11 @@ public class NativeOntIdTx {
      * @param ontid
      * @param password
      * @param path
-     * @param publicKey
      * @param gas
      * @return
      * @throws Exception
      */
-    public String sendRemoveAttribute(String ontid,String password,String path,String publicKey,long gas) throws Exception {
+    public String sendRemoveAttribute(String ontid,String password,String path,long gas) throws Exception {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
