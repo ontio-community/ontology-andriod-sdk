@@ -55,7 +55,7 @@ public class NativeOntIdTx {
      * @return
      * @throws Exception
      */
-    public Identity sendRegister(Identity ident, String password,long gas) throws Exception {
+    public Identity sendRegister(Identity ident, String password,long gas,boolean preExec) throws Exception {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
@@ -68,9 +68,25 @@ public class NativeOntIdTx {
         Identity identity = sdk.getWalletMgr().addOntIdController(ontid, info.encryptedPrikey, info.ontid);
         sdk.getWalletMgr().writeWallet();
         boolean b = false;
-        System.out.print(tx.toHexString());
-        b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        if (preExec){
+            String result = (String) sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+            b = Integer.parseInt(result) > 0 ? true : false;
+            if (!b) {
+                throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error"));
+            }
+        }else{
+            b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        }
         return identity;
+    }
+
+
+    public Identity sendRegister(Identity ident, String password,long gas) throws Exception {
+        return sendRegister(ident, password,gas, false);
+    }
+
+    public Identity sendRegisterPreExec(Identity ident, String password,long gas) throws Exception {
+        return sendRegister(ident, password,gas, true);
     }
 
     /**
