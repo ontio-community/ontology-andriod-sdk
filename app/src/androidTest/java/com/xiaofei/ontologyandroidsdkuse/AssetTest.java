@@ -37,6 +37,7 @@ public class AssetTest {
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
+        ontSdk.setRestful("http://192.168.50.73:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -44,23 +45,6 @@ public class AssetTest {
         connectMgr = ontSdk.getConnectMgr();
         ontAssetTx = ontSdk.nativevm().ont();
         ontIdTx = ontSdk.nativevm().ontId();
-        ontSdk.vm().setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
-    }
-
-
-
-    @Test
-    public void testTransfer() throws Exception {
-
-        Account account1 = ontSdk.getWalletMgr().createAccountFromPriKey(password,"d6aae3603a82499062fe2ddd68840dce417e2e9e7785fbecb3100dd68c4e2d44");
-        Account account2 = ontSdk.getWalletMgr().createAccount(password);
-        System.out.print("account1 address:" + account2.address);
-        System.out.print("account2 address:" + account2.address);
-
-        System.out.print("account1 balance:" + ontAssetTx.sendBalanceOf("ont",account1.address));
-        System.out.print("account2 balance:" + ontAssetTx.sendBalanceOf("ont",account2.address));
-
-
     }
 
     @After

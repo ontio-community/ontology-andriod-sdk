@@ -43,7 +43,7 @@ public class SmokeTest {
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
 //        ontSdk.setRestful("http://polaris1.ont.io:20334");
-        ontSdk.setRestful("http://10.0.2.2:20334");
+        ontSdk.setRestful("http://192.168.50.73:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -51,7 +51,7 @@ public class SmokeTest {
         connectMgr = ontSdk.getConnectMgr();
         ontAssetTx = ontSdk.nativevm().ont();
         ontIdTx = ontSdk.nativevm().ontId();
-//        ontSdk.vm().setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
+        //ontSdk.vm().setCodeAddress("ff00000000000000000000000000000000000003");
     }
 
     @Test
@@ -107,10 +107,11 @@ public class SmokeTest {
 
     @Test
     public void sendRegisterPreExec() throws Exception {
-//        Identity identity = ontIdTx.sendRegisterPreExec("123456");
-//        assertNotNull(identity);
-//        assertNotNull(identity.ontid);
-//        assertNotEquals(identity.ontid,"");
+        Identity identity0 = walletMgr.createIdentity("123456");
+        Identity identity = ontIdTx.sendRegisterPreExec(identity0,"123456",0);
+        assertNotNull(identity);
+        assertNotNull(identity.ontid);
+        assertNotEquals(identity.ontid,"");
     }
 
     @Test
@@ -203,7 +204,7 @@ public class SmokeTest {
         assertTrue(string.contains("key11"));
 //        assertTrue(string.contains("issuerlalala"));
 
-        String txnId1 = ontIdTx.sendRemoveAttribute(identity.ontid,"123456","key11",prikey,0);
+        String txnId1 = ontIdTx.sendRemoveAttribute(identity.ontid,"123456","key11",0);
         assertNotNull(txnId1);
         assertNotEquals(txnId1,"");
         Thread.sleep(6000);
@@ -219,7 +220,7 @@ public class SmokeTest {
 //        TA4pSdTKm4hHtQJ8FbrCk9LZn7Uo96wrPC---Vz0CevSaI9/VNLx03XNEQ4Lrnnkkjo5aM5hdCuicsOE= poor1
 //        TA5F9QefsyKvn5cH37VnP5snSru5ZCYHHC---OGaD13Sn/q9gIZ8fmOtclMi4yy34qq963wzpidYDX5k= poor2
 
-        JSONObject balanceObj = (JSONObject) connectMgr.getBalance("TA6qWdLo14aEve5azrYWWvMoGPrpczFfeW");
+        JSONObject balanceObj = (JSONObject) connectMgr.getBalance("TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z");
         assertNotNull(balanceObj);
         int ontBalance = balanceObj.getIntValue("ont");
         assertTrue(ontBalance >= 0);

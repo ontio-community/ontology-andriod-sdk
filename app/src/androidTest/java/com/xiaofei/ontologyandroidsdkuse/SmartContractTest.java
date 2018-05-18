@@ -15,9 +15,10 @@
 //import com.github.ontio.sdk.exception.SDKException;
 //import com.github.ontio.sdk.info.AccountInfo;
 //import com.github.ontio.sdk.manager.ConnectMgr;
-//import com.github.ontio.sdk.manager.OntIdTx;
 //import com.github.ontio.sdk.manager.SmartcodeTx;
+//import com.github.ontio.sdk.manager.WalletMgr;
 //import com.github.ontio.sdk.wallet.Identity;
+//import com.github.ontio.smartcontract.nativevm.NativeOntIdTx;
 //
 //import org.junit.After;
 //import org.junit.Assert;
@@ -25,13 +26,13 @@
 //import org.junit.Test;
 //import org.junit.runner.RunWith;
 //
-//import java.io.IOException;
-//import java.net.ConnectException;
 //import java.util.ArrayList;
 //import java.util.List;
 //import java.util.UUID;
 //
-//import static org.junit.Assert.*;
+//import static org.junit.Assert.assertNotEquals;
+//import static org.junit.Assert.assertNotNull;
+//import static org.junit.Assert.assertTrue;
 //
 //@RunWith(AndroidJUnit4.class)
 //public class SmartContractTest {
@@ -45,7 +46,8 @@
 //    Context appContext;
 //    SmartcodeTx smartcodeTx;
 //    ConnectMgr connectMgr;
-//    OntIdTx ontIdTx;
+//    NativeOntIdTx ontIdTx;
+//    WalletMgr walletMgr;
 //
 //    @Before
 //    public void setUp() throws Exception {
@@ -60,15 +62,14 @@
 //        ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
 //
 //
-//        ontSdk.setCodeAddress(codeAddress);
-//
 //        String funStr = "{\"name\": \"AddAttribute\",\"parameters\": [{\"name\": \"ontId\",\"type\": \"ByteArray\"},{\"name\": \"path\",\"type\": \"ByteArray\"},{\"name\": \"type\",\"type\": \"ByteArray\"},{\"name\": \"value\",\"type\": \"ByteArray\"},{\"name\": \"publicKey\",\"type\": \"ByteArray\"}],\"returntype\": \"Boolean\"}";
 //
 //        abiFunction = JSON.parseObject(funStr,AbiFunction.class);
 //
 //
 //        if (ontSdk.getWalletMgr().getIdentitys().size() < 1) {
-//            Identity did = ontSdk.getOntIdTx().sendRegister("passwordtest");
+//            Identity did0 = walletMgr.createIdentity("passwordtest");
+//            Identity did = ontIdTx.sendRegister(did0,"passwordtest",0);
 //            Thread.sleep(6000);
 //        }
 //        did = ontSdk.getWalletMgr().getIdentitys().get(0);
@@ -89,7 +90,7 @@
 //        boolean b = ontSdk.getConnectMgr().sendRawTransaction(txHex);
 //        Thread.sleep(6000);
 //
-//        smartcodeTx = ontSdk.getSmartcodeTx();
+//        smartcodeTx = ontSdk.();
 //
 //
 //    }
