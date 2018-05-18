@@ -36,7 +36,7 @@ public class InvokeCode extends Transaction {
     public byte vmType;
     public byte[] code;
 
-    public InvokeCode() {
+    public InvokeCode() throws Exception {
         super(TransactionType.InvokeCode);
     }
 
@@ -48,7 +48,6 @@ public class InvokeCode extends Transaction {
 
     @Override
     protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
-        writer.writeLong(gasLimit);
         writer.writeByte(vmType);
         writer.writeVarBytes(code);
     }

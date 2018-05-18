@@ -38,7 +38,7 @@ import java.math.BigInteger;
 public class Enrollment extends Transaction {
     public ECPoint pubKey;
 
-    public Enrollment() {
+    public Enrollment() throws Exception {
         super(TransactionType.Enrollment);
     }
 

@@ -40,7 +40,7 @@ public class Bookkeeper extends Transaction {
 	public BookkeeperAction action;
 	public byte[] cert;
 	
-	public Bookkeeper() {
+	public Bookkeeper() throws Exception {
 		super(TransactionType.Bookkeeper);
 	}
 	

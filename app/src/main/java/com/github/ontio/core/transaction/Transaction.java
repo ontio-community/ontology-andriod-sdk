@@ -42,10 +42,10 @@ public abstract class Transaction extends Inventory {
     public Attribute[] attributes;
     public long gasPrice = 0;
     public long gasLimit = 0;
-    public Address payer;
+    public Address payer = new Address();
     public Sig[] sigs = new Sig[0];
 
-    protected Transaction(TransactionType type) {
+    protected Transaction(TransactionType type) throws Exception {
         this.txType = type;
     }
 
@@ -90,6 +90,15 @@ public abstract class Transaction extends Inventory {
         version = reader.readByte();
         if (txType.value() != reader.readByte()) {
             throw new IOException();
+        }
+        gasPrice = reader.readLong();
+        gasLimit = reader.readLong();
+        try {
+            payer = reader.readSerializable(Address.class);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
         deserializeUnsignedWithoutType(reader);
     }

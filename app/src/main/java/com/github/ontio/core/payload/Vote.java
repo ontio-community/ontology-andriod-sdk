@@ -39,7 +39,7 @@ public class Vote extends Transaction {
     public ECPoint[] pubKeys;
     public Address account;
 
-    public Vote() {
+    public Vote() throws Exception {
         super(TransactionType.Vote);
     }
 

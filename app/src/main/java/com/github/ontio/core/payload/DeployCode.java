@@ -38,7 +38,7 @@ public class DeployCode extends Transaction {
     public String description;
 
 
-    public DeployCode() {
+    public DeployCode() throws Exception {
         super(TransactionType.DeployCode);
     }
 

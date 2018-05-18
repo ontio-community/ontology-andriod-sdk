@@ -63,11 +63,12 @@ public class NativeOntIdTx {
         String ontid = info.ontid;
         byte[] pk = Helper.hexToBytes(info.pubkey);
         byte[] parabytes = buildParams(ontid.getBytes(),pk);
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"regIDWithPublicKey",parabytes, VmType.Native.value(), ident.ontid.replace(Common.didont,""),gas);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"regIDWithPublicKey",parabytes, VmType.Native.value(), ontid,gas);
         sdk.signTx(tx, ontid, password);
         Identity identity = sdk.getWalletMgr().addOntIdController(ontid, info.encryptedPrikey, info.ontid);
         sdk.getWalletMgr().writeWallet();
         boolean b = false;
+        System.out.print(tx.toHexString());
         b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
         return identity;
     }
@@ -361,6 +362,33 @@ public class NativeOntIdTx {
         byte[] pk = Helper.hexToBytes(info.pubkey);
         byte[] parabytes = buildParams(ontid.getBytes(),serializeAttributes(attrsMap),pk);
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"addAttributes",parabytes, VmType.Native.value(), addr,gas);
+        sdk.signTx(tx, addr, password);
+        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        if (b) {
+            return tx.hash().toString();
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param ontid
+     * @param password
+     * @param path
+     * @param publicKey
+     * @param gas
+     * @return
+     * @throws Exception
+     */
+    public String sendRemoveAttribute(String ontid,String password,String path,String publicKey,long gas) throws Exception {
+        if (contractAddress == null) {
+            throw new SDKException(ErrorCode.NullCodeHash);
+        }
+        String addr = ontid.replace(Common.didont, "");
+        AccountInfo info = sdk.getWalletMgr().getAccountInfo(addr, password);
+        byte[] pk = Helper.hexToBytes(info.pubkey);
+        byte[] parabytes = buildParams(ontid.getBytes(),path.getBytes(),pk);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"removeAttribute",parabytes, VmType.Native.value(), addr,gas);
         sdk.signTx(tx, addr, password);
         boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
         if (b) {

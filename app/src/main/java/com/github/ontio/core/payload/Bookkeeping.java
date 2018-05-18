@@ -32,7 +32,7 @@ import com.github.ontio.io.BinaryWriter;
 public class Bookkeeping extends Transaction {
 	private long nonce;
 
-	public Bookkeeping() {
+	public Bookkeeping() throws Exception {
 		super(TransactionType.Bookkeeping);
 	}
 

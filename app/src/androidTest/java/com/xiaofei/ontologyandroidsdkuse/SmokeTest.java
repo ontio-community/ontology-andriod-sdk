@@ -7,13 +7,15 @@ import android.support.test.runner.AndroidJUnit4;
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Helper;
+import com.github.ontio.crypto.SignatureScheme;
+import com.github.ontio.sdk.info.AccountInfo;
 import com.github.ontio.sdk.manager.ConnectMgr;
-import com.github.ontio.sdk.manager.OntAssetTx;
-import com.github.ontio.sdk.manager.OntIdTx;
 import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Identity;
 import com.github.ontio.sdk.wallet.Wallet;
+import com.github.ontio.smartcontract.nativevm.NativeOntIdTx;
+import com.github.ontio.smartcontract.nativevm.OntAssetTx;
 
 import org.junit.After;
 import org.junit.Before;
@@ -21,7 +23,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -33,20 +37,43 @@ public class SmokeTest {
     private WalletMgr walletMgr;
     private Wallet wallet;
     private Context appContext;
-    private OntIdTx ontIdTx;
-
+    private NativeOntIdTx ontIdTx;
+    String password = "111111";
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
-        ontSdk.setRestful("http://polaris1.ont.io:20334");
+//        ontSdk.setRestful("http://polaris1.ont.io:20334");
+        ontSdk.setRestful("http://10.0.2.2:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
         wallet = walletMgr.getWallet();
         connectMgr = ontSdk.getConnectMgr();
-        ontAssetTx = ontSdk.getOntAssetTx();
-        ontIdTx = ontSdk.getOntIdTx();
-        ontSdk.setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
+        ontAssetTx = ontSdk.nativevm().ont();
+        ontIdTx = ontSdk.nativevm().ontId();
+//        ontSdk.vm().setCodeAddress("80b0cc71bda8653599c5666cae084bff587e2de1");
+    }
+
+    @Test
+    public void transferTest() throws Exception {
+
+
+//        ontSdk.setSignatureScheme(SignatureScheme.SM3WITHSM2);
+//        Account account1 = ontSdk.getWalletMgr().createAccountFromPriKey(password,"d6aae3603a82499062fe2ddd68840dce417e2e9e7785fbecb3100dd68c4e2d44");
+//        Account account2 = ontSdk.getWalletMgr().createAccount(password);
+
+        AccountInfo info = ontSdk.getWalletMgr().createAccountInfo(password);
+        String encrPri = info.encryptedPrikey;
+        System.out.print(encrPri);
+
+//        long act1 = ontSdk.nativevm().ont().sendBalanceOf("ont",account1.address);
+//        long act2 = ontSdk.nativevm().ont().sendBalanceOf("ont",account2.address);
+        //f80LhIrB7FfhwLtKSQJtBgnrwankGzOPwhJ2h/3DgOU=
+        int a= 0;
+
+//        ontSdk.nativevm().ont().sendTransfer("ont",account1.address,password,account2.address,100,0);
+
+
     }
 
     @After
@@ -80,16 +107,16 @@ public class SmokeTest {
 
     @Test
     public void sendRegisterPreExec() throws Exception {
-        Identity identity = ontIdTx.sendRegisterPreExec("123456");
-        assertNotNull(identity);
-        assertNotNull(identity.ontid);
-        assertNotEquals(identity.ontid,"");
+//        Identity identity = ontIdTx.sendRegisterPreExec("123456");
+//        assertNotNull(identity);
+//        assertNotNull(identity.ontid);
+//        assertNotEquals(identity.ontid,"");
     }
 
     @Test
     public void sendRegister() throws Exception {
         Identity identity = walletMgr.createIdentity("123456");
-        Identity identity1 = ontIdTx.sendRegister(identity,"123456");
+        Identity identity1 = ontIdTx.sendRegister(identity,"123456",0);
         Thread.sleep(6000);
         String string = ontIdTx.sendGetDDO(identity1.ontid);
         assertTrue(string.contains(identity1.ontid));
@@ -150,7 +177,8 @@ public class SmokeTest {
 
     @Test
     public void sendUpdateAttribute() throws Exception {
-        Identity identity = ontIdTx.sendRegister("123456");
+        Identity identity0 = ontSdk.getWalletMgr().createIdentity("123456");
+        Identity identity = ontIdTx.sendRegister(identity0,"123456",0);
         com.github.ontio.account.Account account = walletMgr.getAccount(identity.ontid,"123456");
         String prikey = account.exportCtrEncryptedPrikey("123456", 4096);
         Thread.sleep(6000);
@@ -160,24 +188,28 @@ public class SmokeTest {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("Context", "claimlalala");
         jsonObject.put("Issuer", "issuerlalala");
-        String txnIdPreexec = ontIdTx.sendUpdateAttributePreExec(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(),jsonObject.toJSONString().getBytes());
-        assertNotNull(txnIdPreexec);
-        assertNotEquals(txnIdPreexec,"");
-        String txnId = ontIdTx.sendUpdateAttribute(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(), jsonObject.toJSONString().getBytes());
-        assertNotNull(txnId);
-        assertNotEquals(txnId,"");
+//        String txnIdPreexec = ontIdTx.sendUpdateAttributePreExec(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(),jsonObject.toJSONString().getBytes());
+//        assertNotNull(txnIdPreexec);
+//        assertNotEquals(txnIdPreexec,"");
+//        String txnId = ontIdTx.sendUpdateAttribute(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(), jsonObject.toJSONString().getBytes());
+//        assertNotNull(txnId);
+//        assertNotEquals(txnId,"");
+//        Thread.sleep(6000);
+        Map attrsMap = new HashMap<>();
+        attrsMap.put("key11","value11");
+        String txnId = ontIdTx.sendAddAttributes(identity.ontid,"123456",attrsMap,0);
         Thread.sleep(6000);
         string = ontIdTx.sendGetDDO(identity.ontid);
-        assertTrue(string.contains("claimlalala"));
-        assertTrue(string.contains("issuerlalala"));
+        assertTrue(string.contains("key11"));
+//        assertTrue(string.contains("issuerlalala"));
 
-        String txnId1 = ontIdTx.sendRemoveAttribute(identity.ontid,"123456",prikey.getBytes());
+        String txnId1 = ontIdTx.sendRemoveAttribute(identity.ontid,"123456","key11",prikey,0);
         assertNotNull(txnId1);
         assertNotEquals(txnId1,"");
         Thread.sleep(6000);
         string = ontIdTx.sendGetDDO(identity.ontid);
-        assertFalse(string.contains("claimlalala"));
-        assertFalse(string.contains("issuerlalala"));
+        assertFalse(string.contains("key11"));
+        assertFalse(string.contains("key11"));
     }
 
 
@@ -216,7 +248,7 @@ public class SmokeTest {
         com.github.ontio.sdk.wallet.Account accountRich = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
         com.github.ontio.sdk.wallet.Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
 
-        String txnId = ontAssetTx.sendTransfer("ont",richAddr,"123123",poorAddr,amount);
+        String txnId = ontAssetTx.sendTransfer("ont",richAddr,"123123",poorAddr,amount,0);
         assertNotNull(txnId);
         assertNotEquals(txnId,"");
 
@@ -230,7 +262,7 @@ public class SmokeTest {
         assertTrue(richBalanceAfter == richBalance -amount);
         assertTrue(poorBalanceAfter == poorBalance +amount);
 
-        String txnIdback = ontAssetTx.sendTransfer("ont",poorAddr,"123123",richAddr,amount);
+        String txnIdback = ontAssetTx.sendTransfer("ont",poorAddr,"123123",richAddr,amount,0);
         assertNotNull(txnIdback);
         assertNotEquals(txnIdback,"");
 
@@ -280,7 +312,7 @@ public class SmokeTest {
         com.github.ontio.sdk.wallet.Account accountPoor2 = walletMgr.importAccount("poor2",poorKey2,"123123",poor2Prefix);
 
 
-        String txnId =ontAssetTx.sendTransferFromMany("ont",new String[]{richAddr,poorAddr1},new String[]{"123123","123123"},poorAddr2,new long[]{amount1,amount2});
+        String txnId =ontAssetTx.sendTransferFromMany("ont",new String[]{richAddr,poorAddr1},new String[]{"123123","123123"},poorAddr2,new long[]{amount1,amount2},0);
         assertNotNull(txnId);
         assertNotEquals(txnId,"");
 
@@ -296,7 +328,7 @@ public class SmokeTest {
         assertTrue(poorAfter1 == poorOrig1 - amount2);
         assertTrue(poorAfter2 == poorOrig2 + amount1 + amount2);
 
-        String txnIdback = ontAssetTx.sendTransferToMany("ont",poorAddr2,"123123",new String[]{richAddr,poorAddr1},new long[]{amount1,amount2});
+        String txnIdback = ontAssetTx.sendTransferToMany("ont",poorAddr2,"123123",new String[]{richAddr,poorAddr1},new long[]{amount1,amount2},0);
         assertNotNull(txnIdback);
         assertNotEquals(txnIdback,"");
 
@@ -331,7 +363,7 @@ public class SmokeTest {
 
         com.github.ontio.sdk.wallet.Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
 
-        String txnId = ontAssetTx.sendOngTransferFrom(richAddr,"123123",richAddr,amount);
+        String txnId = ontAssetTx.sendOngTransferFrom(richAddr,"123123",richAddr,amount,0);
         assertNotNull(txnId);
         assertNotEquals(txnId,"");
 
@@ -366,7 +398,7 @@ public class SmokeTest {
 
         com.github.ontio.sdk.wallet.Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
 
-        String txnId = ontAssetTx.sendOngTransferFrom(richAddr,"123123",poorAddr,amount);
+        String txnId = ontAssetTx.sendOngTransferFrom(richAddr,"123123",poorAddr,amount,0);
         assertNotNull(txnId);
         assertNotEquals(txnId,"");
 
