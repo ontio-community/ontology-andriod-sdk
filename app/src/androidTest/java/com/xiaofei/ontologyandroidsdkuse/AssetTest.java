@@ -6,8 +6,6 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.github.ontio.OntSdk;
 import com.github.ontio.sdk.manager.ConnectMgr;
-import com.github.ontio.sdk.manager.OntAssetTx;
-import com.github.ontio.sdk.manager.OntIdTx;
 import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Identity;
