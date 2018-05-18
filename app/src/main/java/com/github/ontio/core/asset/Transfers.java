@@ -31,7 +31,6 @@ import java.util.Map;
  *
  */
 public class Transfers extends Serializable {
-    public byte version = 0;
     public State[] states;
 
     public Transfers(State[] states) {
@@ -40,7 +39,6 @@ public class Transfers extends Serializable {
 
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
-        version = reader.readByte();
         int len = (int) reader.readVarInt();
         for (int i = 0; i < len; i++) {
             states[i] = reader.readSerializable(State.class);
@@ -49,7 +47,6 @@ public class Transfers extends Serializable {
 
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
-        writer.writeByte(version);
         writer.writeSerializableArray(states);
     }
 

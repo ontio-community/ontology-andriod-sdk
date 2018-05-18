@@ -32,7 +32,6 @@ import java.util.Map;
  *
  */
 public class State extends Serializable {
-    public byte version;
     public Address from;
     public Address to;
     public long value;
@@ -44,7 +43,6 @@ public class State extends Serializable {
     }
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
-            version = reader.readByte();
             from = reader.readSerializable(Address.class);
             to = reader.readSerializable(Address.class);
             value = reader.readLong();
@@ -52,7 +50,6 @@ public class State extends Serializable {
 
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
-        writer.writeByte((byte)0);
         writer.writeSerializable(from);
         writer.writeSerializable(to);
         writer.writeLong(value);
