@@ -83,6 +83,9 @@ public class OntAssetTx {
         } else {
             throw new SDKException(ErrorCode.AssetNameError);
         }
+        if (gas < 0){
+            throw new SDKException(ErrorCode.ParamError);
+        }
         amount = amount * precision;
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         State state = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), amount);

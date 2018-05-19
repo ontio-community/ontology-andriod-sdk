@@ -25,6 +25,7 @@ public class BlockChainTest {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
         ontSdk.setRestful("http://192.168.50.73:20334");
+        ontSdk.setRestful("http://139.219.129.55:20334");
         connectMgr = ontSdk.getConnectMgr();
     }
 
@@ -73,7 +74,7 @@ public class BlockChainTest {
     @Test
     public void getTransaction() throws Exception {
         int blockHeight = connectMgr.getBlockHeight();
-        Block block = connectMgr.getBlock(blockHeight);
+        Block block = connectMgr.getBlock(1);
         Transaction transaction = block.transactions[0];
         String txHash = transaction.hash().toHexString();
         Transaction transaction1 = connectMgr.getTransaction(txHash);

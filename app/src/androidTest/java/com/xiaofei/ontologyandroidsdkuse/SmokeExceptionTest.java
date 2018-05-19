@@ -37,6 +37,7 @@ public class SmokeExceptionTest {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
         ontSdk.setRestful("http://192.168.50.73:20334");
+        ontSdk.setRestful("http://139.219.129.55:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -102,7 +103,7 @@ public class SmokeExceptionTest {
         try {
             ontAssetTx.sendTransfer("ont",richAddr,"123123",poorAddr,1,-1);
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("51015"));
+            assertTrue(e.getMessage().contains("58004"));
         }
 
     }
@@ -315,7 +316,7 @@ public class SmokeExceptionTest {
         try {
             walletMgr.importIdentity("aa",prikey,password,new byte[]{});
         }catch (Exception ex){
-            assertTrue(ex.getMessage().contains("51015"));
+            assertTrue(ex.getMessage().contains("58004"));
         }
 
     }

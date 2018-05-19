@@ -7,6 +7,8 @@ import android.support.test.runner.AndroidJUnit4;
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Helper;
+import com.github.ontio.core.block.Block;
+import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.info.AccountInfo;
 import com.github.ontio.sdk.manager.ConnectMgr;
@@ -44,6 +46,7 @@ public class SmokeTest {
         ontSdk = OntSdk.getInstance();
 //        ontSdk.setRestful("http://polaris1.ont.io:20334");
         ontSdk.setRestful("http://192.168.50.73:20334");
+        ontSdk.setRestful("http://139.219.129.55:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -51,29 +54,6 @@ public class SmokeTest {
         connectMgr = ontSdk.getConnectMgr();
         ontAssetTx = ontSdk.nativevm().ont();
         ontIdTx = ontSdk.nativevm().ontId();
-        //ontSdk.vm().setCodeAddress("ff00000000000000000000000000000000000003");
-    }
-
-    @Test
-    public void transferTest() throws Exception {
-
-
-//        ontSdk.setSignatureScheme(SignatureScheme.SM3WITHSM2);
-//        Account account1 = ontSdk.getWalletMgr().createAccountFromPriKey(password,"d6aae3603a82499062fe2ddd68840dce417e2e9e7785fbecb3100dd68c4e2d44");
-//        Account account2 = ontSdk.getWalletMgr().createAccount(password);
-
-        AccountInfo info = ontSdk.getWalletMgr().createAccountInfo(password);
-        String encrPri = info.encryptedPrikey;
-        System.out.print(encrPri);
-
-//        long act1 = ontSdk.nativevm().ont().sendBalanceOf("ont",account1.address);
-//        long act2 = ontSdk.nativevm().ont().sendBalanceOf("ont",account2.address);
-        //f80LhIrB7FfhwLtKSQJtBgnrwankGzOPwhJ2h/3DgOU=
-        int a= 0;
-
-//        ontSdk.nativevm().ont().sendTransfer("ont",account1.address,password,account2.address,100,0);
-
-
     }
 
     @After
@@ -255,6 +235,10 @@ public class SmokeTest {
 
         Thread.sleep(6000);
 
+        Transaction transaction = connectMgr.getTransaction(txnId);
+        assertNotNull(transaction);
+        assertEquals(transaction.hash().toHexString(),txnId);
+
         JSONObject richBalanceObjAfter = (JSONObject) connectMgr.getBalance(richAddr);
         JSONObject poorBalanceObjAfter = (JSONObject) connectMgr.getBalance(poorAddr);
         int richBalanceAfter = richBalanceObjAfter.getIntValue("ont");
@@ -359,7 +343,7 @@ public class SmokeTest {
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
         int richOngApprove = richBalanceObj.getIntValue("ong_appove");
         int richOng = richBalanceObj.getIntValue("ong");
-        assertTrue(richOngApprove > 0);
+        assertTrue(richOngApprove >= 0);
         assertTrue(richOng >= 0);
 
         com.github.ontio.sdk.wallet.Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix);

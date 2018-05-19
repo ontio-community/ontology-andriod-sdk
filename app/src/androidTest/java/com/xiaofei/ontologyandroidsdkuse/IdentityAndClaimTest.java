@@ -41,6 +41,7 @@ public class IdentityAndClaimTest {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
         ontSdk.setRestful("http://192.168.50.73:20334");
+        ontSdk.setRestful("http://139.219.129.55:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
