@@ -106,7 +106,6 @@ public abstract class Transaction extends Inventory {
     private void deserializeUnsignedWithoutType(BinaryReader reader) throws Exception {
         deserializeExclusiveData(reader);
         attributes = reader.readSerializableArray(Attribute.class);
-        int len = (int) reader.readVarInt();
     }
 
     protected void deserializeExclusiveData(BinaryReader reader) throws Exception {
