@@ -73,10 +73,11 @@ public class BlockChainTest {
 
     @Test
     public void getTransaction() throws Exception {
-        int blockHeight = connectMgr.getBlockHeight();
-        Block block = connectMgr.getBlock(1);
-        Transaction transaction = block.transactions[0];
-        String txHash = transaction.hash().toHexString();
+//        int blockHeight = connectMgr.getBlockHeight();
+//        Block block = connectMgr.getBlock(1);
+//        Transaction transaction = block.transactions[0];
+//        String txHash = transaction.hash().toHexString();
+        String txHash = "69a924da6192b04eef333f5225b33875a4316cbe6118a46bf359df535703ca34";
         Transaction transaction1 = connectMgr.getTransaction(txHash);
         assertNotNull(transaction1);
     }
