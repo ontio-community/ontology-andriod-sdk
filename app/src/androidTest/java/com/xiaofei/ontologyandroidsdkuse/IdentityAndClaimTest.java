@@ -35,13 +35,14 @@ public class IdentityAndClaimTest {
     private Wallet wallet;
     private Context appContext;
     private NativeOntIdTx ontIdTx;
+    private Account payer;
 
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
-        ontSdk.setRestful("http://192.168.50.73:20334");
-        ontSdk.setRestful("http://139.219.129.55:20334");
+//        ontSdk.setRestful("http://192.168.50.73:20334");
+//        ontSdk.setRestful("http://139.219.129.55:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -49,6 +50,7 @@ public class IdentityAndClaimTest {
         connectMgr = ontSdk.getConnectMgr();
         ontAssetTx = ontSdk.nativevm().ont();
         ontIdTx = ontSdk.nativevm().ontId();
+        payer = walletMgr.createAccount("123456");
     }
 
     @After
@@ -161,8 +163,8 @@ public class IdentityAndClaimTest {
     public void createOntIdClaim() throws Exception {
         Identity identity01 = walletMgr.createIdentity("123456");
         Identity identity02 = walletMgr.createIdentity("123456");
-        Identity identity1 = ontIdTx.sendRegister(identity01,"123456",0);
-        Identity identity2 = ontIdTx.sendRegister(identity02,"123456",0);
+        Identity identity1 = ontIdTx.sendRegister(identity01,"123456",payer.address,"123456",0);
+        Identity identity2 = ontIdTx.sendRegister(identity02,"123456",payer.address,"123456",0);
         Thread.sleep(6000);
 
         Map<String,Object> claimData = new HashMap<>();
@@ -197,8 +199,8 @@ public class IdentityAndClaimTest {
     public void createOntIdClaimError() throws Exception {
         Identity identity01 = walletMgr.createIdentity("123456");
         Identity identity02 = walletMgr.createIdentity("123456");
-        Identity identity1 = ontIdTx.sendRegister(identity01,"123456",0);
-        Identity identity2 = ontIdTx.sendRegister(identity02,"123456",0);
+        Identity identity1 = ontIdTx.sendRegister(identity01,"123456",payer.address,"123456",0);
+        Identity identity2 = ontIdTx.sendRegister(identity02,"123456",payer.address,"123456",0);
         Thread.sleep(6000);
 
         Map<String,Object> claimData = new HashMap<>();

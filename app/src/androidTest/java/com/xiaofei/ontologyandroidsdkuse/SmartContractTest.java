@@ -17,6 +17,7 @@ import com.github.ontio.sdk.info.AccountInfo;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.SmartcodeTx;
 import com.github.ontio.sdk.manager.WalletMgr;
+import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Identity;
 import com.github.ontio.smartcontract.Vm;
 import com.github.ontio.smartcontract.nativevm.NativeOntIdTx;
@@ -50,6 +51,7 @@ public class SmartContractTest {
     ConnectMgr connectMgr;
     NativeOntIdTx ontIdTx;
     WalletMgr walletMgr;
+    Account payer;
 
     @Before
     public void setUp() throws Exception {
@@ -73,10 +75,11 @@ public class SmartContractTest {
 
         abiFunction = JSON.parseObject(funStr,AbiFunction.class);
 
+        payer = walletMgr.createAccount("123456");
 
         if (ontSdk.getWalletMgr().getIdentitys().size() < 1) {
             Identity did0 = walletMgr.createIdentity("passwordtest");
-            did = ontIdTx.sendRegister(did0,"passwordtest",0);
+            did = ontIdTx.sendRegister(did0,"passwordtest",payer.address,"123456",0);
             Thread.sleep(6000);
         }
         did = ontSdk.getWalletMgr().getIdentitys().get(0);

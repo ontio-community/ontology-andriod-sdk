@@ -6,6 +6,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
+import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
@@ -40,14 +41,14 @@ public class SmokeTest {
     private Wallet wallet;
     private Context appContext;
     private NativeOntIdTx ontIdTx;
-    String password = "111111";
+    String password = "123456";
     Account payerAcc;
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
-//        ontSdk.setRestful("http://polaris1.ont.io:20334");
-        ontSdk.setRestful("http://192.168.50.73:20334");
-        ontSdk.setRestful("http://139.219.129.55:20334");
+        ontSdk.setRestful("http://polaris1.ont.io:20334");
+//        ontSdk.setRestful("http://192.168.50.73:20334");
+//        ontSdk.setRestful("http://139.219.129.55:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -111,6 +112,20 @@ public class SmokeTest {
         Thread.sleep(6000);
         String string = ontIdTx.sendGetDDO(identity1.ontid);
         assertTrue(string.contains(identity1.ontid));
+    }
+
+    @Test
+    public void makeRegister() throws Exception {
+        Identity identity = walletMgr.createIdentity("aa","123456");
+
+        Transaction tx22 = ontIdTx.makeRegister(identity.ontid,"123456",payerAcc.address,0);
+            ontSdk.signTx(tx22,identity.ontid.replace(Common.didont,""),"123456");
+            ontSdk.addSign(tx22,payerAcc.address,"123456");
+            ontSdk.getConnectMgr().sendRawTransaction(tx22);
+
+        Thread.sleep(6000);
+        String string = ontIdTx.sendGetDDO(identity.ontid);
+        assertTrue(string.contains(identity.ontid));
     }
 
     @Test
@@ -194,13 +209,32 @@ public class SmokeTest {
         assertTrue(string.contains("key11"));
 //        assertTrue(string.contains("issuerlalala"));
 
+        Map attrsMap2 = new HashMap<>();
+        attrsMap.put("key22","value22");
+        Transaction tx22 = ontIdTx.makeAddAttributes(identity.ontid,"123456",attrsMap,payerAcc.address,0);
+        ontSdk.signTx(tx22,identity.ontid.replace(Common.didont,""),"123456");
+        ontSdk.addSign(tx22,payerAcc.address,"123456");
+        ontSdk.getConnectMgr().sendRawTransaction(tx22);
+
+        Thread.sleep(6000);
+        string = ontIdTx.sendGetDDO(identity.ontid);
+        assertTrue(string.contains(identity.ontid));
+        assertTrue(string.contains("key22"));
+
         String txnId1 = ontIdTx.sendRemoveAttribute(identity.ontid,"123456","key11",payerAcc.address,password,0);
         assertNotNull(txnId1);
         assertNotEquals(txnId1,"");
         Thread.sleep(6000);
         string = ontIdTx.sendGetDDO(identity.ontid);
         assertFalse(string.contains("key11"));
-        assertFalse(string.contains("key11"));
+
+        Transaction tx33 = ontIdTx.makeRemoveAttribute(identity.ontid,"123456","key22",payerAcc.address,0);
+        ontSdk.signTx(tx33,identity.ontid.replace(Common.didont,""),"123456");
+        ontSdk.addSign(tx33,payerAcc.address,"123456");
+        ontSdk.getConnectMgr().sendRawTransaction(tx33);
+        Thread.sleep(6000);
+        string = ontIdTx.sendGetDDO(identity.ontid);
+        assertFalse(string.contains("key22"));
     }
 
 
