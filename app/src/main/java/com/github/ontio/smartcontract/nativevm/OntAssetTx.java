@@ -125,6 +125,33 @@ public class OntAssetTx {
     /**
      *
      * @param assetName
+     * @param fromAddr
+     * @param toAddr
+     * @return
+     * @throws Exception
+     */
+    public long sendAllowance(String assetName,String fromAddr,String toAddr) throws Exception {
+        String contractAddr;
+        if (assetName.toUpperCase().equals("ONG")) {
+            contractAddr = ongContract;
+        } else if (assetName.toUpperCase().equals("ONT")) {
+            contractAddr = ontContract;
+        } else {
+            throw new SDKException(ErrorCode.AssetNameError);
+        }
+        byte[] parabytes = buildParams(Address.decodeBase58(fromAddr).toArray(),Address.decodeBase58(toAddr).toArray());
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr,"allowance", parabytes, VmType.Native.value(), null,0);
+        Object obj = sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+        String res = ((JSONObject)obj).getString("Result");
+        if (("").equals(res)) {
+            return 0;
+        }
+        return Long.valueOf(res,16);
+    }
+
+    /**
+     *
+     * @param assetName
      * @param sendAddr
      * @param password
      * @param recvAddr
