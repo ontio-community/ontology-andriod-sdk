@@ -67,7 +67,8 @@ public class NativeOntIdTx {
         sdk.getWalletMgr().writeWallet();
         boolean b = false;
         if (preExec){
-            String result = (String) sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+            Object obj =  sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+            String result = ((JSONObject)obj).getString("Result");
             b = Integer.parseInt(result) > 0 ? true : false;
             if (!b) {
                 throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error"));
