@@ -47,6 +47,11 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import io.github.novacrypto.bip39.MnemonicGenerator;
+import io.github.novacrypto.bip39.MnemonicValidator;
+import io.github.novacrypto.bip39.wordlists.English;
+
+
 /**
  *
  */
@@ -167,6 +172,26 @@ public class WalletMgr {
         return jsonObject;
     }
 
+    public String[] exportMnemonicCode(Account account, String password) throws Exception {
+        String prikeyStr = exportPrikey(account,password);
+        byte[] prikey = Helper.hexToBytes(prikeyStr);
+        final StringBuilder prikeyBuilder = new StringBuilder();
+        new MnemonicGenerator(English.INSTANCE)
+                .createMnemonic(prikey, new MnemonicGenerator.Target() {
+                    @Override
+                    public void append(CharSequence string) {
+                        prikeyBuilder.append(string);
+                    }
+                });
+        String[] mnemonicCodes = prikeyBuilder.toString().split(" ");
+        return mnemonicCodes;
+    }
+
+    public String exportPrikey(Account account, String password) throws Exception {
+        String prikeyStr = com.github.ontio.account.Account.getCtrDecodedPrivateKey(account.key,password,account.address,walletFile.getScrypt().getN(),scheme);
+        return prikeyStr;
+    }
+
     public Identity importIdentity(String label, String encryptedPrikey, String password, String address) throws Exception {
         byte[] prefix = Helper.hexToBytes(Helper.getPrefix(address));
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
@@ -245,6 +270,20 @@ public class WalletMgr {
         AccountInfo info = createAccount(label, password, Helper.hexToBytes(prikey));
         storePrivateKey(acctPriKeyMap, info.addressBase58, password, prikey);
         return getAccount(info.addressBase58);
+    }
+
+    public Account importAccount(String label, String prikey, String password) throws Exception {
+        AccountInfo info = createAccount(label,password,Helper.hexToBytes(prikey));
+        storePrivateKey(acctPriKeyMap, info.addressBase58, password, prikey);
+        return getAccount(info.addressBase58);
+    }
+
+    public Account importAccount(String label, String[] mnemonicCodes, String password) throws Exception {
+        List<String> mnemonicCodesArray = Arrays.asList(mnemonicCodes);
+        byte[] prikey = MnemonicValidator.ofWordList(English.INSTANCE).getEntropy(mnemonicCodesArray);
+        String prikeyStr = Helper.toHexString(prikey);
+        Account account = importAccount(label,prikeyStr,password);
+        return account;
     }
 
     /**

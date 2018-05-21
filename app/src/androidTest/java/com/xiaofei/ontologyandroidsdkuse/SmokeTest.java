@@ -161,6 +161,27 @@ public class SmokeTest {
     }
 
     @Test
+    public void exportMnemonicCode() throws Exception {
+        Account account = walletMgr.createAccount("123456");
+        String[] mnemonicCodes = walletMgr.exportMnemonicCode(account,"123456");
+        assertNotNull(mnemonicCodes);
+        assertEquals(mnemonicCodes.length,24);
+    }
+
+    @Test
+    public void importAccountByMnmenoicCodes() throws Exception {
+    //b23445d0805460717f4fa907060f3ddcdc2c9ea2557f569f2aada402c8041f3f
+        //
+        String mnemonicCodesStr = "rate peasant injury absent ecology december wood vivid alpha corn sorry rifle security exercise matter quiz final welcome problem elite clutch acoustic language very";
+        String[] mnemonicCodes = mnemonicCodesStr.split(" ");
+        assertEquals(mnemonicCodes.length,24);
+        Account account = walletMgr.importAccount("aa",mnemonicCodes,"123456");
+        assertNotNull(account);
+        //TA5A5RCzzxe9T5uRKZnTFFvrsNJ1NXrVBU
+        assertEquals(account.address,account.address);
+    }
+
+    @Test
     public void importAccount() throws Exception {
         List<Account> accounts = walletMgr.getAccounts();
         accounts.clear();
