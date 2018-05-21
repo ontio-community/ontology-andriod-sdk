@@ -73,6 +73,11 @@ public class ErrorCode {
     public static String BlockDeserializeError = getError(53002,"Core Error,Block deserialize failed");
 
 
+
+    public static String ParamErr(String msg) {
+        return getError(58005,msg);
+    }
+
     //manager Error
     public static String SendRawTxError = getError(58001,"SmartCodeTx Error,sendRawTransaction error");
     public static String TypeError = getError(58002,"SmartCodeTx Error,type error");

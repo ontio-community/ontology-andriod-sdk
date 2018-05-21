@@ -41,6 +41,7 @@ public class SmokeTest {
     private Context appContext;
     private NativeOntIdTx ontIdTx;
     String password = "111111";
+    Account payerAcc;
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
@@ -54,6 +55,7 @@ public class SmokeTest {
         connectMgr = ontSdk.getConnectMgr();
         ontAssetTx = ontSdk.nativevm().ont();
         ontIdTx = ontSdk.nativevm().ontId();
+        payerAcc = ontSdk.getWalletMgr().createAccount(password);
     }
 
     @After
@@ -72,6 +74,14 @@ public class SmokeTest {
         assertSame(ontSdk,this.ontSdk);
     }
 
+
+    @Test
+    public void ConnectMangerTest() throws Exception {
+        Block block = ontSdk.getConnectMgr().getBlock(0);
+
+        System.out.print(block);
+    }
+
     @Test
     public void writeWallet() throws IOException {
         walletMgr.writeWallet();
@@ -88,7 +98,7 @@ public class SmokeTest {
     @Test
     public void sendRegisterPreExec() throws Exception {
         Identity identity0 = walletMgr.createIdentity("123456");
-        Identity identity = ontIdTx.sendRegisterPreExec(identity0,"123456",0);
+        Identity identity = ontIdTx.sendRegisterPreExec(identity0,"123456",payerAcc.address,password,0);
         assertNotNull(identity);
         assertNotNull(identity.ontid);
         assertNotEquals(identity.ontid,"");
@@ -97,7 +107,7 @@ public class SmokeTest {
     @Test
     public void sendRegister() throws Exception {
         Identity identity = walletMgr.createIdentity("123456");
-        Identity identity1 = ontIdTx.sendRegister(identity,"123456",0);
+        Identity identity1 = ontIdTx.sendRegister(identity,"123456",payerAcc.address,password,0);
         Thread.sleep(6000);
         String string = ontIdTx.sendGetDDO(identity1.ontid);
         assertTrue(string.contains(identity1.ontid));
@@ -159,7 +169,7 @@ public class SmokeTest {
     @Test
     public void sendUpdateAttribute() throws Exception {
         Identity identity0 = ontSdk.getWalletMgr().createIdentity("123456");
-        Identity identity = ontIdTx.sendRegister(identity0,"123456",0);
+        Identity identity = ontIdTx.sendRegister(identity0,"123456",payerAcc.address,password,0);
         com.github.ontio.account.Account account = walletMgr.getAccount(identity.ontid,"123456");
         String prikey = account.exportCtrEncryptedPrikey("123456", 4096);
         Thread.sleep(6000);
@@ -178,13 +188,13 @@ public class SmokeTest {
 //        Thread.sleep(6000);
         Map attrsMap = new HashMap<>();
         attrsMap.put("key11","value11");
-        String txnId = ontIdTx.sendAddAttributes(identity.ontid,"123456",attrsMap,0);
+        String txnId = ontIdTx.sendAddAttributes(identity.ontid,"123456",attrsMap,payerAcc.address,password,0);
         Thread.sleep(6000);
         string = ontIdTx.sendGetDDO(identity.ontid);
         assertTrue(string.contains("key11"));
 //        assertTrue(string.contains("issuerlalala"));
 
-        String txnId1 = ontIdTx.sendRemoveAttribute(identity.ontid,"123456","key11",0);
+        String txnId1 = ontIdTx.sendRemoveAttribute(identity.ontid,"123456","key11",payerAcc.address,password,0);
         assertNotNull(txnId1);
         assertNotEquals(txnId1,"");
         Thread.sleep(6000);
