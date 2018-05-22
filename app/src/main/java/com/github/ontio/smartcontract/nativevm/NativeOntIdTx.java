@@ -438,7 +438,6 @@ public class NativeOntIdTx {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-        String addr = ontid.replace(Common.didont, "");
         byte[] parabytes = buildParams(ontid.getBytes(),Address.decodeBase58(newRecovery).toArray(),Address.decodeBase58(oldRecovery).toArray());
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"changeRecovery",parabytes, VmType.Native.value(), oldRecovery,gas);
         return tx;
@@ -806,7 +805,9 @@ public class NativeOntIdTx {
         Map map = new HashMap();
         map.put("Owners",pubKeyList);
         map.put("Attributes",attrsList);
-        map.put("Recovery", Helper.toHexString(recoveryBytes));
+        if(recoveryBytes.length != 0){
+            map.put("Recovery", Address.parse(Helper.toHexString(recoveryBytes)).toBase58());
+        }
         map.put("OntId",ontid);
         return map;
     }
