@@ -42,6 +42,7 @@ public class Account {
     public String signatureScheme = "SHA256withECDSA";
     public String passwordHash = "";
     public Object extra = null;
+    public String[] mnemonicCodes;
     public Account(){
 
     }

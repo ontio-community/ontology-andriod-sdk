@@ -158,29 +158,22 @@ public class SmokeTest {
         assertNotNull(account.address);
         assertNotEquals(account.address,"");
         assertEquals(account.label,"bbb");
-    }
-
-
-
-    @Test
-    public void exportAccountMnemonicCode() throws Exception {
-        Account account = walletMgr.createAccount("123456");
-        String[] mnemonicCodes = walletMgr.exportAccountMnemonicCode(account,"123456");
-        assertNotNull(mnemonicCodes);
-        assertEquals(mnemonicCodes.length,24);
+        assertEquals(account.mnemonicCodes.length,12);
     }
 
     @Test
     public void importAccountByMnmenoicCodes() throws Exception {
-    //b23445d0805460717f4fa907060f3ddcdc2c9ea2557f569f2aada402c8041f3f
-        //
-        String mnemonicCodesStr = "rate peasant injury absent ecology december wood vivid alpha corn sorry rifle security exercise matter quiz final welcome problem elite clutch acoustic language very";
+        //entropy: 67a144559c029099e66c24175a3143a7
+        //MnmenoicCodes: guilt any betray day cinnamon erupt often loyal blanket spice extend exact
+        //seed: 54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166358fb8b7253b4abbc0799f386d81e472352da1413eaa817638a4a887db03fdf5
+        //prik: 54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166
+        //address: TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg
+        String mnemonicCodesStr = "guilt any betray day cinnamon erupt often loyal blanket spice extend exact";
         String[] mnemonicCodes = mnemonicCodesStr.split(" ");
-        assertEquals(mnemonicCodes.length,24);
+        assertEquals(mnemonicCodes.length,12);
         Account account = walletMgr.importAccount("aa",mnemonicCodes,"123456");
         assertNotNull(account);
-        //TA5A5RCzzxe9T5uRKZnTFFvrsNJ1NXrVBU
-        assertEquals(account.address,account.address);
+        assertEquals(account.address,"TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg");
     }
 
     @Test
