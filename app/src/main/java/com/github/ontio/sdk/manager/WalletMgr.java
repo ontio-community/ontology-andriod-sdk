@@ -172,7 +172,7 @@ public class WalletMgr {
         return jsonObject;
     }
 
-    public String[] exportMnemonicCode(Account account, String password) throws Exception {
+    public String[] exportAccountMnemonicCode(Account account, String password) throws Exception {
         String prikeyStr = exportPrikey(account,password);
         byte[] prikey = Helper.hexToBytes(prikeyStr);
         final StringBuilder prikeyBuilder = new StringBuilder();

@@ -160,10 +160,12 @@ public class SmokeTest {
         assertEquals(account.label,"bbb");
     }
 
+
+
     @Test
-    public void exportMnemonicCode() throws Exception {
+    public void exportAccountMnemonicCode() throws Exception {
         Account account = walletMgr.createAccount("123456");
-        String[] mnemonicCodes = walletMgr.exportMnemonicCode(account,"123456");
+        String[] mnemonicCodes = walletMgr.exportAccountMnemonicCode(account,"123456");
         assertNotNull(mnemonicCodes);
         assertEquals(mnemonicCodes.length,24);
     }
