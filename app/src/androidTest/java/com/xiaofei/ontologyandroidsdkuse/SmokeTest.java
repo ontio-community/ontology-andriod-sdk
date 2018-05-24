@@ -11,6 +11,7 @@ import com.github.ontio.common.Helper;
 import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.crypto.SignatureScheme;
+import com.github.ontio.crypto.WIF;
 import com.github.ontio.sdk.info.AccountInfo;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.WalletMgr;
@@ -172,6 +173,21 @@ public class SmokeTest {
     }
 
     @Test
+    public void prikeyToWIF() throws Exception {
+        String prikey = "54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166";
+        String wif = WIF.encodePrivateKeyToWIF(Helper.hexToBytes(prikey));
+        assertNotNull(wif);
+    }
+
+    @Test
+    public void wifToPrikey() throws Exception {
+        byte[] prikey = WIF.decodePrivateKeyFromWIF("5JTTXdfPVtGMNybRgyFz7gUD3BpRbCypn6D8zpEPKobGJvhX2jX");
+        String prikeyStr = Helper.toHexString(prikey);
+        assertNotNull(prikeyStr);
+        assertEquals(prikeyStr,"54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166");
+    }
+
+    @Test
     public void importAccountByPrikey() throws Exception {
         String prikey = "54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166";
         Account account = walletMgr.importAccount("aa",prikey,"123456");
@@ -184,6 +200,7 @@ public class SmokeTest {
         //MnmenoicCodes: guilt any betray day cinnamon erupt often loyal blanket spice extend exact
         //seed: 54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166358fb8b7253b4abbc0799f386d81e472352da1413eaa817638a4a887db03fdf5
         //prikey: 54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166
+        //wif: 5JTTXdfPVtGMNybRgyFz7gUD3BpRbCypn6D8zpEPKobGJvhX2jX
         //address: TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg
         //password: 123456
         String mnemonicCodesStr = "guilt any betray day cinnamon erupt often loyal blanket spice extend exact";
