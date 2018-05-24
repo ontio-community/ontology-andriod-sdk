@@ -162,12 +162,30 @@ public class SmokeTest {
     }
 
     @Test
+    public void exportPrikey() throws Exception {
+        Account account = walletMgr.createAccount("aaa","123456");
+        String prikey = walletMgr.exportPrikey(account,"123456");
+        assertNotNull(prikey);
+        Account account1 = walletMgr.importAccount("www",prikey,"123456");
+        assertEquals(account1.address,account.address);
+
+    }
+
+    @Test
+    public void importAccountByPrikey() throws Exception {
+        String prikey = "54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166";
+        Account account = walletMgr.importAccount("aa",prikey,"123456");
+        assertNotNull(account.address,"TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg");
+    }
+
+    @Test
     public void importAccountByMnmenoicCodes() throws Exception {
         //entropy: 67a144559c029099e66c24175a3143a7
         //MnmenoicCodes: guilt any betray day cinnamon erupt often loyal blanket spice extend exact
         //seed: 54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166358fb8b7253b4abbc0799f386d81e472352da1413eaa817638a4a887db03fdf5
-        //prik: 54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166
+        //prikey: 54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166
         //address: TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg
+        //password: 123456
         String mnemonicCodesStr = "guilt any betray day cinnamon erupt often loyal blanket spice extend exact";
         String[] mnemonicCodes = mnemonicCodesStr.split(" ");
         assertEquals(mnemonicCodes.length,12);

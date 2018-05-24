@@ -175,6 +175,11 @@ public class WalletMgr {
         return jsonObject;
     }
 
+    public String exportPrikey(Account account, String password) throws Exception {
+        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(account.key, password, account.address, walletFile.getScrypt().getN(), scheme);
+        return prikey;
+    }
+
     public Identity importIdentity(String label, String encryptedPrikey, String password, String address) throws Exception {
         byte[] prefix = Helper.hexToBytes(Helper.getPrefix(address));
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
