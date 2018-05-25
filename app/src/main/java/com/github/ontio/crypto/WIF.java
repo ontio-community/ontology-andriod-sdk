@@ -108,6 +108,8 @@ public class WIF
             privateKeyFinalBytes = Bytes.concat(valueToPrepend, privateKeyFinalBytes);
         }
 
-        return privateKeyFinalBytes;
+        byte[] resultBytes = Arrays.copyOfRange(privateKeyBytes,1,privateKeyFinalBytes.length-1);
+
+        return resultBytes;
     }
 }
