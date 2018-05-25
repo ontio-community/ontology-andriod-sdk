@@ -72,7 +72,7 @@ public class SmartcodeTx {
      */
     public String sendInvokeSmartCode(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
         Transaction tx = invokeTransaction(null, null, abiFunction, vmtype);
-        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (!b) {
             throw new SDKException(ErrorCode.SendRawTxError);
         }
@@ -82,7 +82,7 @@ public class SmartcodeTx {
     public String sendInvokeSmartCodeWithSign(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
         Transaction tx = invokeTransaction(ontid, password, abiFunction, vmtype);
         sdk.signTx(tx, new Account[][]{{sdk.getWalletMgr().getAccount(ontid, password)}});
-        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (!b) {
             throw new SDKException(ErrorCode.SendRawTxError);
         }
@@ -99,7 +99,7 @@ public class SmartcodeTx {
      */
     public Object sendInvokeTransactionPreExec(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
         Transaction tx = invokeTransaction(ontid, password, abiFunction, vmtype);
-        return sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+        return sdk.getConnect().sendRawTransactionPreExec(tx.toHexString());
     }
 
     /**
@@ -144,10 +144,10 @@ public class SmartcodeTx {
 
         Transaction tx = null;
         if (ontid == null && password == null) {
-            tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
+            tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0,0);
         } else {
             AccountInfo info = sdk.getWalletMgr().getAccountInfo(ontid, password);
-            tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
+            tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0,0);
         }
         return tx;
     }
@@ -168,7 +168,7 @@ public class SmartcodeTx {
         Transaction tx = makeDeployCodeTransaction(codeHexStr, needStorage, name, codeVersion, author, email, desp, vmtype,payer,gas);
         String txHex = tx.toHexString();
         System.out.println(txHex);
-        boolean b = sdk.getConnectMgr().sendRawTransaction(txHex);
+        boolean b = sdk.getConnect().sendRawTransaction(txHex);
         if (!b) {
             throw new SDKException(ErrorCode.SendRawTxError);
         }

@@ -41,8 +41,8 @@ public class GlobalParams {
     }
 
     public boolean init() throws Exception{
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"init", new byte[]{}, VmType.Native.value(), null,0);
-        return sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"init", new byte[]{}, VmType.Native.value(), null,0,0);
+        return sdk.getConnect().sendRawTransaction(tx.toHexString());
     }
 
     public byte[] buildParams(byte[] ...params) throws SDKException {

@@ -185,5 +185,15 @@ public class RpcClient extends AbstractConnector {
         Object result = rpc.call("getmerkleproof", hash);
         return result;
     }
+
+    @Override
+    public String getAllowance(String asset,String from,String to) throws Exception {
+        Object result = rpc.call("getallowance", asset,from,to);
+        try {
+            return (String)result;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
 

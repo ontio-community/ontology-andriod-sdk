@@ -30,7 +30,7 @@ public class ClaimRecordTx {
         return codeAddress;
     }
 
-    public String sendCommit(String ontid,String password,String claimId,long gas) throws Exception {
+    public String sendCommit(String ontid,String password,String claimId,long gaslimit, long gas) throws Exception {
         if (codeAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
@@ -46,15 +46,15 @@ public class ClaimRecordTx {
         tmp.add(Helper.hexToBytes(claimId));
         tmp.add(did);
         list.add(tmp);
-        Transaction tx = makeInvokeTransaction(list,info.addressBase58,gas);
+        Transaction tx = makeInvokeTransaction(list,info.addressBase58,gaslimit,gas);
         sdk.signTx(tx, addr, password);
-        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {
             return tx.hash().toString();
         }
         return null;
     }
-    public String sendRevoke(String ontid,String password,String claimId,long gas) throws Exception {
+    public String sendRevoke(String ontid,String password,String claimId,long gaslimit,long gas) throws Exception {
         if (codeAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
@@ -70,9 +70,9 @@ public class ClaimRecordTx {
         tmp.add(Helper.hexToBytes(claimId));
         tmp.add(did);
         list.add(tmp);
-        Transaction tx = makeInvokeTransaction(list,info.addressBase58,gas);
+        Transaction tx = makeInvokeTransaction(list,info.addressBase58,gaslimit,gas);
         sdk.signTx(tx, addr, password);
-        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {
             return tx.hash().toString();
         }
@@ -92,17 +92,17 @@ public class ClaimRecordTx {
         List tmp = new ArrayList<Object>();
         tmp.add(Helper.hexToBytes(claimId));
         list.add(tmp);
-        Transaction tx = makeInvokeTransaction(list,null,0);
+        Transaction tx = makeInvokeTransaction(list,null,0,0);
         sdk.signTx(tx, addr, password);
-        Object obj = sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+        Object obj = sdk.getConnect().sendRawTransactionPreExec(tx.toHexString());
         if (obj != null ) {
             return (String) obj;
         }
         return null;
     }
-    public Transaction makeInvokeTransaction(List<Object> list,String addr,long gas) throws Exception {
+    public Transaction makeInvokeTransaction(List<Object> list,String addr,long gaslimit,long gas) throws Exception {
         byte[] params = sdk.vm().createCodeParamsScript(list);
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(codeAddress,null,params, VmType.NEOVM.value(), addr,gas);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(codeAddress,null,params, VmType.NEOVM.value(), addr,gaslimit,gas);
         return tx;
     }
 }
