@@ -1,4 +1,4 @@
-package com.github.ontio.smartcontract.neovm;
+package com.github.ontio.smartcontract.nativevm;
 
 /*
  * Copyright (C) 2018 The ontology Authors

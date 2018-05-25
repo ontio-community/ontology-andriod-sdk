@@ -2,8 +2,8 @@ package com.github.ontio.smartcontract;
 
 import com.github.ontio.OntSdk;
 import com.github.ontio.smartcontract.nativevm.OntId;
-import com.github.ontio.smartcontract.neovm.Ong;
-import com.github.ontio.smartcontract.neovm.Ont;
+import com.github.ontio.smartcontract.nativevm.Ong;
+import com.github.ontio.smartcontract.nativevm.Ont;
 
 public class NativeVm {
     private Ont ont = null;

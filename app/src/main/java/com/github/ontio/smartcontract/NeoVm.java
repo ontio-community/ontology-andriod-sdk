@@ -1,12 +1,12 @@
 package com.github.ontio.smartcontract;
 
 import com.github.ontio.OntSdk;
+import com.github.ontio.smartcontract.nativevm.OntId;
 import com.github.ontio.smartcontract.neovm.ClaimRecordTx;
-import com.github.ontio.smartcontract.neovm.OntIdTx;
 import com.github.ontio.smartcontract.neovm.RecordTx;
 
 public class NeoVm {
-    private OntIdTx ontIdTx = null;
+    private OntId ontIdTx = null;
     private RecordTx recordTx = null;
     private ClaimRecordTx claimRecordTx = null;
 
@@ -15,16 +15,6 @@ public class NeoVm {
         this.sdk = sdk;
     }
 
-    /**
-     * OntId
-     * @return instance
-     */
-    public OntIdTx ontId() {
-        if(ontIdTx == null){
-            ontIdTx = new OntIdTx(sdk);
-        }
-        return ontIdTx;
-    }
     /**
      * RecordTx
      * @return instance

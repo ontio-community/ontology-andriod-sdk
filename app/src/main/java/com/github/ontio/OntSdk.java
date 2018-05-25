@@ -34,10 +34,7 @@ import com.github.ontio.sdk.manager.*;
 import com.github.ontio.smartcontract.NativeVm;
 import com.github.ontio.smartcontract.NeoVm;
 import com.github.ontio.smartcontract.Vm;
-import com.github.ontio.smartcontract.nativevm.NativeOntIdTx;
-import com.github.ontio.smartcontract.nativevm.OntAssetTx;
 import com.github.ontio.smartcontract.neovm.ClaimRecordTx;
-import com.github.ontio.smartcontract.neovm.OntIdTx;
 import com.github.ontio.smartcontract.neovm.RecordTx;
 
 import java.io.IOException;
