@@ -34,6 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -165,19 +166,11 @@ public class SmokeTest {
         assertNotNull(account.address);
         assertNotEquals(account.address,"");
         assertEquals(account.label,"bbb");
-        assertEquals(account.mnemonicCodes.length,12);
-    }
+        assertNull(account.mnemonicCodes );
+        assertNotEquals(account.encryptedMnemonicCodesStr,"");
 
-    @Test
-    public void decryptMnmenoicCodes() throws Exception {
-        //TA9nHh56y8tXypxZ8S4vmhycXfBJ2Bzaaa
-        //endless online program roof claim parent spider resemble spawn pull repair cube
-        //b9fba414c733faa9c226ce7dfce100f72160ed89a62816cbc60cd2d1a7a712e2a387305c3f05051a273db5bade96ef38000570af5ac44611f1d185ef026815fea826dd083f2f911a289a7947326e53
-        String address = "TA4eqgfDVvCjfcmVNBwQkrBDpLTtB89GhU";
-        String encryptedMnmenoicCodesHexStr = "b9fba414c733faa9c226ce7dfce100f72160ed89a62816cbc60cd2d1a7a712e2a387305c3f05051a273db5bade96ef38000570af5ac44611f1d185ef026815fea826dd083f2f911a289a7947326e53";
-        String[] mnmenoicCodesArray = walletMgr.decryptMnemonicCodesStr(encryptedMnmenoicCodesHexStr,"123456");
-        assertEquals(mnmenoicCodesArray[0],"endless");
-        assertEquals(mnmenoicCodesArray[11],"cube");
+        String[] mns = account.decryptedMnemonicCodesStr(account.encryptedMnemonicCodesStr,"123456");
+        assertEquals(mns.length,12);
     }
 
     @Test

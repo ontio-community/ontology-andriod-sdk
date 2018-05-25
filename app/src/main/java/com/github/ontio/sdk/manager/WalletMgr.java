@@ -264,19 +264,6 @@ public class WalletMgr {
         return getAccount(info.addressBase58);
     }
 
-    public String[] decryptMnemonicCodesStr (String encryptedMnemonicCodesStr, String password) throws Exception {
-        byte[] encryptedkey = Helper.hexToBytes(encryptedMnemonicCodesStr);
-        byte[] derivedhalf2 = new byte[32];
-        byte[] iv = new byte[16];
-        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
-        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
-        byte[] rawkey = cipher.doFinal(encryptedkey);
-        String mnemonicCodesStr = new String(rawkey);
-        String[] mnemonicCodesArray = mnemonicCodesStr.split(" ");
-        return mnemonicCodesArray;
-    }
-
     public Account importAccount(String label, String prikey, String password) throws Exception {
         AccountInfo info = createAccount(label,password,Helper.hexToBytes(prikey));
         storePrivateKey(acctPriKeyMap, info.addressBase58, password, prikey);
@@ -332,19 +319,16 @@ public class WalletMgr {
                 .withWordsFromWordList(English.INSTANCE)
                 .calculateSeed(Arrays.asList(mnemonicCodesArray), "");
         byte[] prikey = Arrays.copyOfRange(seed,0,32);
+        new SecureRandom().nextBytes(seed);
         AccountInfo info = createAccount(label, password, prikey);
         Account account = getAccount(info.addressBase58);
-        account.mnemonicCodes = mnemonicCodesArray;
-        account.encryptedMnemonicCodesStr = encryptMnemonicCodesStr(sb.toString(),password,account.passwordHash);
+        account.encryptedMnemonicCodesStr = encryptMnemonicCodesStr(sb.toString(),password);
+        sb.delete(0,sb.length());
         return account;
     }
 
-    private String encryptMnemonicCodesStr(String mnemonicCodesStr, String password, String passwordHashOrig) throws Exception {
-        String passwordHashNew = Helper.toHexString(Digest.sha256(password.getBytes()));
-        if (!passwordHashNew.equals(passwordHashOrig)){
-            throw new SDKException(ErrorCode.InvalidParams("密码错误"));
-        }
-        byte[] derivedhalf2 = new byte[32];
+    private String encryptMnemonicCodesStr(String mnemonicCodesStr, String password) throws Exception {
+        byte[] derivedhalf2 = Digest.sha256(password.getBytes());
         byte[] iv = new byte[16];
         SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
         Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");

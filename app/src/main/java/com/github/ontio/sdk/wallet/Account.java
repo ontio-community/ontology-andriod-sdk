@@ -21,9 +21,18 @@ package com.github.ontio.sdk.wallet;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.github.ontio.common.ErrorCode;
+import com.github.ontio.common.Helper;
+import com.github.ontio.crypto.Digest;
+import com.github.ontio.sdk.exception.SDKException;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  *
@@ -88,6 +97,23 @@ public class Account {
     @Override
     public String toString() {
         return JSON.toJSONString(this);
+    }
+
+    public String[] decryptedMnemonicCodesStr(String encryptedMnemonicCodesHexStr,String password) throws Exception {
+        String passwordHashNew = Helper.toHexString(Digest.sha256(password.getBytes()));
+        if (!passwordHashNew.equals(this.passwordHash)){
+            throw new SDKException(ErrorCode.InvalidParams("password error"));
+        }
+        byte[] encryptedkey = Helper.hexToBytes(encryptedMnemonicCodesStr);
+        byte[] derivedhalf2 = Digest.sha256(password.getBytes());
+        byte[] iv = new byte[16];
+        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
+        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+        byte[] rawkey = cipher.doFinal(encryptedkey);
+        String mnemonicCodesStr = new String(rawkey);
+        String[] mnemonicCodesArray = mnemonicCodesStr.split(" ");
+        return mnemonicCodesArray;
     }
 }
 
