@@ -55,7 +55,7 @@ public class Vm {
      */
     public String sendInvokeSmartCode(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
         Transaction tx = invokeTransaction(null, null, abiFunction, vmtype);
-        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (!b) {
             throw new SDKException(ErrorCode.SendRawTxError);
         }
@@ -65,7 +65,7 @@ public class Vm {
     public String sendInvokeSmartCodeWithSign(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
         Transaction tx = invokeTransaction(ontid, password, abiFunction, vmtype);
         sdk.signTx(tx, new Account[][]{{sdk.getWalletMgr().getAccount(ontid, password)}});
-        boolean b = sdk.getConnectMgr().sendRawTransaction(tx.toHexString());
+        boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (!b) {
             throw new SDKException(ErrorCode.SendRawTxError);
         }
@@ -82,7 +82,7 @@ public class Vm {
      */
     public Object sendInvokeTransactionPreExec(String ontid, String password, AbiFunction abiFunction, byte vmtype) throws Exception {
         Transaction tx = invokeTransaction(ontid, password, abiFunction, vmtype);
-        return sdk.getConnectMgr().sendRawTransactionPreExec(tx.toHexString());
+        return sdk.getConnect().sendRawTransactionPreExec(tx.toHexString());
     }
 
     /**
@@ -127,10 +127,10 @@ public class Vm {
 
         Transaction tx = null;
         if (ontid == null && password == null) {
-            tx = makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
+            tx = makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,sdk.DEFAULT_GAS_LIMIT,0);
         } else {
             AccountInfo info = sdk.getWalletMgr().getAccountInfo(ontid, password);
-            tx = makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,0);
+            tx = makeInvokeCodeTransaction(contractAddress, null, params, vmtype, ontid,sdk.DEFAULT_GAS_LIMIT,0);
         }
         return tx;
     }
@@ -147,11 +147,11 @@ public class Vm {
      * @return
      * @throws Exception
      */
-    public String DeployCodeTransaction(String codeHexStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype,String payer,long gas) throws Exception {
-        Transaction tx = makeDeployCodeTransaction(codeHexStr, needStorage, name, codeVersion, author, email, desp, vmtype,payer,gas);
+    public String DeployCodeTransaction(String codeHexStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype,String payer,long gasprice) throws Exception {
+        Transaction tx = makeDeployCodeTransaction(codeHexStr, needStorage, name, codeVersion, author, email, desp, vmtype,payer,sdk.DEFAULT_GAS_LIMIT,gasprice);
         String txHex = tx.toHexString();
         System.out.println(txHex);
-        boolean b = sdk.getConnectMgr().sendRawTransaction(txHex);
+        boolean b = sdk.getConnect().sendRawTransaction(txHex);
         if (!b) {
             throw new SDKException(ErrorCode.SendRawTxError);
         }
@@ -306,7 +306,7 @@ public class Vm {
      * @return
      * @throws Exception
      */
-    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype, String payer, long gas) throws Exception {
+    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype, String payer,long gaslimit, long gasprice) throws Exception {
         if (("").equals(payer)){
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -323,7 +323,7 @@ public class Vm {
         tx.name = name;
         tx.author = author;
         tx.email = email;
-        tx.gasPrice = 0;
+        tx.gasPrice = gasprice;
         tx.gasLimit = sdk.DEFAULT_GAS_LIMIT;
         tx.description = desp;
         return tx;
@@ -336,11 +336,12 @@ public class Vm {
      * @param params
      * @param vmtype
      * @param payer
-     * @param gas
+     * @param gaslimit
+     * @param gasprice
      * @return
      * @throws Exception
      */
-    public InvokeCode makeInvokeCodeTransaction(String codeAddr, String method, byte[] params, byte vmtype, String payer, long gas) throws Exception {
+    public InvokeCode makeInvokeCodeTransaction(String codeAddr, String method, byte[] params, byte vmtype, String payer,long gaslimit,long gasprice) throws Exception {
         if(vmtype == VmType.NEOVM.value()) {
             Contract contract = new Contract((byte) 0, null, Address.parse(codeAddr), "", params);
             params = Helper.addBytes(new byte[]{0x67}, contract.toArray());
@@ -358,11 +359,7 @@ public class Vm {
         tx.attributes[0].data = UUID.randomUUID().toString().getBytes();
         tx.code = params;
         tx.gasLimit = sdk.DEFAULT_GAS_LIMIT;
-        if(sdk.DEFAULT_GAS_LIMIT == 0){
-            tx.gasPrice = 0;
-        }else {
-            tx.gasPrice = gas / sdk.DEFAULT_GAS_LIMIT;
-        }
+        tx.gasPrice = gasprice;
         if(payer != null){
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         }

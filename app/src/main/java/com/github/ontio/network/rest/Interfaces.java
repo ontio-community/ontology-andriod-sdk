@@ -20,6 +20,10 @@
 package com.github.ontio.network.rest;
 
 
+import com.alibaba.fastjson.JSON;
+import com.github.ontio.common.ErrorCode;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -141,5 +145,9 @@ class Interfaces {
     public String getBlockJson(String hash) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         return http.get(url + UrlConsts.Url_get_block_by_hash + hash, params);
+    }
+    public String getAllowance(String asset,String from,String to) throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+        return http.get(url + UrlConsts.Url_get_allowance + asset+"/"+from+"/"+to, params);
     }
 }

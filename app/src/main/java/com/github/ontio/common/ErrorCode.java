@@ -103,7 +103,10 @@ public class ErrorCode {
     public static String NullClaimId = getError(58015,"OntAsset Error,null claimId");
     public static String CreateOntIdClaimErr = getError(58013,"OntIdTx Error, createOntIdClaim error");
 
-
+    public static String TargetHashesErr = getError(54002,"targetHashes error");
+    public static String ConstructedRootHashErr(String msg) {
+        return getError(54003, "Other Error," + msg);
+    }
     public static String NullKeyOrValue = getError(58016,"RecordTx Error,null key or value");
     public static String NullKey = getError(58017,"RecordTx Error,null  key");
 

@@ -22,6 +22,8 @@ package com.github.ontio.network.connect;
 import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
 
+import java.io.IOException;
+
 public interface IConnector {
 
 	String getUrl();
@@ -47,4 +49,5 @@ public interface IConnector {
 
 	String getStorage(String codehash, String key) throws Exception;
 	Object getMerkleProof(String hash) throws Exception;
+	String getAllowance(String asset,String from,String to) throws Exception;
 }

@@ -19,6 +19,7 @@
 
 package com.github.ontio.sdk.manager;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Map;
 
@@ -209,6 +210,9 @@ public class ConnectMgr {
     public Object getMerkleProof(String hash) throws Exception {
         hash = hash.replace("0x", "");
         return connector.getMerkleProof(hash);
+    }
+    public String getAllowance(String asset,String from,String to) throws Exception {
+        return connector.getAllowance(asset,from,to);
     }
 }
 

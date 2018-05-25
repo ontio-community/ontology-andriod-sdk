@@ -19,7 +19,9 @@
 
 package com.github.ontio.merkle;
 
+import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.UInt256;
+import com.github.ontio.sdk.exception.SDKException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,5 +104,29 @@ public class MerkleVerifier {
             last_node /= 2;
         }
         return nodes;
+    }
+
+    public static boolean Verify(UInt256 leaf_hash,List targetHashes, UInt256 root_hash) throws Exception {
+        UInt256 calculated_hash = leaf_hash;
+        for(int i=0;i<targetHashes.size();i++){
+            String direction = (String)((Map)targetHashes.get(i)).get("Direction");
+            String tmp = (String)((Map)targetHashes.get(i)).get("TargetHash");
+            UInt256 targetHash = UInt256.parse(tmp);
+            if(direction.equals("Left")){
+                calculated_hash = hasher.hash_children(targetHash, calculated_hash);
+            }else if(direction.equals("Right")){
+                calculated_hash = hasher.hash_children(calculated_hash,targetHash);
+            }else{
+                throw new SDKException(ErrorCode.TargetHashesErr);
+            }
+        }
+        if (calculated_hash.equals(new UInt256())) {
+            return false;
+        }
+        if (!calculated_hash.equals(root_hash)) {
+            throw new SDKException(ErrorCode.ConstructedRootHashErr("Constructed root hash differs from provided root hash. Constructed: %x, Expected: " +
+                    calculated_hash + root_hash));
+        }
+        return true;
     }
 }
