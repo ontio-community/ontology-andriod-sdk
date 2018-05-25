@@ -91,7 +91,7 @@ public class Ong {
      * @return
      * @throws Exception
      */
-    public Transaction makeTransfer(String sendAddr, String password, String recvAddr, long amount,long gaslimit,long gasprice) throws Exception {
+    public Transaction makeTransfer(String sendAddr, String password, String recvAddr, long amount,String payer,long gaslimit,long gasprice) throws Exception {
         if (amount <= 0 || gasprice < 0) {
             throw new SDKException(ErrorCode.AmountError);
         }
@@ -99,7 +99,7 @@ public class Ong {
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         State state = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), amount);
         Transfers transfers = new Transfers(new State[]{state});
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ongContract,"transfer",transfers.toArray(), VmType.Native.value(), sendAddr,gaslimit,gasprice);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ongContract,"transfer",transfers.toArray(), VmType.Native.value(), payer,gaslimit,gasprice);
         return tx;
     }
 
@@ -149,13 +149,13 @@ public class Ong {
      * @return
      * @throws Exception
      */
-    public String sendApprove(String sendAddr, String password, String recvAddr, long amount,long gaslimit,long gasprice) throws Exception {
+    public String sendApprove(String sendAddr, String password, String recvAddr, long amount,String payer,long gaslimit,long gasprice) throws Exception {
         if (amount <= 0 || gasprice < 0) {
             throw new SDKException(ErrorCode.AmountError);
         }
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         State state = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), amount);
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ongContract,"approve", state.toArray(), VmType.Native.value(), sendAddr,gaslimit,gasprice);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ongContract,"approve", state.toArray(), VmType.Native.value(), payer,gaslimit,gasprice);
         sdk.signTx(tx,sendAddr,password);
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if(b){
@@ -176,13 +176,13 @@ public class Ong {
      * @return
      * @throws Exception
      */
-    public String sendTransferFrom(String sendAddr, String password, String fromAddr, String toAddr, long amount,long gaslimit,long gasprice) throws Exception {
+    public String sendTransferFrom(String sendAddr, String password, String fromAddr, String toAddr, long amount,String pay,long gaslimit,long gasprice) throws Exception {
         if (amount <= 0 || gasprice < 0) {
             throw new SDKException(ErrorCode.AmountError);
         }
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         TransferFrom transferFrom = new TransferFrom(Address.addressFromPubKey(sender.pubkey),Address.decodeBase58(fromAddr), Address.decodeBase58(toAddr), amount);
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ongContract,"transferFrom", transferFrom.toArray(), VmType.Native.value(), sendAddr,gaslimit,gasprice);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ongContract,"transferFrom", transferFrom.toArray(), VmType.Native.value(), pay,gaslimit,gasprice);
         sdk.signTx(tx,sendAddr,password);
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if(b){

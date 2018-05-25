@@ -103,7 +103,7 @@ public class Ont {
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         State state = new State(Address.addressFromPubKey(sender.pubkey), Address.decodeBase58(recvAddr), amount);
         Transfers transfers = new Transfers(new State[]{state});
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract,"transfer",transfers.toArray(), VmType.Native.value(), sendAddr,gaslimit,gasprice);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract,"transfer",transfers.toArray(), VmType.Native.value(), payer,gaslimit,gasprice);
         return tx;
     }
 
@@ -233,7 +233,7 @@ public class Ont {
     public Transaction makeTransferFrom(String sendAddr, String password, String fromAddr, String toAddr,String payer, long amount,long gaslimit,long gas) throws Exception {
         AccountInfo sender = sdk.getWalletMgr().getAccountInfo(sendAddr, password);
         TransferFrom transferFrom = new TransferFrom(Address.addressFromPubKey(sender.pubkey),Address.decodeBase58(fromAddr), Address.decodeBase58(toAddr), amount);
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract,"transferFrom", transferFrom.toArray(), VmType.Native.value(), sendAddr,gaslimit,gas);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract,"transferFrom", transferFrom.toArray(), VmType.Native.value(), payer,gaslimit,gas);
         return tx;
     }
 
