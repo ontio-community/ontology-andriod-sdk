@@ -70,7 +70,7 @@ public class Ong {
         if (amount <= 0 || gasprice < 0) {
             throw new SDKException(ErrorCode.AmountError);
         }
-        Transaction tx = makeTransfer(sendAddr, password, recvAddr, amount,gaslimit,gasprice);
+        Transaction tx = makeTransfer(sendAddr, password, recvAddr, amount,sendAddr,gaslimit,gasprice);
         sdk.signTx(tx, sendAddr, password);
         System.out.println(tx.toHexString());
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
