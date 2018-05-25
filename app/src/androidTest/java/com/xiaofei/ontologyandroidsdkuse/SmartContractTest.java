@@ -15,12 +15,11 @@ import com.github.ontio.sdk.abi.AbiFunction;
 import com.github.ontio.sdk.exception.SDKException;
 import com.github.ontio.sdk.info.AccountInfo;
 import com.github.ontio.sdk.manager.ConnectMgr;
-import com.github.ontio.sdk.manager.SmartcodeTx;
 import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Identity;
 import com.github.ontio.smartcontract.Vm;
-import com.github.ontio.smartcontract.nativevm.NativeOntIdTx;
+import com.github.ontio.smartcontract.nativevm.OntId;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -49,7 +48,7 @@ public class SmartContractTest {
     //SmartcodeTx smartcodeTx;
     Vm smartcodeTx;
     ConnectMgr connectMgr;
-    NativeOntIdTx ontIdTx;
+    OntId ontIdTx;
     WalletMgr walletMgr;
     Account payer;
 
@@ -79,7 +78,7 @@ public class SmartContractTest {
 
         if (ontSdk.getWalletMgr().getIdentitys().size() < 1) {
             Identity did0 = walletMgr.createIdentity("passwordtest");
-            did = ontIdTx.sendRegister(did0,"passwordtest",payer.address,"123456",0);
+            did = ontIdTx.sendRegister(did0,"passwordtest",payer.address,"123456",0,0);
             Thread.sleep(6000);
         }
         did = ontSdk.getWalletMgr().getIdentitys().get(0);
@@ -94,10 +93,10 @@ public class SmartContractTest {
         abiFunction2 = JSON.parseObject(funcStr2,AbiFunction.class);
         abiFunction2.setParamsValue(did.ontid.getBytes(),UUID.randomUUID().toString().getBytes());
 
-        Transaction tx = ontSdk.vm().makeDeployCodeTransaction(codeHex, true, "name", "1.0", "1", "1", "1", VmType.NEOVM.value(),did.ontid,0);
+        Transaction tx = ontSdk.vm().makeDeployCodeTransaction(codeHex, true, "name", "1.0", "1", "1", "1", VmType.NEOVM.value(),did.ontid,0,0);
 
         String txHex = Helper.toHexString(tx.toArray());
-        boolean b = ontSdk.getConnectMgr().sendRawTransaction(txHex);
+        boolean b = ontSdk.getConnect().sendRawTransaction(txHex);
         Thread.sleep(6000);
 
         smartcodeTx = ontSdk.vm();
@@ -177,10 +176,10 @@ public class SmartContractTest {
     public void deployCodeTransaction() throws Exception {
         smartcodeTx.setCodeAddress(Helper.getCodeAddress(codeHex, VmType.NEOVM.value()));
 
-        Transaction tx = smartcodeTx.makeDeployCodeTransaction(codeHex, true, "name", "1.0", "1", "1", "1", VmType.NEOVM.value(),did.ontid,0);
+        Transaction tx = smartcodeTx.makeDeployCodeTransaction(codeHex, true, "name", "1.0", "1", "1", "1", VmType.NEOVM.value(),did.ontid,0,0);
         String txHex = Helper.toHexString(tx.toArray());
         System.out.println(txHex);
-        boolean b = ontSdk.getConnectMgr().sendRawTransaction(txHex);
+        boolean b = ontSdk.getConnect().sendRawTransaction(txHex);
         Assert.assertTrue(b);
 
     }
@@ -198,7 +197,7 @@ public class SmartContractTest {
     @Test
     public void makeDeployCodeTransaction() throws Exception {
 
-        Transaction tx = smartcodeTx.makeDeployCodeTransaction(codeHex, true, "name", "1.0", "1", "1", "1", VmType.NEOVM.value(),did.ontid,0);
+        Transaction tx = smartcodeTx.makeDeployCodeTransaction(codeHex, true, "name", "1.0", "1", "1", "1", VmType.NEOVM.value(),did.ontid,0,0);
         Assert.assertNotNull(tx);
 
     }
@@ -210,7 +209,7 @@ public class SmartContractTest {
         list.add("test");
         byte[] params = smartcodeTx.createCodeParamsScript(list);
         Fee[] fees = new Fee[0];
-        InvokeCode res = smartcodeTx.makeInvokeCodeTransaction(codeAddress,null,params, VmType.NEOVM.value(), did.ontid,0);
+        InvokeCode res = smartcodeTx.makeInvokeCodeTransaction(codeAddress,null,params, VmType.NEOVM.value(), did.ontid,0,0);
         Assert.assertNotNull(res);
     }
 }

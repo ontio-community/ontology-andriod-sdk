@@ -308,7 +308,7 @@ public class SmokeTest {
 
     }
     @Test
-    public void sendTransfer() throws Exception {
+    public void sendTransferOnt() throws Exception {
         final int amount = 1;
 //b14757ed---kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=---123123---TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z rich
 //4fd1e7fe---6LL8RCFR8lhpkAAyvEXVRKGzs6Q5ZNh4so4SGXrPHMs=---123123---TA9hEJap1EWcAo9DfrKFHCHcuRAG9xRMft poor
@@ -330,15 +330,22 @@ public class SmokeTest {
         com.github.ontio.sdk.wallet.Account accountRich = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
         com.github.ontio.sdk.wallet.Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
 
-        String txnId = ont.sendTransfer(richAddr,"123123",poorAddr,amount,payerAcc.address,"123456",0,0);
-        assertNotNull(txnId);
-        assertNotEquals(txnId,"");
+
+        Transaction transactionR2P = ont.makeTransfer(richAddr,"123123",poorAddr,1,payerAcc.address,30000,0);
+        assertNotNull(transactionR2P);
+        transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123");
+        assertNotNull(transactionR2P);
+        boolean isSuccess = connectMgr.sendRawTransaction(transactionR2P);
+        assertTrue(isSuccess);
 
         Thread.sleep(6000);
 
-        Transaction transaction = connectMgr.getTransaction(txnId);
-        assertNotNull(transaction);
-        assertEquals(transaction.hash().toHexString(),txnId);
+        String transactionR2PStr = transactionR2P.hash().toHexString();
+        transactionR2P = connectMgr.getTransaction(transactionR2PStr);
+        transactionR2PStr =transactionR2P.hash().toHexString();
+        assertNotNull(transactionR2P);
+        assertNotEquals(transactionR2PStr,"");
+
 
         JSONObject richBalanceObjAfter = (JSONObject) connectMgr.getBalance(richAddr);
         JSONObject poorBalanceObjAfter = (JSONObject) connectMgr.getBalance(poorAddr);
@@ -349,6 +356,7 @@ public class SmokeTest {
         assertTrue(poorBalanceAfter == poorBalance +amount);
 
         String txnIdback = ont.sendTransfer(poorAddr,"123123",richAddr,amount,payerAcc.address,"123456",0,0);
+
         assertNotNull(txnIdback);
         assertNotEquals(txnIdback,"");
 
@@ -364,7 +372,7 @@ public class SmokeTest {
     }
 
     @Test
-    public void sendOngTransferFromToSelf() throws Exception {
+    public void claimOng() throws Exception {
 //b14757ed---kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=---123123---TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z rich
         final int amount = 1;
         final String richAddr = "TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z";
@@ -372,21 +380,26 @@ public class SmokeTest {
         final String richPrefixStr = "b14757ed";
         final byte[] richPrefix = Helper.hexToBytes(richPrefixStr);
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
-        int richOngApprove = richBalanceObj.getIntValue("ong_appove");
         int richOng = richBalanceObj.getIntValue("ong");
-        assertTrue(richOngApprove >= 0);
+        String richOngApproveStr = ong.unclaimOng(richAddr);
+        Integer richOngApprove = Integer.parseInt(richOngApproveStr);
+        assertTrue(richOngApprove > 0);
         assertTrue(richOng >= 0);
 
         com.github.ontio.sdk.wallet.Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
 
-        String txnId = ong.claimOng(richAddr,"123123",richAddr,amount,payerAcc.address,"123456",0,0);
-        assertNotNull(txnId);
-        assertNotEquals(txnId,"");
+        Transaction transactionClaimOng = ong.makeClaimOng(richAddr,"123123",richAddr,amount,payerAcc.address,30000,0);
+        assertNotNull(transactionClaimOng);
+        transactionClaimOng = ontSdk.signTx(transactionClaimOng,richAddr,"123123");
+        assertNotNull(transactionClaimOng);
+        boolean isSuccess = connectMgr.sendRawTransaction(transactionClaimOng);
+        assertTrue(isSuccess);
 
         Thread.sleep(6000);
 
         JSONObject richBalanceAfterObj = (JSONObject) connectMgr.getBalance(richAddr);
-        int richOngApproveAfter = richBalanceAfterObj.getIntValue("ong_appove");
+        String richOngApproveAfterStr = ong.unclaimOng(richAddr);
+        Integer richOngApproveAfter = Integer.parseInt(richOngApproveAfterStr);
         int richOngAfter = richBalanceAfterObj.getIntValue("ong");
         assertTrue(richOngApproveAfter == richOngApprove - amount);
         assertTrue(richOngAfter == richOng + amount);

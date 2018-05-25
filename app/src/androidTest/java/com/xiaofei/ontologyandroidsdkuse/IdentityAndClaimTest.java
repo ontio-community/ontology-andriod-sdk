@@ -7,14 +7,14 @@ import android.util.Base64;
 
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Common;
-import com.github.ontio.sdk.info.IdentityInfo;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Identity;
 import com.github.ontio.sdk.wallet.Wallet;
-import com.github.ontio.smartcontract.nativevm.NativeOntIdTx;
-import com.github.ontio.smartcontract.nativevm.OntAssetTx;
+import com.github.ontio.smartcontract.nativevm.Ong;
+import com.github.ontio.smartcontract.nativevm.Ont;
+import com.github.ontio.smartcontract.nativevm.OntId;
 
 import org.junit.After;
 import org.junit.Before;
@@ -25,16 +25,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class IdentityAndClaimTest {
     private OntSdk ontSdk;
     private ConnectMgr connectMgr;
-    private OntAssetTx ontAssetTx;
+    private Ont ont;
+    private Ong ong;
     private WalletMgr walletMgr;
     private Wallet wallet;
     private Context appContext;
-    private NativeOntIdTx ontIdTx;
+    private OntId ontIdTx;
     private Account payer;
 
     @Before
@@ -47,8 +51,8 @@ public class IdentityAndClaimTest {
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
         wallet = walletMgr.getWallet();
-        connectMgr = ontSdk.getConnectMgr();
-        ontAssetTx = ontSdk.nativevm().ont();
+        connectMgr = ontSdk.getConnect();
+        ont = ontSdk.nativevm().ont();
         ontIdTx = ontSdk.nativevm().ontId();
         payer = walletMgr.createAccount("123456");
     }
@@ -163,8 +167,8 @@ public class IdentityAndClaimTest {
     public void createOntIdClaim() throws Exception {
         Identity identity01 = walletMgr.createIdentity("123456");
         Identity identity02 = walletMgr.createIdentity("123456");
-        Identity identity1 = ontIdTx.sendRegister(identity01,"123456",payer.address,"123456",0);
-        Identity identity2 = ontIdTx.sendRegister(identity02,"123456",payer.address,"123456",0);
+        Identity identity1 = ontIdTx.sendRegister(identity01,"123456",payer.address,"123456",0,0);
+        Identity identity2 = ontIdTx.sendRegister(identity02,"123456",payer.address,"123456",0,0);
         Thread.sleep(6000);
 
         Map<String,Object> claimData = new HashMap<>();
@@ -199,8 +203,8 @@ public class IdentityAndClaimTest {
     public void createOntIdClaimError() throws Exception {
         Identity identity01 = walletMgr.createIdentity("123456");
         Identity identity02 = walletMgr.createIdentity("123456");
-        Identity identity1 = ontIdTx.sendRegister(identity01,"123456",payer.address,"123456",0);
-        Identity identity2 = ontIdTx.sendRegister(identity02,"123456",payer.address,"123456",0);
+        Identity identity1 = ontIdTx.sendRegister(identity01,"123456",payer.address,"123456",0,0);
+        Identity identity2 = ontIdTx.sendRegister(identity02,"123456",payer.address,"123456",0,0);
         Thread.sleep(6000);
 
         Map<String,Object> claimData = new HashMap<>();

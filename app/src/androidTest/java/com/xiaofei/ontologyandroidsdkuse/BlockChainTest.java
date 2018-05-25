@@ -26,7 +26,7 @@ public class BlockChainTest {
         ontSdk.setRestful("http://polaris1.ont.io:20334");
         ontSdk.setRestful("http://192.168.50.73:20334");
         ontSdk.setRestful("http://139.219.129.55:20334");
-        connectMgr = ontSdk.getConnectMgr();
+        connectMgr = ontSdk.getConnect();
     }
 
     @After

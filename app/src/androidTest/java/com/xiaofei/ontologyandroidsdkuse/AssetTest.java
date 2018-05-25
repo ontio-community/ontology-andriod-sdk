@@ -10,8 +10,9 @@ import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Identity;
 import com.github.ontio.sdk.wallet.Wallet;
-import com.github.ontio.smartcontract.nativevm.NativeOntIdTx;
-import com.github.ontio.smartcontract.nativevm.OntAssetTx;
+import com.github.ontio.smartcontract.nativevm.Ong;
+import com.github.ontio.smartcontract.nativevm.Ont;
+import com.github.ontio.smartcontract.nativevm.OntId;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,17 +21,19 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 @RunWith(AndroidJUnit4.class)
 public class AssetTest {
     private OntSdk ontSdk;
     private ConnectMgr connectMgr;
-    private OntAssetTx ontAssetTx;
+    private Ont ont;
+    private Ong ong;
     private WalletMgr walletMgr;
     private Wallet wallet;
     private Context appContext;
-    private NativeOntIdTx ontIdTx;
+    private OntId ontIdTx;
     String password = "111111";
 
     @Before
@@ -42,8 +45,8 @@ public class AssetTest {
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
         wallet = walletMgr.getWallet();
-        connectMgr = ontSdk.getConnectMgr();
-        ontAssetTx = ontSdk.nativevm().ont();
+        connectMgr = ontSdk.getConnect();
+        ont = ontSdk.nativevm().ont();
         ontIdTx = ontSdk.nativevm().ontId();
     }
 
