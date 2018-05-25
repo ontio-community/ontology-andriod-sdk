@@ -169,6 +169,18 @@ public class SmokeTest {
     }
 
     @Test
+    public void decryptMnmenoicCodes() throws Exception {
+        //TA9nHh56y8tXypxZ8S4vmhycXfBJ2Bzaaa
+        //endless online program roof claim parent spider resemble spawn pull repair cube
+        //b9fba414c733faa9c226ce7dfce100f72160ed89a62816cbc60cd2d1a7a712e2a387305c3f05051a273db5bade96ef38000570af5ac44611f1d185ef026815fea826dd083f2f911a289a7947326e53
+        String address = "TA4eqgfDVvCjfcmVNBwQkrBDpLTtB89GhU";
+        String encryptedMnmenoicCodesHexStr = "b9fba414c733faa9c226ce7dfce100f72160ed89a62816cbc60cd2d1a7a712e2a387305c3f05051a273db5bade96ef38000570af5ac44611f1d185ef026815fea826dd083f2f911a289a7947326e53";
+        String[] mnmenoicCodesArray = walletMgr.decryptMnemonicCodesStr(encryptedMnmenoicCodesHexStr,"123456");
+        assertEquals(mnmenoicCodesArray[0],"endless");
+        assertEquals(mnmenoicCodesArray[11],"cube");
+    }
+
+    @Test
     public void exportPrikey() throws Exception {
         Account account = walletMgr.createAccount("aaa","123456");
         String prikey = walletMgr.exportPrikey(account,"123456");
@@ -331,7 +343,7 @@ public class SmokeTest {
         com.github.ontio.sdk.wallet.Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
 
 
-        Transaction transactionR2P = ont.makeTransfer(richAddr,"123123",poorAddr,1,payerAcc.address,30000,0);
+        Transaction transactionR2P = ont.makeTransfer(richAddr,"123123",poorAddr,1,"TA4pCAb4zUifHyxSx32dZRjTrnXtxEWKZr",30000,0);
         assertNotNull(transactionR2P);
         transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123");
         assertNotNull(transactionR2P);

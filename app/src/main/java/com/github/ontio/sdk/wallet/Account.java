@@ -43,6 +43,7 @@ public class Account {
     public String passwordHash = "";
     public Object extra = null;
     public String[] mnemonicCodes;
+    public String encryptedMnemonicCodesStr;
     public Account(){
 
     }

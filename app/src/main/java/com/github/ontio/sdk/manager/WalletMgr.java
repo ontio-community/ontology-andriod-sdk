@@ -48,6 +48,10 @@ import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
 import io.github.novacrypto.bip39.MnemonicGenerator;
 import io.github.novacrypto.bip39.MnemonicValidator;
 import io.github.novacrypto.bip39.SeedCalculator;
@@ -260,6 +264,19 @@ public class WalletMgr {
         return getAccount(info.addressBase58);
     }
 
+    public String[] decryptMnemonicCodesStr (String encryptedMnemonicCodesStr, String password) throws Exception {
+        byte[] encryptedkey = Helper.hexToBytes(encryptedMnemonicCodesStr);
+        byte[] derivedhalf2 = new byte[32];
+        byte[] iv = new byte[16];
+        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
+        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+        byte[] rawkey = cipher.doFinal(encryptedkey);
+        String mnemonicCodesStr = new String(rawkey);
+        String[] mnemonicCodesArray = mnemonicCodesStr.split(" ");
+        return mnemonicCodesArray;
+    }
+
     public Account importAccount(String label, String prikey, String password) throws Exception {
         AccountInfo info = createAccount(label,password,Helper.hexToBytes(prikey));
         storePrivateKey(acctPriKeyMap, info.addressBase58, password, prikey);
@@ -297,6 +314,8 @@ public class WalletMgr {
         return account;
     }
 
+
+
     public Account createAccount(String label, String password) throws Exception {
         final StringBuilder sb = new StringBuilder();
         byte[] entropy = new byte[Words.TWELVE.byteLength()];
@@ -307,6 +326,7 @@ public class WalletMgr {
                 sb.append(string);
             }
         });
+        new SecureRandom().nextBytes(entropy);
         String[] mnemonicCodesArray = sb.toString().split(" ");
         byte[] seed = new SeedCalculator()
                 .withWordsFromWordList(English.INSTANCE)
@@ -315,7 +335,22 @@ public class WalletMgr {
         AccountInfo info = createAccount(label, password, prikey);
         Account account = getAccount(info.addressBase58);
         account.mnemonicCodes = mnemonicCodesArray;
+        account.encryptedMnemonicCodesStr = encryptMnemonicCodesStr(sb.toString(),password,account.passwordHash);
         return account;
+    }
+
+    private String encryptMnemonicCodesStr(String mnemonicCodesStr, String password, String passwordHashOrig) throws Exception {
+        String passwordHashNew = Helper.toHexString(Digest.sha256(password.getBytes()));
+        if (!passwordHashNew.equals(passwordHashOrig)){
+            throw new SDKException(ErrorCode.InvalidParams("密码错误"));
+        }
+        byte[] derivedhalf2 = new byte[32];
+        byte[] iv = new byte[16];
+        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
+        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+        byte[] encryptedkey = cipher.doFinal(mnemonicCodesStr.getBytes());
+        return Helper.toHexString(encryptedkey);
     }
 
     private AccountInfo createAccount(String label, String password, byte[] prikey) throws Exception {
