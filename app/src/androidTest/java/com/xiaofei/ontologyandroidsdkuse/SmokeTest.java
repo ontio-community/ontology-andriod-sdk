@@ -10,7 +10,6 @@ import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
-import com.github.ontio.crypto.WIF;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
@@ -185,24 +184,33 @@ public class SmokeTest {
 
     @Test
     public void prikeyToWIF() throws Exception {
-        String prikey = "54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166";
-        String wif = WIF.encodePrivateKeyToWIF(Helper.hexToBytes(prikey));
-        assertNotNull(wif);
+        String prikeyStrOrig = "e467a2a9c9f56b012c71cf2270df42843a9d7ff181934068b4a62bcdd570e8be";
+        String wifStrOrig = "L4shZ7B4NFQw2eqKncuUViJdFRq6uk1QUb6HjiuedxN4Q2CaRQKW";
+        com.github.ontio.account.Account acct = new com.github.ontio.account.Account(Helper.hexToBytes(prikeyStrOrig), ontSdk.signatureScheme);
+        String wif1 = acct.exportWif();
+        assertNotNull(wif1);
+        assertEquals(wif1,wifStrOrig);
     }
 
     @Test
     public void wifToPrikey() throws Exception {
-        byte[] prikey = WIF.decodePrivateKeyFromWIF("5JTTXdfPVtGMNybRgyFz7gUD3BpRbCypn6D8zpEPKobGJvhX2jX");
-        String prikeyStr = Helper.toHexString(prikey);
-        assertNotNull(prikeyStr);
-        assertEquals(prikeyStr,"54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166");
+        String prikeyStrOrig = "e467a2a9c9f56b012c71cf2270df42843a9d7ff181934068b4a62bcdd570e8be";
+        String wifStrOrig = "L4shZ7B4NFQw2eqKncuUViJdFRq6uk1QUb6HjiuedxN4Q2CaRQKW";
+        byte[] prikey2  = com.github.ontio.account.Account.getPrivateKeyFromWIF(wifStrOrig);
+        String prikeyStr2 = Helper.toHexString(prikey2);
+        assertNotNull(prikeyStr2);
+        assertEquals(prikeyStr2,prikeyStrOrig);
     }
 
     @Test
     public void importAccountByPrikey() throws Exception {
-        String prikey = "54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166";
+        //54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166
+        //
+        String prikey = "9c663937ffcadb1aa196bf08c76b2f8a18f214d4f32f029a06cde1a0ca73208a";
         Account account = walletMgr.importAccount("aa",prikey,"123456");
-        assertNotNull(account.address,"TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg");
+        assertNotNull(account.address,"AVZVSttsW3kbf9He2YduHSKB4ygLomy7eG");
+        //AVZVSttsW3kbf9He2YduHSKB4ygLomy7eG
+        //TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg
     }
 
     @Test
