@@ -8,7 +8,6 @@ import com.alibaba.fastjson.JSON;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.VmType;
-import com.github.ontio.core.asset.Fee;
 import com.github.ontio.core.payload.InvokeCode;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.sdk.abi.AbiFunction;

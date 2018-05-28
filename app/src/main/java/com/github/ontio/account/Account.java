@@ -63,7 +63,6 @@ public class Account {
         Security.addProvider(new BouncyCastleProvider());
         KeyPairGenerator gen;
         AlgorithmParameterSpec paramSpec;
-        KeyType keyType;
         signatureScheme = scheme;
 
         if (scheme == SignatureScheme.SHA256WITHECDSA) {
@@ -166,6 +165,14 @@ public class Account {
         System.arraycopy(data, 1, privateKey, 0, privateKey.length);
         Arrays.fill(data, (byte) 0);
         return privateKey;
+    }
+
+    public KeyType getKeyType() {
+        return keyType;
+    }
+
+    public Object[] getCurveParams() {
+        return curveParams;
     }
 
 
@@ -381,9 +388,9 @@ public class Account {
         return wif;
     }
 
-    public String exportEcbEncryptedPrikey(String passphrase) throws Exception {
+    public String exportEcbEncryptedPrikey(String passphrase, int n) throws Exception {
 
-        int N = 256;
+        int N = n;
         int r = 8;
         int p = 8;
         Address script_hash = Address.addressFromPubKey(serializePublicKey());
@@ -393,7 +400,6 @@ public class Account {
         byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
 
         byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
-//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, 64);
         byte[] derivedhalf1 = new byte[32];
         byte[] derivedhalf2 = new byte[32];
         System.arraycopy(derivedkey, 0, derivedhalf1, 0, 32);
@@ -474,17 +480,17 @@ public class Account {
     /**
      * @param encryptedPriKey
      * @param passphrase
-     * @param prefix
+     * @param salt
      * @param n
      * @param scheme
      * @return
      * @throws Exception
      */
-    public static String getCtrDecodedPrivateKey(String encryptedPriKey, String passphrase, byte[] prefix, int n, SignatureScheme scheme) throws Exception {
+    public static String getCtrDecodedPrivateKey(String encryptedPriKey, String passphrase, byte[] salt, int n, SignatureScheme scheme) throws Exception {
         if (encryptedPriKey == null) {
             throw new SDKException(ErrorCode.ParamError);
         }
-        if (prefix.length ==0){
+        if (salt.length ==0){
             throw new SDKException(ErrorCode.ParamError);
         }
         byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.NO_PADDING);
@@ -493,8 +499,8 @@ public class Account {
         int r = 8;
         int p = 8;
         int dkLen = 64;
-        String s = Helper.toHexString(prefix);
-        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(prefix), N, r, p, 64);
+        String s = Helper.toHexString(salt);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(salt), N, r, p, dkLen);
 //        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), prefix, N, r, p, dkLen);
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[16];
@@ -507,8 +513,8 @@ public class Account {
         byte[] rawkey = cipher.doFinal(encryptedkey);
         String address = new Account(rawkey, scheme).getAddressU160().toBase58();
         byte[] addresshashTmp2 = Digest.sha256(Digest.sha256(address.getBytes()));
-        for (int i = 0; i < prefix.length; i++) {
-            if (prefix[i] != addresshashTmp2[i]) {
+        for (int i = 0; i < salt.length; i++) {
+            if (salt[i] != addresshashTmp2[i]) {
                 throw new SDKException(ErrorCode.KeyAddressPwdNotMatch);
             }
         }
@@ -533,7 +539,7 @@ public class Account {
 
     // byte转char
 
-    public static char[] getChars(byte[] bytes) {
+    private static char[] getChars(byte[] bytes) {
         char[] chars = new char[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
             chars[i] = (char) bytes[i];

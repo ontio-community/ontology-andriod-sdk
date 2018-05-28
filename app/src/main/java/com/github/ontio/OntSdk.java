@@ -34,8 +34,6 @@ import com.github.ontio.sdk.manager.*;
 import com.github.ontio.smartcontract.NativeVm;
 import com.github.ontio.smartcontract.NeoVm;
 import com.github.ontio.smartcontract.Vm;
-import com.github.ontio.smartcontract.neovm.ClaimRecordTx;
-import com.github.ontio.smartcontract.neovm.RecordTx;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -51,13 +49,11 @@ public class OntSdk {
     private ConnectMgr connDefault;
 
 
-    private Vm smartcodeTx = null;
+    private Vm vm = null;
     private NativeVm nativevm = null;
     private NeoVm neovm = null;
 
     private static OntSdk instance = null;
-    public KeyType keyType = KeyType.ECDSA;
-    public Object[] curveParaSpec = new Object[]{"P-256"};
     public SignatureScheme signatureScheme = SignatureScheme.SHA256WITHECDSA;
 
     public long DEFAULT_GAS_LIMIT = 30000;
@@ -127,10 +123,10 @@ public class OntSdk {
      * @return
      */
     public Vm vm() {
-        if(smartcodeTx == null){
-            smartcodeTx = new Vm(getInstance());
+        if(vm == null){
+            vm = new Vm(getInstance());
         }
-        return smartcodeTx;
+        return vm;
     }
 
 
@@ -171,7 +167,7 @@ public class OntSdk {
      */
     public void openWalletFile(SharedPreferences sp) throws IOException {
 
-        this.walletMgr = new WalletMgr(sp,keyType, curveParaSpec);
+        this.walletMgr = new WalletMgr(sp,signatureScheme);
         setSignatureScheme(signatureScheme);
     }
 
@@ -184,6 +180,9 @@ public class OntSdk {
      * @throws Exception
      */
     public Transaction addSign(Transaction tx,String addr,String password) throws Exception {
+        if (tx.sigs == null){
+            tx.sigs = new Sig[0];
+        }
         Sig[] sigs = new Sig[tx.sigs.length + 1];
         for(int i= 0; i< tx.sigs.length; i++){
             sigs[i] = tx.sigs[i];

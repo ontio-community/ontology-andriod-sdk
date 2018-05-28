@@ -107,8 +107,8 @@ public class ErrorCode {
     public static String ConstructedRootHashErr(String msg) {
         return getError(54003, "Other Error," + msg);
     }
-    public static String NullKeyOrValue = getError(58016,"RecordTx Error,null key or value");
-    public static String NullKey = getError(58017,"RecordTx Error,null  key");
+    public static String NullKeyOrValue = getError(58016,"Record Error,null key or value");
+    public static String NullKey = getError(58017,"Record Error,null  key");
 
     public static String GetAccountByAddressErr = getError(58018,"WalletManager Error,getAccountByAddress err");
     public static String WebsocketNotInit = getError(58019,"OntSdk Error,websocket not init");

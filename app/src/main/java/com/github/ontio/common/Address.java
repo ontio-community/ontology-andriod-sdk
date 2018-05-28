@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Custom type which inherits base class defines 20-bit data, 
@@ -87,6 +88,35 @@ public class Address extends UIntBase implements Comparable<Address> {
         Address u160 = new Address(bys);
         return u160;
 
+    }
+
+    public static Address addressFromMultiPubKeys(int m, byte[]... publicKeys) throws Exception {
+        if (m <= 0 || m > publicKeys.length || publicKeys.length > 24) {
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        try (ByteArrayOutputStream ms = new ByteArrayOutputStream()) {
+            try (BinaryWriter writer = new BinaryWriter(ms)) {
+                writer.writeByte((byte) publicKeys.length);
+                writer.writeByte((byte) m);
+
+                Arrays.sort(publicKeys, new Comparator<byte[]>() {
+                    @Override
+                    public int compare(byte[] a, byte[] b) {
+                        return Helper.toHexString(a).compareTo(Helper.toHexString(b));
+                    }
+                });
+                for (int i = 0; i < publicKeys.length; i++) {
+                    writer.writeVarBytes(publicKeys[i]);
+                }
+                writer.flush();
+                byte[] bys = Digest.hash160(ms.toByteArray());
+                bys[0] = 0x02;
+                Address u160 = new Address(bys);
+                return u160;
+            }
+        } catch (IOException ex) {
+            throw new SDKException(ErrorCode.ParamError);
+        }
     }
 
     public static Address decodeBase58(String address) throws Exception{

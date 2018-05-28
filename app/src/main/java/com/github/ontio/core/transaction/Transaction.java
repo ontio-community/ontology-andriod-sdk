@@ -26,7 +26,6 @@ import java.util.*;
 import com.github.ontio.common.*;
 import com.github.ontio.core.Inventory;
 import com.github.ontio.core.InventoryType;
-import com.github.ontio.core.asset.Fee;
 import com.github.ontio.core.asset.Sig;
 import com.github.ontio.io.*;
 
@@ -68,8 +67,8 @@ public abstract class Transaction extends Inventory {
         Transaction transaction = (Transaction) Class.forName(typeName).newInstance();
         transaction.nonce = reader.readInt();
         transaction.version = ver;
-        transaction.gasLimit = reader.readLong();
         transaction.gasPrice = reader.readLong();
+        transaction.gasLimit = reader.readLong();
         transaction.payer = reader.readSerializable(Address.class);
         transaction.deserializeUnsignedWithoutType(reader);
         transaction.sigs = new Sig[(int) reader.readVarInt()];

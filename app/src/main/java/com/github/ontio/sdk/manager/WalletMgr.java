@@ -69,15 +69,12 @@ public class WalletMgr {
     private Wallet walletFile;
     private SignatureScheme scheme = null;
     private String filePath = null;
-    private KeyType keyType = null;
-    private Object[] curveParaSpec = null;
     private SharedPreferences sp;
     private static final String key = "wallet_file";
 
-    public WalletMgr(SharedPreferences sp, KeyType type, Object[] curveParaSpec) throws IOException {
-        this.keyType = type;
-        this.curveParaSpec = curveParaSpec;
+    public WalletMgr(SharedPreferences sp, SignatureScheme scheme) throws IOException {
         this.sp = sp;
+        this.scheme = scheme;
         String text = sp.getString(key, "");
         if (text.isEmpty()) {
             wallet = new Wallet();
@@ -85,7 +82,7 @@ public class WalletMgr {
             walletFile = new Wallet();
             writeWallet();
         } else {
-            Log.i("haha", "WalletMgr: " + text);
+            Log.i("ontsdk", "WalletMgr: " + text);
             wallet = JSON.parseObject(text, Wallet.class);
             walletFile = JSON.parseObject(text, Wallet.class);
         }
@@ -99,7 +96,7 @@ public class WalletMgr {
             walletFile = new Wallet();
             writeWallet();
         } else {
-            Log.i("haha", "WalletMgr: " + text);
+            Log.i("ontsdk", "WalletMgr: " + text);
             wallet = JSON.parseObject(text, Wallet.class);
             walletFile = JSON.parseObject(text, Wallet.class);
         }
@@ -119,7 +116,7 @@ public class WalletMgr {
     }
 
     private static void writeFile(SharedPreferences sp, String sets) throws IOException {
-        Log.i("sava", "writeFile: " + sets);
+        Log.i("ontsdk", "writeFile: " + sets);
         boolean isSuccess = sp.edit().putString(key, sets).commit();
         if (!isSuccess) {
             throw new IOException("Wallet File Write Error");
@@ -270,7 +267,7 @@ public class WalletMgr {
         return getAccount(info.addressBase58);
     }
 
-    public Account importAccount(String label, String[] mnemonicCodes, String password) throws Exception {
+    public Account importAccountFromMnemonicCodes(String label, String[] mnemonicCodes, String password) throws Exception {
         List<String> mnemonicCodesArray = Arrays.asList(mnemonicCodes);
         MnemonicValidator.ofWordList(English.INSTANCE).validate(mnemonicCodesArray);
         byte[] seed = new SeedCalculator()
@@ -348,6 +345,15 @@ public class WalletMgr {
         info.addressU160 = acct.getAddressU160().toHexString();
         storePrivateKey(acctPriKeyMap, info.addressBase58, password, Helper.toHexString(prikey));
         return info;
+    }
+
+    public Account getDefaultAccount() {
+        for (Account e : wallet.getAccounts()) {
+            if (e.isDefault) {
+                return e;
+            }
+        }
+        return null;
     }
 
     public Account createAccountFromPriKey(String password, String prikey) throws Exception {

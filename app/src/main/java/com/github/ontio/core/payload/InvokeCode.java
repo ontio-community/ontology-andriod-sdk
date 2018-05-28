@@ -48,7 +48,8 @@ public class InvokeCode extends Transaction {
 
     @Override
     protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
-        writer.writeByte(vmType);
+        byte[] temp = new byte[]{vmType};
+        writer.write(temp);
         writer.writeVarBytes(code);
     }
 

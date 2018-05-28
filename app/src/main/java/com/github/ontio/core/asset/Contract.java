@@ -23,6 +23,7 @@ import com.github.ontio.common.Address;
 import com.github.ontio.crypto.Digest;
 import com.github.ontio.io.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,8 @@ public class Contract extends Serializable {
     public Address constracHash;
     public String method;
     public byte[] args;
+
+    public Contract(){}
 
     public Contract(byte version, byte[] code, Address constracHash, String method, byte[] args) {
         this.version = version;
@@ -63,5 +66,14 @@ public class Contract extends Serializable {
         writer.writeSerializable(constracHash);
         writer.writeVarBytes(method.getBytes());
         writer.writeVarBytes(args);
+    }
+
+    public static Contract deserializeFrom(byte[] value) throws Exception {
+            int offset = 0;
+            ByteArrayInputStream ms = new ByteArrayInputStream(value, offset, value.length - offset);
+            BinaryReader reader = new BinaryReader(ms);
+            Contract contract = new Contract();
+            contract.deserialize(reader);
+            return contract;
     }
 }

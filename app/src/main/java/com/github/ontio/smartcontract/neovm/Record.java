@@ -1,28 +1,16 @@
 package com.github.ontio.smartcontract.neovm;
 
-import com.alibaba.fastjson.JSON;
 import com.github.ontio.OntSdk;
-import com.github.ontio.common.Address;
-import com.github.ontio.common.Common;
-import com.github.ontio.common.ErrorCode;
-import com.github.ontio.common.Helper;
-import com.github.ontio.core.VmType;
-import com.github.ontio.core.asset.Fee;
-import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.crypto.KeyType;
-import com.github.ontio.sdk.exception.SDKException;
-import com.github.ontio.sdk.info.AccountInfo;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 
-public class RecordTx {
+public class Record {
     private OntSdk sdk;
     private String codeAddress = null;
 
 
-    public RecordTx(OntSdk sdk) {
+    public Record(OntSdk sdk) {
         this.sdk = sdk;
     }
 

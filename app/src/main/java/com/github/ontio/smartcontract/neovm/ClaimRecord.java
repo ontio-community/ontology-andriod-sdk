@@ -13,12 +13,12 @@ import com.github.ontio.sdk.info.AccountInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClaimRecordTx {
+public class ClaimRecord {
     private OntSdk sdk;
     private String codeAddress = null;
 
 
-    public ClaimRecordTx(OntSdk sdk) {
+    public ClaimRecord(OntSdk sdk) {
         this.sdk = sdk;
     }
 
@@ -101,7 +101,7 @@ public class ClaimRecordTx {
         return null;
     }
     public Transaction makeInvokeTransaction(List<Object> list,String addr,long gaslimit,long gas) throws Exception {
-        byte[] params = sdk.vm().createCodeParamsScript(list);
+        byte[] params = BuildParams.createCodeParamsScript(list);
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(codeAddress,null,params, VmType.NEOVM.value(), addr,gaslimit,gas);
         return tx;
     }
