@@ -47,14 +47,11 @@ public class MnemonicCode {
         return prikey;
     }
 
-    public static String encryptMnemonicCodesStr(String mnemonicCodesStr, String password, String addr) throws Exception {
+    public static String encryptMnemonicCodesStr(String mnemonicCodesStr, String password, String address) throws Exception {
         int N = 4096;
         int r = 8;
         int p = 8;
         int dkLen = 64;
-        addr = Helper.toHexString(addr.getBytes());
-        Address script_hash = Address.addressFromPubKey(addr);
-        String address = script_hash.toBase58();
 
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
         byte[] salt = Arrays.copyOfRange(addresshashTmp, 0, 4);
@@ -69,24 +66,21 @@ public class MnemonicCode {
         Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(iv));
         byte[] encryptedkey = cipher.doFinal(mnemonicCodesStr.getBytes());
-        return new String(Base64.encode(encryptedkey, Base64.DEFAULT));
+        return new String(Base64.encode(encryptedkey, Base64.NO_WRAP));
 
     }
 
-    public static String decryptMnemonicCodesStr(String encryptedMnemonicCodesStr, String password,String addr) throws Exception {
+    public static String decryptMnemonicCodesStr(String encryptedMnemonicCodesStr, String password,String address) throws Exception {
         if (encryptedMnemonicCodesStr == null) {
             throw new SDKException(ErrorCode.ParamError);
         }
-        byte[] encryptedkey = Base64.decode(encryptedMnemonicCodesStr, Base64.DEFAULT);
+        byte[] encryptedkey = Base64.decode(encryptedMnemonicCodesStr, Base64.NO_WRAP);
 
         int N = 4096;
         int r = 8;
         int p = 8;
         int dkLen = 64;
 
-        addr = Helper.toHexString(addr.getBytes());
-        Address script_hash = Address.addressFromPubKey(addr);
-        String address = script_hash.toBase58();
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
         byte[] salt = Arrays.copyOfRange(addresshashTmp, 0, 4);
 
@@ -100,11 +94,16 @@ public class MnemonicCode {
         Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
         byte[] rawkey = cipher.doFinal(encryptedkey);
-
-        return new String(rawkey);
+        String mnemonicCodesStr = new String(rawkey);
+        return mnemonicCodesStr;
     }
 
-    private static char[] getChars(byte[] bytes) {
-        return new String(bytes, 0, bytes.length).toCharArray();
+
+    public static char[] getChars(byte[] bytes) {
+        char[] chars = new char[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            chars[i] = (char) bytes[i];
+        }
+        return chars;
     }
 }

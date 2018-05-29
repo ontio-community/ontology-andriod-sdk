@@ -48,15 +48,11 @@ public class SmokeTest {
     private WalletMgr walletMgr;
     private Wallet wallet;
     private Context appContext;
-    private OntId ontIdTx;
-    String password = "123456";
-    Account payerAcc;
+    private OntId ontId;
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
-//        ontSdk.setRestful("http://192.168.50.73:20334");
-//        ontSdk.setRestful("http://139.219.129.55:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -64,8 +60,7 @@ public class SmokeTest {
         connectMgr = ontSdk.getConnect();
         ont = ontSdk.nativevm().ont();
         ong = ontSdk.nativevm().ong();
-        ontIdTx = ontSdk.nativevm().ontId();
-        payerAcc = ontSdk.getWalletMgr().createAccount(password);
+        ontId = ontSdk.nativevm().ontId();
     }
 
     @After
@@ -84,19 +79,6 @@ public class SmokeTest {
         assertSame(ontSdk,this.ontSdk);
     }
 
-
-    @Test
-    public void ConnectMangerTest() throws Exception {
-        Block block = ontSdk.getConnect().getBlock(0);
-
-        System.out.print(block);
-    }
-
-    @Test
-    public void writeWallet() throws IOException {
-        walletMgr.writeWallet();
-    }
-
     @Test
     public void createIdentity() throws Exception {
         Identity identity = walletMgr.createIdentity("123456");
@@ -106,34 +88,16 @@ public class SmokeTest {
     }
 
     @Test
-    public void sendRegisterPreExec() throws Exception {
-        Identity identity0 = walletMgr.createIdentity("123456");
-        Identity identity = ontIdTx.sendRegisterPreExec(identity0,"123456",payerAcc.address,password,0,0);
-        assertNotNull(identity);
-        assertNotNull(identity.ontid);
-        assertNotEquals(identity.ontid,"");
-    }
-
-    @Test
-    public void sendRegister() throws Exception {
-        Identity identity = walletMgr.createIdentity("123456");
-        Identity identity1 = ontIdTx.sendRegister(identity,"123456",payerAcc.address,password,0,0);
-        Thread.sleep(6000);
-        String string = ontIdTx.sendGetDDO(identity1.ontid);
-        assertTrue(string.contains(identity1.ontid));
-    }
-
-    @Test
     public void makeRegister() throws Exception {
         Identity identity = walletMgr.createIdentity("aa","123456");
 
-        Transaction tx22 = ontIdTx.makeRegister(identity.ontid,"123456",payerAcc.address,0,0);
+        Transaction tx22 = ontId.makeRegister(identity.ontid,"123456","",0,0);
             ontSdk.signTx(tx22,identity.ontid.replace(Common.didont,""),"123456");
-            ontSdk.addSign(tx22,payerAcc.address,"123456");
+            ontSdk.addSign(tx22,"","123456");
             ontSdk.getConnect().sendRawTransaction(tx22);
 
         Thread.sleep(6000);
-        String string = ontIdTx.sendGetDDO(identity.ontid);
+        String string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains(identity.ontid));
     }
 
@@ -174,6 +138,16 @@ public class SmokeTest {
 
         String mnsStrNew = MnemonicCode.decryptMnemonicCodesStr(encryptedMnsStr,"123456",account.address);
         assertEquals(mnsStrNew,mnsStr);
+    }
+
+    @Test
+    public void encryptMnemonicCodesStrCase() throws Exception {
+        String address = "TA6A9RDSbrVxfyYvRqg21fSNpYDZHZfge7";
+        String mnsStr = "doll remember harbor resource desert curious fatigue nature arrest fix nation rhythm";
+        String encryptedMnsStrOrig = "XlXmqnJfnbjUT+kHyHHRXszBXUiW1VtQpXdVcj4zHVQ430QtGDPMk/gbnVyZkXjYrE2+sIQbcVGxRadrWlufLCOsz7BdOIcZm/Ikn/WnGN0Ggy9/";
+        String prikeyStr = "2ab720ff80fcdd31a769925476c26120a879e235182594fbb57b67c0743558d7";
+        String encryptedMnsStr = MnemonicCode.encryptMnemonicCodesStr(mnsStr,"123456",address);
+        assertEquals(encryptedMnsStr,encryptedMnsStrOrig);
     }
 
     @Test
@@ -258,56 +232,56 @@ public class SmokeTest {
     @Test
     public void sendUpdateAttribute() throws Exception {
         Identity identity0 = ontSdk.getWalletMgr().createIdentity("123456");
-        Identity identity = ontIdTx.sendRegister(identity0,"123456",payerAcc.address,password,0,0);
+        Identity identity = ontId.sendRegister(identity0,"123456","","",0,0);
         com.github.ontio.account.Account account = walletMgr.getAccount(identity.ontid,"123456");
         String prikey = account.exportCtrEncryptedPrikey("123456", 4096);
         Thread.sleep(6000);
-        String string = ontIdTx.sendGetDDO(identity.ontid);
+        String string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains(identity.ontid));
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("Context", "claimlalala");
         jsonObject.put("Issuer", "issuerlalala");
-//        String txnIdPreexec = ontIdTx.sendUpdateAttributePreExec(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(),jsonObject.toJSONString().getBytes());
+//        String txnIdPreexec = ontId.sendUpdateAttributePreExec(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(),jsonObject.toJSONString().getBytes());
 //        assertNotNull(txnIdPreexec);
 //        assertNotEquals(txnIdPreexec,"");
-//        String txnId = ontIdTx.sendUpdateAttribute(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(), jsonObject.toJSONString().getBytes());
+//        String txnId = ontId.sendUpdateAttribute(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(), jsonObject.toJSONString().getBytes());
 //        assertNotNull(txnId);
 //        assertNotEquals(txnId,"");
 //        Thread.sleep(6000);
         Map attrsMap = new HashMap<>();
         attrsMap.put("key11","value11");
-        String txnId = ontIdTx.sendAddAttributes(identity.ontid,"123456",attrsMap,payerAcc.address,password,0,0);
+        String txnId = ontId.sendAddAttributes(identity.ontid,"123456",attrsMap,"","",0,0);
         Thread.sleep(6000);
-        string = ontIdTx.sendGetDDO(identity.ontid);
+        string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains("key11"));
 //        assertTrue(string.contains("issuerlalala"));
 
         Map attrsMap2 = new HashMap<>();
         attrsMap.put("key22","value22");
-        Transaction tx22 = ontIdTx.makeAddAttributes(identity.ontid,"123456",attrsMap,payerAcc.address,0,0);
+        Transaction tx22 = ontId.makeAddAttributes(identity.ontid,"123456",attrsMap,"",0,0);
         ontSdk.signTx(tx22,identity.ontid.replace(Common.didont,""),"123456");
-        ontSdk.addSign(tx22,payerAcc.address,"123456");
+        ontSdk.addSign(tx22,"","123456");
         connectMgr.sendRawTransaction(tx22);
 
         Thread.sleep(6000);
-        string = ontIdTx.sendGetDDO(identity.ontid);
+        string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains(identity.ontid));
         assertTrue(string.contains("key22"));
 
-        String txnId1 = ontIdTx.sendRemoveAttribute(identity.ontid,"123456","key11",payerAcc.address,password,0,0);
+        String txnId1 = ontId.sendRemoveAttribute(identity.ontid,"123456","key11","","",0,0);
         assertNotNull(txnId1);
         assertNotEquals(txnId1,"");
         Thread.sleep(6000);
-        string = ontIdTx.sendGetDDO(identity.ontid);
+        string = ontId.sendGetDDO(identity.ontid);
         assertFalse(string.contains("key11"));
 
-        Transaction tx33 = ontIdTx.makeRemoveAttribute(identity.ontid,"123456","key22",payerAcc.address,0,0);
+        Transaction tx33 = ontId.makeRemoveAttribute(identity.ontid,"123456","key22","",0,0);
         ontSdk.signTx(tx33,identity.ontid.replace(Common.didont,""),"123456");
-        ontSdk.addSign(tx33,payerAcc.address,"123456");
+        ontSdk.addSign(tx33,"","123456");
         connectMgr.sendRawTransaction(tx33);
         Thread.sleep(6000);
-        string = ontIdTx.sendGetDDO(identity.ontid);
+        string = ontId.sendGetDDO(identity.ontid);
         assertFalse(string.contains("key22"));
     }
 
@@ -372,7 +346,7 @@ public class SmokeTest {
         assertTrue(richBalanceAfter == richBalance -amount);
         assertTrue(poorBalanceAfter == poorBalance +amount);
 
-        String txnIdback = ont.sendTransfer(poorAddr,"123123",richAddr,amount,payerAcc.address,"123456",0,0);
+        String txnIdback = ont.sendTransfer(poorAddr,"123123",richAddr,amount,"","123456",0,0);
 
         assertNotNull(txnIdback);
         assertNotEquals(txnIdback,"");
@@ -405,7 +379,7 @@ public class SmokeTest {
 
         com.github.ontio.sdk.wallet.Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
 
-        Transaction transactionClaimOng = ong.makeClaimOng(richAddr,"123123",richAddr,amount,payerAcc.address,30000,0);
+        Transaction transactionClaimOng = ong.makeClaimOng(richAddr,"123123",richAddr,amount,"",30000,0);
         assertNotNull(transactionClaimOng);
         transactionClaimOng = ontSdk.signTx(transactionClaimOng,richAddr,"123123");
         assertNotNull(transactionClaimOng);

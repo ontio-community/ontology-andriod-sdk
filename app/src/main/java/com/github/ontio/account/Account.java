@@ -430,7 +430,7 @@ public class Account {
 
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
         byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
-        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, dkLen);
 
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[16];
@@ -441,7 +441,7 @@ public class Account {
         Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(iv));
         byte[] encryptedkey = cipher.doFinal(serializePrivateKey());
-        return new String(Base64.encode(encryptedkey, Base64.DEFAULT));
+        return new String(Base64.encode(encryptedkey, Base64.NO_WRAP));
 
     }
 
@@ -467,7 +467,7 @@ public class Account {
         if (salt.length == 0) {
             throw new SDKException(ErrorCode.ParamError);
         }
-        byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.NO_PADDING);
+        byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.NO_WRAP);
 
         int N = n;
         int r = 8;
@@ -511,7 +511,12 @@ public class Account {
 
     // byte转char
 
-    private static char[] getChars(byte[] bytes) {
-        return new String(bytes, 0, bytes.length).toCharArray();
+
+    public static char[] getChars(byte[] bytes) {
+        char[] chars = new char[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            chars[i] = (char) bytes[i];
+        }
+        return chars;
     }
 }
