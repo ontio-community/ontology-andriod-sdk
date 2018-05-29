@@ -10,6 +10,8 @@ import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
+import com.github.ontio.crypto.MnemonicCode;
+import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
@@ -160,16 +162,18 @@ public class SmokeTest {
 
     @Test
     public void createAccount() throws Exception {
-        Account account = walletMgr.createAccount("bbb","123456");
+        String mnsStr = MnemonicCode.generateMnemonicCodesStr();
+        byte[] prikey = MnemonicCode.getPrikeyFromMnemonicCodesStr(mnsStr);
+        String prikeyStr = Helper.toHexString(prikey);
+        Account account = walletMgr.createAccountFromPriKey("bbb","123456",prikeyStr);
+        String encryptedMnsStr = MnemonicCode.encryptMnemonicCodesStr(mnsStr,"123456",account.address);
         assertNotNull(account);
         assertNotNull(account.address);
         assertNotEquals(account.address,"");
         assertEquals(account.label,"bbb");
-        assertNull(account.mnemonicCodes );
-        assertNotEquals(account.encryptedMnemonicCodesStr,"");
 
-        String[] mns = account.decryptedMnemonicCodesStr(account.encryptedMnemonicCodesStr,"123456");
-        assertEquals(mns.length,12);
+        String mnsStrNew = MnemonicCode.decryptMnemonicCodesStr(encryptedMnsStr,"123456",account.address);
+        assertEquals(mnsStrNew,mnsStr);
     }
 
     @Test
@@ -225,7 +229,7 @@ public class SmokeTest {
         String mnemonicCodesStr = "guilt any betray day cinnamon erupt often loyal blanket spice extend exact";
         String[] mnemonicCodes = mnemonicCodesStr.split(" ");
         assertEquals(mnemonicCodes.length,12);
-        Account account = walletMgr.importAccount("aa",mnemonicCodes,"123456");
+        Account account = walletMgr.importAccountFromMnemonicCodes("aa",mnemonicCodes,"123456");
         assertNotNull(account);
         assertEquals(account.address,"TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg");
     }

@@ -51,8 +51,6 @@ public class Account {
     public String signatureScheme = "SHA256withECDSA";
     public String passwordHash = "";
     public Object extra = null;
-    public String[] mnemonicCodes;
-    public String encryptedMnemonicCodesStr;
     public Account(){
 
     }
@@ -99,21 +97,6 @@ public class Account {
         return JSON.toJSONString(this);
     }
 
-    public String[] decryptedMnemonicCodesStr(String encryptedMnemonicCodesHexStr,String password) throws Exception {
-        String passwordHashNew = Helper.toHexString(Digest.sha256(password.getBytes()));
-        if (!passwordHashNew.equals(this.passwordHash)){
-            throw new SDKException(ErrorCode.InvalidParams("password error"));
-        }
-        byte[] encryptedkey = Helper.hexToBytes(encryptedMnemonicCodesStr);
-        byte[] derivedhalf2 = Digest.sha256(password.getBytes());
-        byte[] iv = new byte[16];
-        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
-        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
-        byte[] rawkey = cipher.doFinal(encryptedkey);
-        String mnemonicCodesStr = new String(rawkey);
-        String[] mnemonicCodesArray = mnemonicCodesStr.split(" ");
-        return mnemonicCodesArray;
-    }
+
 }
 

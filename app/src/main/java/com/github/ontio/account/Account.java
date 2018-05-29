@@ -117,7 +117,7 @@ public class Account {
                 this.privateKey = kf.generatePrivate(priSpec);
 
                 org.spongycastle.math.ec.ECPoint Q = spec.getG().multiply(d).normalize();
-                if (Q == null||Q.getAffineXCoord() ==null||Q.getAffineYCoord()==null){
+                if (Q == null || Q.getAffineXCoord() == null || Q.getAffineYCoord() == null) {
                     throw new SDKException(ErrorCode.KeyAddressPwdNotMatch);
                 }
                 ECPublicKeySpec pubSpec = new ECPublicKeySpec(
@@ -204,7 +204,6 @@ public class Account {
         System.arraycopy(input, 3, addresshash, 0, 4);
         System.arraycopy(input, 7, encryptedkey, 0, 32);
         byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
-//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
         byte[] derivedhalf1 = new byte[32];
         byte[] derivedhalf2 = new byte[32];
         System.arraycopy(derivedkey, 0, derivedhalf1, 0, 32);
@@ -447,34 +446,9 @@ public class Account {
     }
 
     public static String getCtrDecodedPrivateKey(String encryptedPriKey, String passphrase, String address, int n, SignatureScheme scheme) throws Exception {
-        if (encryptedPriKey == null) {
-            throw new SDKException(ErrorCode.EncryptedPriKeyError);
-        }
-        byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.DEFAULT);
-
-        int N = n;
-        int r = 8;
-        int p = 8;
-        int dkLen = 64;
-
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
         byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
-        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, dkLen);
-
-//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), addresshash, N, r, p, dkLen);
-        byte[] derivedhalf2 = new byte[32];
-        byte[] iv = new byte[16];
-        System.arraycopy(derivedkey, 0, iv, 0, 16);
-        System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32);
-
-        SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
-        Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
-        byte[] rawkey = cipher.doFinal(encryptedkey);
-        if (!new Account(rawkey, scheme).getAddressU160().toBase58().equals(address)) {
-            throw new SDKException(ErrorCode.KeyAddressPwdNotMatch);
-        }
-        return Helper.toHexString(rawkey);
+        return getCtrDecodedPrivateKey(encryptedPriKey, passphrase, addresshash, n, scheme);
     }
 
     /**
@@ -490,7 +464,7 @@ public class Account {
         if (encryptedPriKey == null) {
             throw new SDKException(ErrorCode.ParamError);
         }
-        if (salt.length ==0){
+        if (salt.length == 0) {
             throw new SDKException(ErrorCode.ParamError);
         }
         byte[] encryptedkey = Base64.decode(encryptedPriKey, Base64.NO_PADDING);
@@ -501,7 +475,6 @@ public class Account {
         int dkLen = 64;
         String s = Helper.toHexString(salt);
         byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(salt), N, r, p, dkLen);
-//        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), prefix, N, r, p, dkLen);
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[16];
         System.arraycopy(derivedkey, 0, iv, 0, 16);
@@ -512,11 +485,10 @@ public class Account {
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
         byte[] rawkey = cipher.doFinal(encryptedkey);
         String address = new Account(rawkey, scheme).getAddressU160().toBase58();
-        byte[] addresshashTmp2 = Digest.sha256(Digest.sha256(address.getBytes()));
-        for (int i = 0; i < salt.length; i++) {
-            if (salt[i] != addresshashTmp2[i]) {
-                throw new SDKException(ErrorCode.KeyAddressPwdNotMatch);
-            }
+        byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
+        byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
+        if (!Arrays.equals(addresshash, salt)) {
+            throw new SDKException(ErrorCode.KeyAddressPwdNotMatch);
         }
         return Helper.toHexString(rawkey);
     }
@@ -540,10 +512,6 @@ public class Account {
     // byte转char
 
     private static char[] getChars(byte[] bytes) {
-        char[] chars = new char[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            chars[i] = (char) bytes[i];
-        }
-        return chars;
+        return new String(bytes, 0, bytes.length).toCharArray();
     }
 }

@@ -135,10 +135,4 @@ public class Helper {
         String s = Helper.toHexString(addresshash);
 	    return s;
     }
-
-    public static int bytes2Int(byte[] src,ByteOrder byteOrder){
-        ByteBuffer buffer = ByteBuffer.wrap(src);
-        buffer.order(byteOrder);
-        return buffer.getInt();
-    }
 }
