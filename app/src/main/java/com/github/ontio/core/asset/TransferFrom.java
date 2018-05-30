@@ -50,7 +50,7 @@ public class TransferFrom extends Serializable {
         sender = reader.readSerializable(Address.class);
         from = reader.readSerializable(Address.class);
         to = reader.readSerializable(Address.class);
-        value = reader.readLong();
+        value = reader.readVarInt();
     }
 
     @Override
@@ -58,7 +58,7 @@ public class TransferFrom extends Serializable {
         writer.writeSerializable(sender);
         writer.writeSerializable(from);
         writer.writeSerializable(to);
-        writer.writeLong(value);
+        writer.writeVarInt(value);
 
     }
 

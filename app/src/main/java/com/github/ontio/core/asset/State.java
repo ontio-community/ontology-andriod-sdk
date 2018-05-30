@@ -45,14 +45,14 @@ public class State extends Serializable {
     public void deserialize(BinaryReader reader) throws Exception {
             from = reader.readSerializable(Address.class);
             to = reader.readSerializable(Address.class);
-            value = reader.readLong();
+            value = reader.readVarInt();
     }
 
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
         writer.writeSerializable(from);
         writer.writeSerializable(to);
-        writer.writeLong(value);
+        writer.writeVarInt(value);
 
     }
 

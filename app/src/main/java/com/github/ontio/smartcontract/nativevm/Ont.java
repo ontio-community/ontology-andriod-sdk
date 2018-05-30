@@ -114,8 +114,7 @@ public class Ont {
      * @throws Exception
      */
     public long queryBalanceOf(String address) throws Exception {
-        byte[] parabytes = buildParams(Address.decodeBase58(address).toArray());
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract,"balanceOf", parabytes, VmType.Native.value(), null,0,0);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract,"balanceOf", Address.decodeBase58(address).toArray(), VmType.Native.value(), null,0,0);
         Object obj = sdk.getConnect().sendRawTransactionPreExec(tx.toHexString());
         String res = ((JSONObject)obj).getString("Result");
         if (("").equals(res)) {
@@ -131,7 +130,7 @@ public class Ont {
      * @return
      */
     public long queryAllowance(String fromAddr,String toAddr) throws Exception {
-        byte[] parabytes = buildParams(Address.decodeBase58(fromAddr).toArray(),Address.decodeBase58(toAddr).toArray());
+        byte[] parabytes = BuildParams.buildParams(Address.decodeBase58(fromAddr),Address.decodeBase58(toAddr));
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract,"allowance", parabytes, VmType.Native.value(), null,0,0);
         Object obj = sdk.getConnect().sendRawTransactionPreExec(tx.toHexString());
         String res = ((JSONObject)obj).getString("Result");
@@ -289,19 +288,6 @@ public class Ont {
             return 0;
         }
         return Long.valueOf(res,16);
-    }
-
-    private byte[] buildParams(byte[] ...params) throws Exception {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        BinaryWriter writer = new BinaryWriter(byteArrayOutputStream);
-        try {
-            for (byte[] param : params) {
-                writer.writeVarBytes(param);
-            }
-        } catch (IOException e) {
-            throw new SDKException(ErrorCode.WriteVarBytesError);
-        }
-        return byteArrayOutputStream.toByteArray();
     }
 
     /**
