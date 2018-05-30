@@ -4,14 +4,13 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
-import com.github.ontio.core.block.Block;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.crypto.MnemonicCode;
-import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
@@ -20,6 +19,10 @@ import com.github.ontio.sdk.wallet.Wallet;
 import com.github.ontio.smartcontract.nativevm.Ong;
 import com.github.ontio.smartcontract.nativevm.Ont;
 import com.github.ontio.smartcontract.nativevm.OntId;
+import com.xiaofei.ontologyandroidsdkuse.model.AppConfig;
+import com.xiaofei.ontologyandroidsdkuse.model.OntoResult;
+import com.xiaofei.ontologyandroidsdkuse.service.OntoService;
+import com.xiaofei.ontologyandroidsdkuse.service.OntoServiceApi;
 
 import org.junit.After;
 import org.junit.Before;
@@ -31,11 +34,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.fastjson.FastJsonConverterFactory;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
@@ -49,10 +56,20 @@ public class SmokeTest {
     private Wallet wallet;
     private Context appContext;
     private OntId ontId;
+    private String payAddr;
+    private long gasLimit;
+    private long gasPrice;
+    private Retrofit retrofit;
+    private OntoServiceApi ontoServiceApi;
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
+        retrofit = new Retrofit.Builder()
+                .baseUrl("https://dev.ont.io/")
+                .addConverterFactory(FastJsonConverterFactory.create())
+                .build();
+        ontoServiceApi = retrofit.create(OntoServiceApi.class);
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -61,6 +78,9 @@ public class SmokeTest {
         ont = ontSdk.nativevm().ont();
         ong = ontSdk.nativevm().ong();
         ontId = ontSdk.nativevm().ontId();
+        payAddr="TA4pCAb4zUifHyxSx32dZRjTrnXtxEWKZr";
+        gasLimit = 30000;
+        gasPrice = 0;
     }
 
     @After
@@ -70,6 +90,30 @@ public class SmokeTest {
     @Test
     public void smoke(){
         assertTrue(2 == 1+1);
+    }
+
+    @Test
+    public void getAppConfig() throws IOException {
+        Call<OntoResult> call = ontoServiceApi.getAppConfig();
+        Response<OntoResult> response = call.execute();
+        OntoResult ontoResult = response.body();
+        JSONObject result = ontoResult.getResult();
+        AppConfig appConfig = JSON.parseObject(result.toJSONString(),AppConfig.class);
+        String testNetUrlStr = appConfig.getTestnetAddr();
+        assertNotNull(testNetUrlStr);
+        assertNotEquals(testNetUrlStr,"");
+        assertEquals(testNetUrlStr,"http://polaris1.ont.io");
+    }
+
+    @Test
+    public void getAppConfig2() throws IOException {
+        OntoService ontoService = new OntoService();
+        AppConfig appConfig = ontoService.getAppConfig();
+        String testNetUrlStr = appConfig.getTestnetAddr();
+        assertNotNull(testNetUrlStr);
+        assertNotEquals(testNetUrlStr,"");
+        assertEquals(testNetUrlStr,"http://polaris1.ont.io");
+
     }
 
     @Test
@@ -322,7 +366,7 @@ public class SmokeTest {
         com.github.ontio.sdk.wallet.Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
 
 
-        Transaction transactionR2P = ont.makeTransfer(richAddr,"123123",poorAddr,1,"TA4pCAb4zUifHyxSx32dZRjTrnXtxEWKZr",30000,0);
+        Transaction transactionR2P = ont.makeTransfer(richAddr,"123123",poorAddr,1,payAddr,gasLimit,gasPrice);
         assertNotNull(transactionR2P);
         transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123");
         assertNotNull(transactionR2P);
