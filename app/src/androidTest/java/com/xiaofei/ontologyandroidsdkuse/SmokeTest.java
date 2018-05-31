@@ -480,4 +480,20 @@ public class SmokeTest {
         assertTrue(richOngApproveAfter == richOngApprove - amount);
         assertTrue(richOngAfter == richOng + amount);
     }
+
+    @Test
+    public void importAccountByKeystore() throws Exception {
+
+        String keystore = "{\"scrypt\":{\"dkLen\":64,\"n\":4096,\"p\":8,\"r\":8},\"prefix\":\"0d1d4d73\",\"key\":\"6aoszVlHicmvbvyU5L1Ehu0Lm2hmgSyCa3HfsFgSqnM=\",\"type\":\"A\",\"algorithm\":\"ECDSA\",\"parameters\":{\"curve\":\"P-256\"},\"label\":\"巨款\"}";
+        String password = "111111";
+        String addressOrig = "TA9fnuAZyrsZtCJoRBQUvGiDAG4ufgUf3t";
+        JSONObject jsonObject = JSON.parseObject(keystore);
+        String prefixHexStr = jsonObject.getString("prefix");
+        byte[] prefix = Helper.hexToBytes(prefixHexStr);
+        final String encryptedPrikey = jsonObject.getString("key");
+        Account account = walletMgr.importAccount("",encryptedPrikey,password,prefix);
+
+        assertEquals(account.address,addressOrig);
+
+    }
 }
