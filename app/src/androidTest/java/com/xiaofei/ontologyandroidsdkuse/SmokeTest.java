@@ -142,12 +142,17 @@ public class SmokeTest {
     public void makeRegister() throws Exception {
         Identity identity = walletMgr.createIdentity("aa","123456");
 
-        Transaction tx22 = ontId.makeRegister(identity.ontid,"123456","",0,0);
-            ontSdk.signTx(tx22,identity.ontid.replace(Common.didont,""),"123456");
-            ontSdk.addSign(tx22,"","123456");
-            ontSdk.getConnect().sendRawTransaction(tx22);
+        Transaction transaction = ontId.makeRegister(identity.ontid,"123456",payAddr,gasLimit,gasPrice);
+        transaction = ontSdk.signTx(transaction,identity.ontid.replace(Common.didont,""),"123456");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("OwnerOntId",identity.ontid);
+        jsonObject.put("TxnStr",transaction.toHexString());
+        JSONObject jsonObjectResult = ontopassService.ontidRegiste(jsonObject);
+        String devicecode = jsonObjectResult.getString("DeviceCode");
+        assertNotEquals(devicecode,"");
 
-        Thread.sleep(6000);
+        Thread.sleep(7000);
+
         String string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains(identity.ontid));
     }
@@ -205,10 +210,11 @@ public class SmokeTest {
     public void exportPrikey() throws Exception {
         Account account = walletMgr.createAccount("aaa","123456");
         String prikey = walletMgr.exportPrikey(account,"123456");
-        assertNotNull(prikey);
-        Account account1 = walletMgr.importAccount("www",prikey,"123456");
-        assertEquals(account1.address,account.address);
 
+        com.github.ontio.account.Account account2 = walletMgr.getAccount(account.address,"123456");
+        byte[] prikey2 = account2.serializePrivateKey();
+        String prikey2HexStr = Helper.toHexString(prikey2);
+        assertEquals(prikey2HexStr,prikey);
     }
 
     @Test
@@ -281,9 +287,9 @@ public class SmokeTest {
     }
 
     @Test
-    public void sendUpdateAttribute() throws Exception {
-        Identity identity0 = ontSdk.getWalletMgr().createIdentity("123456");
-        Identity identity = ontId.sendRegister(identity0,"123456","","",0,0);
+    public void sendAddRemoveIdentityAttribute() throws Exception {
+        Identity identityTemp = walletMgr.createIdentity("123456");
+        Identity identity = ontId.sendRegister(identityTemp,"123456",payAddr,"",0,0);
         com.github.ontio.account.Account account = walletMgr.getAccount(identity.ontid,"123456");
         String prikey = account.exportCtrEncryptedPrikey("123456", 4096);
         Thread.sleep(6000);

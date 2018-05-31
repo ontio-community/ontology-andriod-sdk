@@ -32,4 +32,14 @@ public class OntopassService implements IOntopassService {
         transactionHashVO = JSONObject.parseObject(jsonObject.toJSONString(),TransactionHashVO.class);
         return transactionHashVO;
     }
+
+    @Override
+    public JSONObject ontidRegiste(JSONObject jsonObject) throws IOException {
+        Call<OntopassResult> call = ontopassServiceApi.ontidRegiste(jsonObject);
+        Response<OntopassResult> response = call.execute();
+        OntopassResult ontopassResult = response.body();
+        JSONObject jsonObjectResult = (JSONObject) ontopassResult.getResult();
+        return jsonObjectResult;
+    }
+
 }
