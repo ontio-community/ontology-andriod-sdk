@@ -20,6 +20,7 @@ package com.github.ontio.smartcontract.nativevm;
  */
 
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -47,7 +48,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Base64;
+import android.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -803,7 +804,7 @@ public class OntId {
             if (obj.length != 3) {
                 throw new SDKException(ErrorCode.ParamError);
             }
-            byte[] payloadBytes = Base64.getDecoder().decode(obj[1].getBytes());
+            byte[] payloadBytes = Base64.decode(obj[1].getBytes(),Base64.NO_WRAP);
             JSONObject payloadObj = JSON.parseObject(new String(payloadBytes));
             String issuerDid = payloadObj.getString("iss");
             String[] str = issuerDid.split(":");
@@ -815,8 +816,8 @@ public class OntId {
             if (owners == null) {
                 throw new SDKException(ErrorCode.NotExistCliamIssuer);
             }
-            byte[] signatureBytes = Base64.getDecoder().decode(obj[2]);
-            byte[] headerBytes = Base64.getDecoder().decode(obj[0].getBytes());
+            byte[] signatureBytes = Base64.decode(obj[2],Base64.NO_WRAP);
+            byte[] headerBytes = Base64.decode(obj[0].getBytes(),Base64.NO_WRAP);
             JSONObject header = JSON.parseObject(new String(headerBytes));
             String kid = header.getString("kid");
             String id = kid.split("#keys-")[1];
