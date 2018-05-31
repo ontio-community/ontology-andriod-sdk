@@ -295,8 +295,9 @@ public class Ong {
      * @return
      * @throws Exception
      */
-    public String unclaimOng(String address)  throws Exception{
-        String uncliamong = sdk.getConnect().getAllowance("ong",Address.parse(ontContract).toBase58(),address);
+    public long unclaimOng(String address)  throws Exception{
+        String uncliamongStr = sdk.getConnect().getAllowance("ong",Address.parse(ontContract).toBase58(),address);
+        long uncliamong = Long.parseLong(uncliamongStr);
         return uncliamong;
     }
 

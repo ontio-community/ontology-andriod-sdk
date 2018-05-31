@@ -443,6 +443,13 @@ public class SmokeTest {
     }
 
     @Test
+    public void getUnclaimOng() throws Exception {
+        final String address = "TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z";
+        long unclaimOng = ong.unclaimOng(address);
+        assertTrue(unclaimOng >= 0);
+    }
+
+    @Test
     public void claimOng() throws Exception {
 //b14757ed---kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=---123123---TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z rich
         final int amount = 1;
@@ -450,30 +457,27 @@ public class SmokeTest {
         final String richKey = "kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=";
         final String richPrefixStr = "b14757ed";
         final byte[] richPrefix = Helper.hexToBytes(richPrefixStr);
+        long richOngApprove = ong.unclaimOng(richAddr);
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
-        int richOng = richBalanceObj.getIntValue("ong");
-        String richOngApproveStr = ong.unclaimOng(richAddr);
-        Integer richOngApprove = Integer.parseInt(richOngApproveStr);
+        long richOng = richBalanceObj.getLongValue("ong");
         assertTrue(richOngApprove > 0);
         assertTrue(richOng >= 0);
 
         com.github.ontio.sdk.wallet.Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
 
-        Transaction transactionClaimOng = ong.makeClaimOng(richAddr,"123123",richAddr,amount,"",30000,0);
-        assertNotNull(transactionClaimOng);
+        Transaction transactionClaimOng = ong.makeClaimOng(richAddr,"123123",richAddr,amount,payAddr,gasLimit,gasPrice);
         transactionClaimOng = ontSdk.signTx(transactionClaimOng,richAddr,"123123");
-        assertNotNull(transactionClaimOng);
-        boolean isSuccess = connectMgr.sendRawTransaction(transactionClaimOng);
-        assertTrue(isSuccess);
+        String transactionBodyStr = transactionClaimOng.toHexString();
+        TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
+        transactionBodyVO.setTxnStr(transactionBodyStr);
+        ontopassService.assetTransfer(transactionBodyVO);
 
-        Thread.sleep(6000);
+        Thread.sleep(7000);
 
+        long richOngApproveAfter = ong.unclaimOng(richAddr);
         JSONObject richBalanceAfterObj = (JSONObject) connectMgr.getBalance(richAddr);
-        String richOngApproveAfterStr = ong.unclaimOng(richAddr);
-        Integer richOngApproveAfter = Integer.parseInt(richOngApproveAfterStr);
-        int richOngAfter = richBalanceAfterObj.getIntValue("ong");
+        long richOngAfter = richBalanceAfterObj.getLongValue("ong");
         assertTrue(richOngApproveAfter == richOngApprove - amount);
         assertTrue(richOngAfter == richOng + amount);
-
     }
 }
