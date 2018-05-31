@@ -1,8 +1,6 @@
 
 package com.xiaofei.ontologyandroidsdkuse.model;
 
-import com.alibaba.fastjson.JSONObject;
-
 public class OntopassResult {
 
     private String action;
@@ -13,7 +11,7 @@ public class OntopassResult {
 
     private String version;
 
-    private JSONObject result;
+    private Object result;
 
     public String getAction() {
         return action;
@@ -47,11 +45,11 @@ public class OntopassResult {
         this.version = version;
     }
 
-    public JSONObject getResult() {
+    public Object getResult() {
         return result;
     }
 
-    public void setResult(JSONObject result) {
+    public void setResult(Object result) {
         this.result = result;
     }
 

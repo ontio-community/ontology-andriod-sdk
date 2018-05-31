@@ -21,8 +21,10 @@ import com.github.ontio.smartcontract.nativevm.Ont;
 import com.github.ontio.smartcontract.nativevm.OntId;
 import com.xiaofei.ontologyandroidsdkuse.model.AppConfig;
 import com.xiaofei.ontologyandroidsdkuse.model.OntoResult;
+import com.xiaofei.ontologyandroidsdkuse.model.TransactionBodyVO;
 import com.xiaofei.ontologyandroidsdkuse.service.OntoService;
 import com.xiaofei.ontologyandroidsdkuse.service.OntoServiceApi;
+import com.xiaofei.ontologyandroidsdkuse.service.OntopassService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -57,10 +59,13 @@ public class SmokeTest {
     private Context appContext;
     private OntId ontId;
     private String payAddr;
+    private String payPassword;
     private long gasLimit;
     private long gasPrice;
     private Retrofit retrofit;
     private OntoServiceApi ontoServiceApi;
+    private OntoService ontoService;
+    private OntopassService ontopassService;
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
@@ -70,6 +75,8 @@ public class SmokeTest {
                 .addConverterFactory(FastJsonConverterFactory.create())
                 .build();
         ontoServiceApi = retrofit.create(OntoServiceApi.class);
+        ontoService = new OntoService();
+        ontopassService = new OntopassService();
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -79,6 +86,7 @@ public class SmokeTest {
         ong = ontSdk.nativevm().ong();
         ontId = ontSdk.nativevm().ontId();
         payAddr="TA4pCAb4zUifHyxSx32dZRjTrnXtxEWKZr";
+        payPassword = "passwordtest";
         gasLimit = 30000;
         gasPrice = 0;
     }
@@ -97,7 +105,7 @@ public class SmokeTest {
         Call<OntoResult> call = ontoServiceApi.getAppConfig();
         Response<OntoResult> response = call.execute();
         OntoResult ontoResult = response.body();
-        JSONObject result = ontoResult.getResult();
+        JSONObject result = (JSONObject) ontoResult.getResult();
         AppConfig appConfig = JSON.parseObject(result.toJSONString(),AppConfig.class);
         String testNetUrlStr = appConfig.getTestnetAddr();
         assertNotNull(testNetUrlStr);
@@ -107,7 +115,6 @@ public class SmokeTest {
 
     @Test
     public void getAppConfig2() throws IOException {
-        OntoService ontoService = new OntoService();
         AppConfig appConfig = ontoService.getAppConfig();
         String testNetUrlStr = appConfig.getTestnetAddr();
         assertNotNull(testNetUrlStr);
@@ -338,8 +345,10 @@ public class SmokeTest {
 
         JSONObject balanceObj = (JSONObject) connectMgr.getBalance("TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z");
         assertNotNull(balanceObj);
-        int ontBalance = balanceObj.getIntValue("ont");
+        long ontBalance = balanceObj.getLongValue("ont");
+        long ongBalance = balanceObj.getLongValue("ong");
         assertTrue(ontBalance >= 0);
+        assertTrue(ongBalance >= 0);
 
     }
     @Test
@@ -357,52 +366,79 @@ public class SmokeTest {
         final byte[] poorPrefix = Helper.hexToBytes(poorPrefixStr);
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
         JSONObject poorBalanceObj = (JSONObject) connectMgr.getBalance(poorAddr);
-        int richBalance = richBalanceObj.getIntValue("ont");
-        int poorBalance = poorBalanceObj.getIntValue("ont");
-        assertTrue(richBalance > 0);
-        assertTrue(poorBalance >= 0);
+        int richOntBalance = richBalanceObj.getIntValue("ont");
+        int poorOntBalance = poorBalanceObj.getIntValue("ont");
+        assertTrue(richOntBalance > 0);
+        assertTrue(poorOntBalance >= 0);
 
         com.github.ontio.sdk.wallet.Account accountRich = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
         com.github.ontio.sdk.wallet.Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
 
 
         Transaction transactionR2P = ont.makeTransfer(richAddr,"123123",poorAddr,1,payAddr,gasLimit,gasPrice);
-        assertNotNull(transactionR2P);
         transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123");
-        assertNotNull(transactionR2P);
-        boolean isSuccess = connectMgr.sendRawTransaction(transactionR2P);
-        assertTrue(isSuccess);
+        String transactionBodyStr = transactionR2P.toHexString();
+        TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
+        transactionBodyVO.setTxnStr(transactionBodyStr);
+        ontopassService.assetTransfer(transactionBodyVO);
 
-        Thread.sleep(6000);
+        Thread.sleep(7000);
 
-        String transactionR2PStr = transactionR2P.hash().toHexString();
-        transactionR2P = connectMgr.getTransaction(transactionR2PStr);
-        transactionR2PStr =transactionR2P.hash().toHexString();
-        assertNotNull(transactionR2P);
-        assertNotEquals(transactionR2PStr,"");
+        //get transaction from chain
+        //get smartcode event from chain
 
+        JSONObject richOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(richAddr);
+        JSONObject poorOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(poorAddr);
+        long richOntBalanceAfter = richOntBalanceObjAfter.getLongValue("ont");
+        long poorOntBalanceAfter = poorOntBalanceObjAfter.getLongValue("ont");
 
-        JSONObject richBalanceObjAfter = (JSONObject) connectMgr.getBalance(richAddr);
-        JSONObject poorBalanceObjAfter = (JSONObject) connectMgr.getBalance(poorAddr);
-        int richBalanceAfter = richBalanceObjAfter.getIntValue("ont");
-        int poorBalanceAfter = poorBalanceObjAfter.getIntValue("ont");
+        assertTrue(richOntBalanceAfter == richOntBalance -amount);
+        assertTrue(poorOntBalanceAfter == poorOntBalance +amount);
 
-        assertTrue(richBalanceAfter == richBalance -amount);
-        assertTrue(poorBalanceAfter == poorBalance +amount);
+    }
 
-        String txnIdback = ont.sendTransfer(poorAddr,"123123",richAddr,amount,"","123456",0,0);
+    @Test
+    public void sendTransferOng() throws Exception {
+        final int amount = 1;
+//b14757ed---kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=---123123---TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z rich
+//4fd1e7fe---6LL8RCFR8lhpkAAyvEXVRKGzs6Q5ZNh4so4SGXrPHMs=---123123---TA9hEJap1EWcAo9DfrKFHCHcuRAG9xRMft poor
+        final String richAddr = "TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z";
+        final String richKey = "kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=";
+        final String poorAddr = "TA9hEJap1EWcAo9DfrKFHCHcuRAG9xRMft";
+        final String poorKey = "6LL8RCFR8lhpkAAyvEXVRKGzs6Q5ZNh4so4SGXrPHMs=";
+        final String richPrefixStr = "b14757ed";
+        final String poorPrefixStr = "4fd1e7fe";
+        final byte[] richPrefix = Helper.hexToBytes(richPrefixStr);
+        final byte[] poorPrefix = Helper.hexToBytes(poorPrefixStr);
+        JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
+        JSONObject poorBalanceObj = (JSONObject) connectMgr.getBalance(poorAddr);
+        int richOngBalance = richBalanceObj.getIntValue("ong");
+        int poorOngBalance = poorBalanceObj.getIntValue("ong");
+        assertTrue(richOngBalance > 0);
+        assertTrue(poorOngBalance >= 0);
 
-        assertNotNull(txnIdback);
-        assertNotEquals(txnIdback,"");
+        com.github.ontio.sdk.wallet.Account accountRich = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
+        com.github.ontio.sdk.wallet.Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
 
-        Thread.sleep(6000);
+        Transaction transactionR2P = ong.makeTransfer(richAddr,"123123",poorAddr,1,payAddr,gasLimit,gasPrice);
+        transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123");
+        String transactionBodyStr = transactionR2P.toHexString();
+        TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
+        transactionBodyVO.setTxnStr(transactionBodyStr);
+        ontopassService.assetTransfer(transactionBodyVO);
 
-        JSONObject richBalanceObjBack = (JSONObject) connectMgr.getBalance(richAddr);
-        JSONObject poorBalanceObjBack = (JSONObject) connectMgr.getBalance(poorAddr);
-        int richBalanceBack = richBalanceObjBack.getIntValue("ont");
-        int poorBalanceBack = poorBalanceObjBack.getIntValue("ont");
-        assertEquals(richBalanceBack,richBalance);
-        assertEquals(poorBalanceBack,poorBalance);
+        Thread.sleep(7000);
+
+        //get transaction from chain
+        //get smartcode event from chain
+
+        JSONObject richOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(richAddr);
+        JSONObject poorOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(poorAddr);
+        long richOngBalanceAfter = richOntBalanceObjAfter.getLongValue("ong");
+        long poorOngBalanceAfter = poorOntBalanceObjAfter.getLongValue("ong");
+
+        assertTrue(richOngBalanceAfter == richOngBalance -amount);
+        assertTrue(poorOngBalanceAfter == poorOngBalance +amount);
 
     }
 

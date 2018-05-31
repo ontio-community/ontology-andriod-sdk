@@ -27,7 +27,7 @@ public class OntoService implements IOntoService {
         Call<OntoResult> call = ontoServiceApi.getAppConfig();
         Response<OntoResult> response = call.execute();
         OntoResult ontoResult = response.body();
-        JSONObject result = ontoResult.getResult();
+        JSONObject result = (JSONObject) ontoResult.getResult();
         AppConfig appConfig = JSON.parseObject(result.toJSONString(),AppConfig.class);
         return appConfig;
     }
