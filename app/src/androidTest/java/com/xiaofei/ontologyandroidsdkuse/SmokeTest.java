@@ -486,4 +486,14 @@ public class SmokeTest {
         assertEquals(account.address,addressOrig);
 
     }
+
+    @Test
+    public void getSmartCodeEvent() throws Exception {
+        String txnHash = "1f8b9009ff5b59b61a7e00c95fcc455a287b43d423e3d61ed1698fac54bafb16";
+        JSONObject jsonObject = (JSONObject) connectMgr.getSmartCodeEvent(txnHash);
+        String txnHashNew = jsonObject.getString("TxHash");
+        String stateStr = jsonObject.getString("State");
+        assertEquals(txnHashNew,txnHash);
+        assertEquals(stateStr,"1");
+    }
 }
