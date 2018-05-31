@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -288,58 +290,40 @@ public class SmokeTest {
 
     @Test
     public void sendAddRemoveIdentityAttribute() throws Exception {
-        Identity identityTemp = walletMgr.createIdentity("123456");
-        Identity identity = ontId.sendRegister(identityTemp,"123456",payAddr,"",0,0);
-        com.github.ontio.account.Account account = walletMgr.getAccount(identity.ontid,"123456");
-        String prikey = account.exportCtrEncryptedPrikey("123456", 4096);
-        Thread.sleep(6000);
+        Identity identity = walletMgr.createIdentity("aa","123456");
+
+        Transaction transaction = ontId.makeRegister(identity.ontid,"123456",payAddr,gasLimit,gasPrice);
+        transaction = ontSdk.signTx(transaction,identity.ontid.replace(Common.didont,""),"123456");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("OwnerOntId",identity.ontid);
+        jsonObject.put("TxnStr",transaction.toHexString());
+        JSONObject jsonObjectResult = ontopassService.ontidRegiste(jsonObject);
+        String devicecode = jsonObjectResult.getString("DeviceCode");
+        assertNotEquals(devicecode,"");
+
+        Thread.sleep(7000);
+
         String string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains(identity.ontid));
 
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("Context", "claimlalala");
-        jsonObject.put("Issuer", "issuerlalala");
-//        String txnIdPreexec = ontId.sendUpdateAttributePreExec(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(),jsonObject.toJSONString().getBytes());
-//        assertNotNull(txnIdPreexec);
-//        assertNotEquals(txnIdPreexec,"");
-//        String txnId = ontId.sendUpdateAttribute(identity.ontid,"123456",prikey.getBytes(),"Json".getBytes(), jsonObject.toJSONString().getBytes());
-//        assertNotNull(txnId);
-//        assertNotEquals(txnId,"");
-//        Thread.sleep(6000);
-        Map attrsMap = new HashMap<>();
-        attrsMap.put("key11","value11");
-        String txnId = ontId.sendAddAttributes(identity.ontid,"123456",attrsMap,"","",0,0);
-        Thread.sleep(6000);
-        string = ontId.sendGetDDO(identity.ontid);
-        assertTrue(string.contains("key11"));
-//        assertTrue(string.contains("issuerlalala"));
 
-        Map attrsMap2 = new HashMap<>();
-        attrsMap.put("key22","value22");
-        Transaction tx22 = ontId.makeAddAttributes(identity.ontid,"123456",attrsMap,"",0,0);
-        ontSdk.signTx(tx22,identity.ontid.replace(Common.didont,""),"123456");
-        ontSdk.addSign(tx22,"","123456");
-        connectMgr.sendRawTransaction(tx22);
+        Map attrsMap = new HashMap();
+        attrsMap.put("lalala","hahaha");
+        Transaction transactionAdd = ontId.makeAddAttributes(identity.ontid,"123456",attrsMap,payAddr,gasLimit,gasPrice);
+        transactionAdd = ontSdk.signTx(transactionAdd,identity.ontid.replace(Common.didont,""),"123456");
+        JSONObject jsonObjectAdd = new JSONObject();
+        jsonObjectAdd.put("OwnerOntId",identity.ontid);
+        jsonObjectAdd.put("DeviceCode",devicecode);
+        jsonObjectAdd.put("TxnStr",transactionAdd.toHexString());
+        jsonObjectAdd.put("ClaimId","");
+        ontopassService.ddoUpdate(jsonObjectAdd);
 
-        Thread.sleep(6000);
+        Thread.sleep(7000);
+
         string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains(identity.ontid));
-        assertTrue(string.contains("key22"));
-
-        String txnId1 = ontId.sendRemoveAttribute(identity.ontid,"123456","key11","","",0,0);
-        assertNotNull(txnId1);
-        assertNotEquals(txnId1,"");
-        Thread.sleep(6000);
-        string = ontId.sendGetDDO(identity.ontid);
-        assertFalse(string.contains("key11"));
-
-        Transaction tx33 = ontId.makeRemoveAttribute(identity.ontid,"123456","key22","",0,0);
-        ontSdk.signTx(tx33,identity.ontid.replace(Common.didont,""),"123456");
-        ontSdk.addSign(tx33,"","123456");
-        connectMgr.sendRawTransaction(tx33);
-        Thread.sleep(6000);
-        string = ontId.sendGetDDO(identity.ontid);
-        assertFalse(string.contains("key22"));
+        assertTrue(string.contains("lalala"));
+        assertTrue(string.contains("hahaha"));
     }
 
 

@@ -10,4 +10,6 @@ public interface IOntopassService {
     TransactionHashVO assetTransfer(TransactionBodyVO transactionBodyVO) throws IOException;
 
     JSONObject ontidRegiste(JSONObject jsonObject) throws IOException;
+
+    JSONObject ddoUpdate(JSONObject jsonObject) throws  IOException;
 }

@@ -42,4 +42,13 @@ public class OntopassService implements IOntopassService {
         return jsonObjectResult;
     }
 
+    @Override
+    public JSONObject ddoUpdate(JSONObject jsonObject) throws IOException {
+        Call<OntopassResult> call = ontopassServiceApi.ddoUpdate(jsonObject);
+        Response<OntopassResult> response = call.execute();
+        OntopassResult ontopassResult = response.body();
+        JSONObject jsonObjectResult = (JSONObject) ontopassResult.getResult();
+        return jsonObjectResult;
+    }
+
 }

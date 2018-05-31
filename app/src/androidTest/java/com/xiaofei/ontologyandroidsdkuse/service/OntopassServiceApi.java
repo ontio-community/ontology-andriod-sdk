@@ -14,4 +14,7 @@ public interface OntopassServiceApi {
 
     @POST("api/v1/ontpass/ontid/register")
     Call<OntopassResult> ontidRegiste(@Body JSONObject jsonObject);
+
+    @POST("api/v1/ontpass/ddo/update")
+    Call<OntopassResult> ddoUpdate(@Body JSONObject jsonObject);
 }
