@@ -89,7 +89,7 @@ public class Helper {
 		}
 		return bt;
 	}
-    public static String getCodeAddress(String codeHexStr,byte vmtype) throws Exception {
+    public static String getContractAddress(String codeHexStr,byte vmtype) throws Exception {
         Address code = Address.toScriptHash(Helper.hexToBytes(codeHexStr));
         byte[] hash = code.toArray();
         hash[0] = vmtype;
@@ -120,16 +120,8 @@ public class Helper {
         System.out.println(toString(map));
     }
 
-//    public static String sha256(String text) throws NoSuchAlgorithmException {
-//        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-//        sha256.update(text.getBytes());
-//        byte[] digest = sha256.digest();
-//        String digestStr = Base64.encodeToString(digest, Base64.DEFAULT);
-//
-//	    return digestStr;
-//    }
 
-    public static String getPrefix(String text) throws NoSuchAlgorithmException {
+    public static String getPrefix(String text) throws Exception {
         byte[] sha256 = Digest.sha256(Digest.sha256(text.getBytes()));
         byte[] addresshash = Arrays.copyOfRange(sha256, 0, 4);
         String s = Helper.toHexString(addresshash);

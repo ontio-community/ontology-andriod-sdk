@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WalletQR {
-    public static Map exportIdentityQRCode(Wallet walletFile, Identity identity) throws NoSuchAlgorithmException {
+    public static Map exportIdentityQRCode(Wallet walletFile, Identity identity) throws Exception {
         Control control = identity.controls.get(0);
         String address = identity.ontid.substring(8);
         String prefix = Helper.getPrefix(address);
@@ -25,7 +25,7 @@ public class WalletQR {
         return map;
     }
 
-    public static Map exportAccountQRCode(Wallet walletFile,Account account) throws NoSuchAlgorithmException {
+    public static Map exportAccountQRCode(Wallet walletFile,Account account) throws Exception {
         Map map = new HashMap();
         map.put("type", "A");
         map.put("label", account.label);

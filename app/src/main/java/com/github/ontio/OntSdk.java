@@ -34,6 +34,7 @@ import com.github.ontio.sdk.manager.*;
 import com.github.ontio.smartcontract.NativeVm;
 import com.github.ontio.smartcontract.NeoVm;
 import com.github.ontio.smartcontract.Vm;
+import com.github.ontio.smartcontract.WasmVm;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -52,6 +53,7 @@ public class OntSdk {
     private Vm vm = null;
     private NativeVm nativevm = null;
     private NeoVm neovm = null;
+    private WasmVm wasmvm = null;
 
     private static OntSdk instance = null;
     public SignatureScheme signatureScheme = SignatureScheme.SHA256WITHECDSA;
@@ -79,6 +81,20 @@ public class OntSdk {
             neovm = new NeoVm(getInstance());
         }
         return neovm;
+    }
+    public WasmVm wasmvm() {
+        if(wasmvm == null){
+            vm();
+            wasmvm = new WasmVm(getInstance());
+        }
+        return wasmvm;
+    }
+
+    public Vm vm() {
+        if(vm == null){
+            vm = new Vm(getInstance());
+        }
+        return vm;
     }
     public ConnectMgr getRpc() throws SDKException{
         if(connRpc == null){
@@ -118,16 +134,6 @@ public class OntSdk {
         return connWebSocket;
     }
 
-    /**
-     *
-     * @return
-     */
-    public Vm vm() {
-        if(vm == null){
-            vm = new Vm(getInstance());
-        }
-        return vm;
-    }
 
 
     /**
@@ -180,7 +186,10 @@ public class OntSdk {
      * @throws Exception
      */
     public Transaction addSign(Transaction tx,String addr,String password) throws Exception {
-        if (tx.sigs == null){
+        return addSign(tx,getWalletMgr().getAccount(addr,password));
+    }
+    public Transaction addSign(Transaction tx,Account acct) throws Exception {
+        if(tx.sigs == null){
             tx.sigs = new Sig[0];
         }
         Sig[] sigs = new Sig[tx.sigs.length + 1];
@@ -191,12 +200,31 @@ public class OntSdk {
         sigs[tx.sigs.length].M = 1;
         sigs[tx.sigs.length].pubKeys = new byte[1][];
         sigs[tx.sigs.length].sigData = new byte[1][];
-        sigs[tx.sigs.length].pubKeys[0] = Helper.hexToBytes(getWalletMgr().getAccountInfo(addr,password).pubkey);
-        sigs[tx.sigs.length].sigData[0] = tx.sign(getWalletMgr().getAccount(addr,password),signatureScheme);
+        sigs[tx.sigs.length].pubKeys[0] = acct.serializePublicKey();
+        sigs[tx.sigs.length].sigData[0] = tx.sign(acct,signatureScheme);
         tx.sigs = sigs;
         return tx;
     }
 
+    public Transaction addMultiSign(Transaction tx,int M, Account[] acct) throws Exception {
+        if (tx.sigs == null) {
+            tx.sigs = new Sig[0];
+        }
+        Sig[] sigs = new Sig[tx.sigs.length + 1];
+        for (int i = 0; i < tx.sigs.length; i++) {
+            sigs[i] = tx.sigs[i];
+        }
+        sigs[tx.sigs.length] = new Sig();
+        sigs[tx.sigs.length].M = M;
+        sigs[tx.sigs.length].pubKeys = new byte[acct.length][];
+        sigs[tx.sigs.length].sigData = new byte[acct.length][];
+        for (int i = 0; i < acct.length; i++) {
+            sigs[tx.sigs.length].pubKeys[i] = acct[i].serializePublicKey();
+            sigs[tx.sigs.length].sigData[i] = tx.sign(acct[i], signatureScheme);
+        }
+        tx.sigs = sigs;
+        return tx;
+    }
     public Transaction signTx(Transaction tx, String address, String password) throws Exception{
         address = address.replace(Common.didont, "");
         signTx(tx, new Account[][]{{getWalletMgr().getAccount(address, password)}});

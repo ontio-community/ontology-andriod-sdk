@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2018 The ontology Authors
+ * This file is part of The ontology library.
+ *
+ *  The ontology is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  The ontology is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package com.github.ontio.smartcontract;
 
 import com.alibaba.fastjson.JSON;
@@ -28,34 +47,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/*
- * Copyright (C) 2018 The ontology Authors
- * This file is part of The ontology library.
- *
- *  The ontology is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  The ontology is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public License
- *  along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
+/**
  *
  */
-
 public class Vm {
-
     private OntSdk sdk;
     private String contractAddress = null;
-
     public String getCodeAddress() {
         return contractAddress;
     }
-
     public void setCodeAddress(String codeHash) {
         this.contractAddress = codeHash.replace("0x", "");
     }
@@ -79,12 +79,11 @@ public class Vm {
      * @param gaslimit
      * @param gasprice
      * @return
-     * @throws Exception
+     * @throws SDKException
      */
-    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype, String payer,long gaslimit, long gasprice) throws Exception {
-
+    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype,String payer,long gaslimit,long gasprice) throws Exception {
         DeployCode tx = new DeployCode();
-        if (payer !=null){
+        if(payer != null){
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         }
         tx.attributes = new Attribute[1];
@@ -98,8 +97,8 @@ public class Vm {
         tx.name = name;
         tx.author = author;
         tx.email = email;
-        tx.gasPrice = gasprice;
         tx.gasLimit = gaslimit;
+        tx.gasPrice = gasprice;
         tx.description = desp;
         return tx;
     }
@@ -114,9 +113,9 @@ public class Vm {
      * @param gaslimit
      * @param gasprice
      * @return
-     * @throws Exception
+     * @throws SDKException
      */
-    public InvokeCode makeInvokeCodeTransaction(String codeAddr, String method, byte[] params, byte vmtype, String payer,long gaslimit,long gasprice) throws Exception {
+    public InvokeCode makeInvokeCodeTransaction(String codeAddr,String method,byte[] params, byte vmtype, String payer,long gaslimit,long gasprice) throws Exception {
         if(vmtype == VmType.NEOVM.value()) {
             Contract contract = new Contract((byte) 0, null, Address.parse(codeAddr), "", params);
             params = Helper.addBytes(new byte[]{0x67}, contract.toArray());
@@ -138,6 +137,7 @@ public class Vm {
         if(payer != null){
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         }
+
         tx.vmType = vmtype;
         return tx;
     }
