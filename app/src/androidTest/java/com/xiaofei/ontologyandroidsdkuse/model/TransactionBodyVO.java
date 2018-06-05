@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TransactionBodyVO {
+    @JSONField(name = "Address")
+    private String address;
 
     @JSONField(name = "TxnStr")
     private String txnStr;
@@ -28,4 +30,11 @@ public class TransactionBodyVO {
         this.additionalProperties.put(name, value);
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }

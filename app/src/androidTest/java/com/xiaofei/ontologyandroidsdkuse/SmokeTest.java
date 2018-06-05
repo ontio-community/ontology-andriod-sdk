@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
+import com.github.ontio.core.ontid.Attribute;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.crypto.MnemonicCode;
 import com.github.ontio.sdk.manager.ConnectMgr;
@@ -209,17 +210,6 @@ public class SmokeTest {
     }
 
     @Test
-    public void exportPrikey() throws Exception {
-        Account account = walletMgr.createAccount("aaa","123456");
-        String prikey = walletMgr.exportPrikey(account,"123456");
-
-        com.github.ontio.account.Account account2 = walletMgr.getAccount(account.address,"123456");
-        byte[] prikey2 = account2.serializePrivateKey();
-        String prikey2HexStr = Helper.toHexString(prikey2);
-        assertEquals(prikey2HexStr,prikey);
-    }
-
-    @Test
     public void prikeyToWIF() throws Exception {
         String prikeyStrOrig = "e467a2a9c9f56b012c71cf2270df42843a9d7ff181934068b4a62bcdd570e8be";
         String wifStrOrig = "L4shZ7B4NFQw2eqKncuUViJdFRq6uk1QUb6HjiuedxN4Q2CaRQKW";
@@ -262,7 +252,10 @@ public class SmokeTest {
         String mnemonicCodesStr = "guilt any betray day cinnamon erupt often loyal blanket spice extend exact";
         String[] mnemonicCodes = mnemonicCodesStr.split(" ");
         assertEquals(mnemonicCodes.length,12);
-        Account account = walletMgr.importAccountFromMnemonicCodes("aa",mnemonicCodes,"123456");
+        //Account account = walletMgr.importAccountFromMnemonicCodes("aa",mnemonicCodes,"123456");
+        byte[] prikey = MnemonicCode.getPrikeyFromMnemonicCodesStr(mnemonicCodesStr);
+        String prikeyHexStr = Helper.toHexString(prikey);
+        Account account = walletMgr.createAccountFromPriKey("123456",prikeyHexStr);
         assertNotNull(account);
         assertEquals(account.address,"TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg");
     }
@@ -306,10 +299,8 @@ public class SmokeTest {
         String string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains(identity.ontid));
 
-
-        Map attrsMap = new HashMap();
-        attrsMap.put("lalala","hahaha");
-        Transaction transactionAdd = ontId.makeAddAttributes(identity.ontid,"123456",attrsMap,payAddr,gasLimit,gasPrice);
+        Attribute[] attributes = new Attribute[]{new Attribute("lalala".getBytes(),"String".getBytes(),"hahaha".getBytes())};
+        Transaction transactionAdd = ontId.makeAddAttributes(identity.ontid,"123456",attributes,payAddr,gasLimit,gasPrice);
         transactionAdd = ontSdk.signTx(transactionAdd,identity.ontid.replace(Common.didont,""),"123456");
         JSONObject jsonObjectAdd = new JSONObject();
         jsonObjectAdd.put("OwnerOntId",identity.ontid);
@@ -319,7 +310,7 @@ public class SmokeTest {
         ontopassService.ddoUpdate(jsonObjectAdd);
 
         Thread.sleep(7000);
-
+        System.out.println(ontSdk.getConnect().getTransactionJson(transactionAdd.hash().toHexString()));
         string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains(identity.ontid));
         assertTrue(string.contains("lalala"));
@@ -365,11 +356,12 @@ public class SmokeTest {
         com.github.ontio.sdk.wallet.Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
 
 
-        Transaction transactionR2P = ont.makeTransfer(richAddr,"123123",poorAddr,1,payAddr,gasLimit,gasPrice);
+        Transaction transactionR2P = ont.makeTransfer(richAddr,poorAddr,1,payAddr,gasLimit,gasPrice);
         transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123");
         String transactionBodyStr = transactionR2P.toHexString();
         TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
         transactionBodyVO.setTxnStr(transactionBodyStr);
+        transactionBodyVO.setAddress(accountRich.address);
         ontopassService.assetTransfer(transactionBodyVO);
 
         Thread.sleep(7000);
@@ -410,11 +402,12 @@ public class SmokeTest {
         com.github.ontio.sdk.wallet.Account accountRich = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
         com.github.ontio.sdk.wallet.Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
 
-        Transaction transactionR2P = ong.makeTransfer(richAddr,"123123",poorAddr,1,payAddr,gasLimit,gasPrice);
+        Transaction transactionR2P = ong.makeTransfer(richAddr,poorAddr,1,payAddr,gasLimit,gasPrice);
         transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123");
         String transactionBodyStr = transactionR2P.toHexString();
         TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
         transactionBodyVO.setTxnStr(transactionBodyStr);
+        transactionBodyVO.setAddress(accountRich.address);
         ontopassService.assetTransfer(transactionBodyVO);
 
         Thread.sleep(7000);
@@ -455,11 +448,12 @@ public class SmokeTest {
 
         com.github.ontio.sdk.wallet.Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
 
-        Transaction transactionClaimOng = ong.makeClaimOng(richAddr,"123123",richAddr,amount,payAddr,gasLimit,gasPrice);
+        Transaction transactionClaimOng = ong.makeClaimOng(richAddr,richAddr,amount,payAddr,gasLimit,gasPrice);
         transactionClaimOng = ontSdk.signTx(transactionClaimOng,richAddr,"123123");
         String transactionBodyStr = transactionClaimOng.toHexString();
         TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
         transactionBodyVO.setTxnStr(transactionBodyStr);
+        transactionBodyVO.setAddress(account.address);
         ontopassService.assetTransfer(transactionBodyVO);
 
         Thread.sleep(7000);
