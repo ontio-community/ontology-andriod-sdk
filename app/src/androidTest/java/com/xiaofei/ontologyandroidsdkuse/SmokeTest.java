@@ -185,7 +185,7 @@ public class SmokeTest {
 
     @Test
     public void createAccount() throws Exception {
-        String mnsStr = MnemonicCode.generateMnemonicCodesStr();
+        String mnsStr = MnemonicCode.generateMnemonicCodesStr().toString();
         byte[] prikey = MnemonicCode.getPrikeyFromMnemonicCodesStr(mnsStr);
         String prikeyStr = Helper.toHexString(prikey);
         Account account = walletMgr.createAccountFromPriKey("bbb","123456",prikeyStr);

@@ -24,7 +24,7 @@ import io.github.novacrypto.bip39.wordlists.English;
 
 public class MnemonicCode {
 
-    public static String generateMnemonicCodesStr(){
+    public static StringBuilder generateMnemonicCodesStr(){
         final StringBuilder sb = new StringBuilder();
         byte[] entropy = new byte[Words.TWELVE.byteLength()];
         new SecureRandom().nextBytes(entropy);
@@ -35,7 +35,7 @@ public class MnemonicCode {
             }
         });
         new SecureRandom().nextBytes(entropy);
-        return sb.toString();
+        return sb;
     }
 
     public static byte[] getPrikeyFromMnemonicCodesStr(String mnemonicCodesStr){
@@ -93,8 +93,15 @@ public class MnemonicCode {
         SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
         Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
-        byte[] rawkey = cipher.doFinal(encryptedkey);
-        String mnemonicCodesStr = new String(rawkey);
+        byte[] rawMns = cipher.doFinal(encryptedkey);
+        String mnemonicCodesStr = new String(rawMns);
+        byte[] rawkey = MnemonicCode.getPrikeyFromMnemonicCodesStr(mnemonicCodesStr);
+        String addressNew = new Account(rawkey, SignatureScheme.SHA256WITHECDSA).getAddressU160().toBase58();
+        byte[] addressNewHashTemp = Digest.sha256(Digest.sha256(addressNew.getBytes()));
+        byte[] saltNew = Arrays.copyOfRange(addressNewHashTemp, 0, 4);
+        if (!Arrays.equals(saltNew, salt)) {
+            throw new SDKException(ErrorCode.KeyAddressPwdNotMatch);
+        }
         return mnemonicCodesStr;
     }
 
