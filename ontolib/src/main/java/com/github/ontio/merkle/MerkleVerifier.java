@@ -40,7 +40,7 @@ public class MerkleVerifier {
                                                   int leaf_index, UInt256[] proof, UInt256 root_hash, int tree_size) throws Exception {
 
         if (tree_size <= leaf_index) {
-            throw new Exception("Wrong params: the tree size is smaller than the leaf index");
+            throw new SDKException(ErrorCode.MerkleVerifierErr);
         }
         UInt256 calculated_root_hash = calculate_root_hash_from_audit_path(leaf_hash,
                 leaf_index, proof, tree_size);

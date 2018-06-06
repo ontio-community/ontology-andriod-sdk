@@ -127,11 +127,11 @@ public class http {
     }
 
     public static String post(String url, Map<String, String> params, Map<String, Object> body) throws Exception {
-        System.out.println(String.format("POST url=%s,%s", url, JSON.toJSONString(body)));
-        if (url.startsWith("https")) {
-            return post(url + cvtParams(params), JSON.toJSONString(body), true);
-        } else {
-            return post(url + cvtParams(params), JSON.toJSONString(body), false);
+        System.out.println(String.format("POST url=%s,%s,%s", url,JSON.toJSONString(params),JSON.toJSONString(body)));
+        if(url.startsWith("https")){
+            return post(url+cvtParams(params), JSON.toJSONString(body), true);
+        }else{
+            return post(url+cvtParams(params), JSON.toJSONString(body), false);
         }
     }
 

@@ -73,14 +73,21 @@ public class ErrorCode {
     public static String BlockDeserializeError = getError(53002,"Core Error,Block deserialize failed");
 
 
+    //merkle error
+    public static String MerkleVerifierErr = getError(54001, "Wrong params: the tree size is smaller than the leaf index");
+    public static String TargetHashesErr = getError(54002, "targetHashes error");
 
     public static String ParamErr(String msg) {
         return getError(58005,msg);
     }
 
-    //manager Error
-    public static String SendRawTxError = getError(58001,"SmartCodeTx Error,sendRawTransaction error");
-    public static String TypeError = getError(58002,"SmartCodeTx Error,type error");
+    public static String AsserFailedHashFullTree = getError(54004, "assert failed in hash full tree");
+    public static String LeftTreeFull = getError(54005, "left tree always full");
+
+
+    //SmartCodeTx Error
+    public static String SendRawTxError = getError(58001, "SmartCodeTx Error,sendRawTransaction error");
+    public static String TypeError = getError(58002, "SmartCodeTx Error,type error");
 
 
     public static String AmountError = getError(58105,"OntAsset Error,amount is less than or equal to zero");
@@ -103,7 +110,6 @@ public class ErrorCode {
     public static String NullClaimId = getError(58015,"OntAsset Error,null claimId");
     public static String CreateOntIdClaimErr = getError(58013,"OntIdTx Error, createOntIdClaim error");
 
-    public static String TargetHashesErr = getError(54002,"targetHashes error");
     public static String ConstructedRootHashErr(String msg) {
         return getError(54003, "Other Error," + msg);
     }

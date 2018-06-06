@@ -27,7 +27,6 @@ import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.core.asset.Sig;
-import com.github.ontio.crypto.KeyType;
 import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.exception.SDKException;
 import com.github.ontio.sdk.manager.*;
@@ -60,30 +59,34 @@ public class OntSdk {
 
     public long DEFAULT_GAS_LIMIT = 30000;
 
-    public static synchronized OntSdk getInstance(){
-        if(instance == null){
+    public static synchronized OntSdk getInstance() {
+        if (instance == null) {
             instance = new OntSdk();
         }
         return instance;
     }
-    private OntSdk(){
+
+    private OntSdk() {
     }
-    public NativeVm nativevm() throws SDKException{
-        if(nativevm == null){
+
+    public NativeVm nativevm() throws SDKException {
+        if (nativevm == null) {
             vm();
             nativevm = new NativeVm(getInstance());
         }
         return nativevm;
     }
+
     public NeoVm neovm() {
-        if(neovm == null){
+        if (neovm == null) {
             vm();
             neovm = new NeoVm(getInstance());
         }
         return neovm;
     }
+
     public WasmVm wasmvm() {
-        if(wasmvm == null){
+        if (wasmvm == null) {
             vm();
             wasmvm = new WasmVm(getInstance());
         }
@@ -91,53 +94,57 @@ public class OntSdk {
     }
 
     public Vm vm() {
-        if(vm == null){
+        if (vm == null) {
             vm = new Vm(getInstance());
         }
         return vm;
     }
-    public ConnectMgr getRpc() throws SDKException{
-        if(connRpc == null){
+
+    public ConnectMgr getRpc() throws SDKException {
+        if (connRpc == null) {
             throw new SDKException(ErrorCode.ConnRestfulNotInit);
         }
         return connRpc;
     }
 
-    public ConnectMgr getRestful() throws SDKException{
-        if(connRestful == null){
+    public ConnectMgr getRestful() throws SDKException {
+        if (connRestful == null) {
             throw new SDKException(ErrorCode.ConnRestfulNotInit);
         }
         return connRestful;
     }
-    public ConnectMgr getConnect(){
-        if(connDefault != null){
+
+    public ConnectMgr getConnect() {
+        if (connDefault != null) {
             return connDefault;
         }
-        if(connRpc != null){
-            return  connRpc;
+        if (connRpc != null) {
+            return connRpc;
         }
-        if(connRestful != null){
-            return  connRestful;
+        if (connRestful != null) {
+            return connRestful;
         }
-        if(connWebSocket != null){
-            return  connWebSocket;
+        if (connWebSocket != null) {
+            return connWebSocket;
         }
         return null;
     }
-    public void setDefaultConnect(ConnectMgr conn){
+
+    public void setDefaultConnect(ConnectMgr conn) {
         connDefault = conn;
     }
-    public ConnectMgr getWebSocket() throws SDKException{
-        if(connWebSocket == null){
+
+    public ConnectMgr getWebSocket() throws SDKException {
+        if (connWebSocket == null) {
             throw new SDKException(ErrorCode.WebsocketNotInit);
         }
         return connWebSocket;
     }
 
 
-
     /**
      * get Wallet Mgr
+     *
      * @return
      */
     public WalletMgr getWalletMgr() {
@@ -145,9 +152,7 @@ public class OntSdk {
     }
 
 
-
     /**
-     *
      * @param scheme
      */
     public void setSignatureScheme(SignatureScheme scheme) {
@@ -161,39 +166,49 @@ public class OntSdk {
     }
 
     public void setRestful(String url) throws MalformedURLException {
-        this.connRestful = new ConnectMgr(url,"restful");
+        this.connRestful = new ConnectMgr(url, "restful");
     }
 
-    public void setWesocket(String url,Object lock) {
-        connWebSocket = new ConnectMgr(url,"websocket",lock);
+    public void setWesocket(String url, Object lock) {
+        connWebSocket = new ConnectMgr(url, "websocket", lock);
     }
+
     /**
-     *
-     * @param
+     * @param path
      */
+    public void openWalletFile(String path) {
+
+        try {
+            this.walletMgr = new WalletMgr(path, signatureScheme);
+            setSignatureScheme(signatureScheme);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void openWalletFile(SharedPreferences sp) throws IOException {
 
-        this.walletMgr = new WalletMgr(sp,signatureScheme);
+        this.walletMgr = new WalletMgr(sp, signatureScheme);
         setSignatureScheme(signatureScheme);
     }
 
     /**
-     *
      * @param tx
      * @param addr
      * @param password
      * @return
      * @throws Exception
      */
-    public Transaction addSign(Transaction tx,String addr,String password) throws Exception {
-        return addSign(tx,getWalletMgr().getAccount(addr,password));
+    public Transaction addSign(Transaction tx, String addr, String password) throws Exception {
+        return addSign(tx, getWalletMgr().getAccount(addr, password));
     }
-    public Transaction addSign(Transaction tx,Account acct) throws Exception {
-        if(tx.sigs == null){
+
+    public Transaction addSign(Transaction tx, Account acct) throws Exception {
+        if (tx.sigs == null) {
             tx.sigs = new Sig[0];
         }
         Sig[] sigs = new Sig[tx.sigs.length + 1];
-        for(int i= 0; i< tx.sigs.length; i++){
+        for (int i = 0; i < tx.sigs.length; i++) {
             sigs[i] = tx.sigs[i];
         }
         sigs[tx.sigs.length] = new Sig();
@@ -201,12 +216,12 @@ public class OntSdk {
         sigs[tx.sigs.length].pubKeys = new byte[1][];
         sigs[tx.sigs.length].sigData = new byte[1][];
         sigs[tx.sigs.length].pubKeys[0] = acct.serializePublicKey();
-        sigs[tx.sigs.length].sigData[0] = tx.sign(acct,signatureScheme);
+        sigs[tx.sigs.length].sigData[0] = tx.sign(acct, signatureScheme);
         tx.sigs = sigs;
         return tx;
     }
 
-    public Transaction addMultiSign(Transaction tx,int M, Account[] acct) throws Exception {
+    public Transaction addMultiSign(Transaction tx, int M, Account[] acct) throws Exception {
         if (tx.sigs == null) {
             tx.sigs = new Sig[0];
         }
@@ -225,18 +240,21 @@ public class OntSdk {
         tx.sigs = sigs;
         return tx;
     }
-    public Transaction signTx(Transaction tx, String address, String password) throws Exception{
+
+    public Transaction signTx(Transaction tx, String address, String password) throws Exception {
         address = address.replace(Common.didont, "");
         signTx(tx, new Account[][]{{getWalletMgr().getAccount(address, password)}});
         return tx;
     }
+
     /**
      * sign tx
+     *
      * @param tx
      * @param accounts
      * @return
      */
-    public Transaction signTx(Transaction tx, Account[][] accounts) throws Exception{
+    public Transaction signTx(Transaction tx, Account[][] accounts) throws Exception {
         Sig[] sigs = new Sig[accounts.length];
         for (int i = 0; i < accounts.length; i++) {
             sigs[i] = new Sig();
@@ -244,7 +262,7 @@ public class OntSdk {
             sigs[i].sigData = new byte[accounts[i].length][];
             for (int j = 0; j < accounts[i].length; j++) {
                 sigs[i].M++;
-                byte[] signature = tx.sign(accounts[i][j], getWalletMgr().getSignatureScheme());
+                byte[] signature = tx.sign(accounts[i][j], signatureScheme);
                 sigs[i].pubKeys[j] = accounts[i][j].serializePublicKey();
                 sigs[i].sigData[j] = signature;
             }
@@ -254,7 +272,8 @@ public class OntSdk {
     }
 
     /**
-     *  signTx
+     * signTx
+     *
      * @param tx
      * @param accounts
      * @param M
@@ -265,7 +284,7 @@ public class OntSdk {
         if (M.length != accounts.length) {
             throw new SDKException(ErrorCode.ParamError);
         }
-        tx = signTx(tx,accounts);
+        tx = signTx(tx, accounts);
         for (int i = 0; i < tx.sigs.length; i++) {
             if (M[i] > tx.sigs[i].pubKeys.length || M[i] < 0) {
                 throw new SDKException(ErrorCode.ParamError);

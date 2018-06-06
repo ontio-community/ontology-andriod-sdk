@@ -34,14 +34,13 @@ import com.github.ontio.io.*;
  */
 public abstract class Transaction extends Inventory {
 
-
-    public final TransactionType txType;
     public byte version = 0;
+    public final TransactionType txType;
     public int nonce = new Random().nextInt();
-    public Attribute[] attributes;
     public long gasPrice = 0;
     public long gasLimit = 0;
     public Address payer = new Address();
+    public Attribute[] attributes;
     public Sig[] sigs = new Sig[0];
 
     protected Transaction(TransactionType type) throws Exception {
@@ -175,7 +174,10 @@ public abstract class Transaction extends Inventory {
         json.put("Version", (int) version);
         json.put("Nonce", nonce);
         json.put("TxType", txType.value() & Byte.MAX_VALUE);
-        Object[] attrs = new Object[attributes.length];
+        json.put("GasPrice",gasPrice& (Long.MAX_VALUE*2-1));
+        json.put("GasLimit",gasLimit& (Long.MAX_VALUE*2-1));
+        json.put("Payer",payer.toBase58());
+		Object[] attrs = new Object[attributes.length];
         for (int i = 0; i < attributes.length; i++) {
             attrs[i] = attributes[i].json();
         }
@@ -184,9 +186,6 @@ public abstract class Transaction extends Inventory {
         for (int i = 0; i < sigs.length; i++) {
             s[i] = sigs[i].json();
         }
-        json.put("GasPrice",gasPrice& (Long.MAX_VALUE*2-1));
-        json.put("GasLimit",gasLimit& (Long.MAX_VALUE*2-1));
-        json.put("Payer",payer.toBase58());
         json.put("Attributes", attrs);
         json.put("Sigs", s);
         return json;

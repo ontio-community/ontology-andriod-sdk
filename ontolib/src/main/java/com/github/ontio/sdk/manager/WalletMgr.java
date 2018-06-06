@@ -48,14 +48,12 @@ import java.util.*;
  */
 public class WalletMgr {
     private Wallet wallet;
-    private Map identityPriKeyMap = new HashMap();
     private Wallet walletFile;
     private SignatureScheme scheme = null;
     private String filePath = null;
     private SharedPreferences sp;
     private static final String key = "wallet_file";
 
-    public static boolean priKeyStoreInMem = true;//for dont need decode every time
 
     public WalletMgr(Wallet wallet,SignatureScheme scheme) throws Exception {
         this.scheme = scheme;
@@ -100,11 +98,6 @@ public class WalletMgr {
             return;
         }
         Identity identity = getDefaultIdentity();
-        if (identity != null) {
-            String addr = identity.ontid.replace(Common.didont, "");
-            String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(identity.controls.get(0).key, password, addr, walletFile.getScrypt().getN(), scheme);
-            storePrivateKey(identityPriKeyMap, identity.ontid, password, prikey);
-        }
     }
 
     private static void writeFile(SharedPreferences sp, String sets) throws IOException {
@@ -170,7 +163,6 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         if (identity != null) {
             String addr = identity.ontid.replace(Common.didont, "");
             String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(identity.controls.get(0).key, password, addr, walletFile.getScrypt().getN(), scheme);
-            storePrivateKey(identityPriKeyMap, identity.ontid, password, prikey);
         }
     }
 
@@ -205,25 +197,18 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         this.scheme = scheme;
     }
 
-    private void storePrivateKey(Map map, String key, String password, String prikey) {
-        if (priKeyStoreInMem) {
-            map.put(key + "," + password, prikey);
-        }
-    }
     public Identity importIdentity(String encryptedPrikey, String password, String address) throws Exception {
         return importIdentity("",encryptedPrikey,password,address);
     }
     public Identity importIdentity(String label,String encryptedPrikey, String password, String address) throws Exception {
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, address, walletFile.getScrypt().getN(), scheme);
         IdentityInfo info = createIdentity(label,password, Helper.hexToBytes(prikey));
-        storePrivateKey(identityPriKeyMap, info.ontid, password, prikey);
         return getIdentity(info.ontid);
     }
 
     public Identity importIdentity(String label, String encryptedPrikey, String password, byte[] prefix) throws Exception {
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
         IdentityInfo info = createIdentity(label, password, Helper.hexToBytes(prikey));
-        storePrivateKey(identityPriKeyMap, info.ontid, password, prikey);
         return getIdentity(info.ontid);
     }
 
@@ -275,7 +260,6 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         info.setPriwif(acct.exportWif());
         info.encryptedPrikey = acct.exportCtrEncryptedPrikey(password, walletFile.getScrypt().getN());
         info.addressU160 = acct.getAddressU160().toHexString();
-        storePrivateKey(identityPriKeyMap, info.ontid, password, Helper.toHexString(prikey));
         return info;
     }
     public Account importAccount(String encryptedPrikey, String password, String address) throws Exception {
@@ -547,12 +531,8 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
 
             for (Identity e : wallet.getIdentities()) {
                 if (e.ontid.equals(Common.didont + address.toBase58())) {
-                    String prikey = (String) identityPriKeyMap.get(e.ontid + "," + password);
-                    if (prikey == null) {
-                        String addr = e.ontid.replace(Common.didont, "");
-                        prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(e.controls.get(0).key, password, addr, walletFile.getScrypt().getN(), scheme);
-                        storePrivateKey(identityPriKeyMap, e.ontid, password, prikey);
-                    }
+                    String addr = e.ontid.replace(Common.didont, "");
+                    String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(e.controls.get(0).key, password, addr, walletFile.getScrypt().getN(), scheme);
                     return new com.github.ontio.account.Account(Helper.hexToBytes(prikey), scheme);
                 }
             }

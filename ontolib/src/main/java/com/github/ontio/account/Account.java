@@ -203,7 +203,7 @@ public class Account {
         byte[] encryptedkey = new byte[32];
         System.arraycopy(input, 3, addresshash, 0, 4);
         System.arraycopy(input, 7, encryptedkey, 0, 32);
-        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, dkLen);
         byte[] derivedhalf1 = new byte[32];
         byte[] derivedhalf2 = new byte[32];
         System.arraycopy(derivedkey, 0, derivedhalf1, 0, 32);
@@ -292,12 +292,16 @@ public class Account {
 
     public byte[] serializePublicKey() {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        bs.write(this.keyType.getLabel());
+        BCECPublicKey pub = (BCECPublicKey) publicKey;
         try {
             switch (this.keyType) {
                 case ECDSA:
+                    bs.write(this.keyType.getLabel());
+                    bs.write(Curve.valueOf(pub.getParameters().getCurve()).getLabel());
+                    bs.write(pub.getQ().getEncoded(true));
+                    break;
                 case SM2:
-                    BCECPublicKey pub = (BCECPublicKey) publicKey;
+                    bs.write(this.keyType.getLabel());
                     bs.write(Curve.valueOf(pub.getParameters().getCurve()).getLabel());
                     bs.write(pub.getQ().getEncoded(true));
                     break;
@@ -322,10 +326,23 @@ public class Account {
         }
         this.privateKey = null;
         this.publicKey = null;
-        this.keyType = KeyType.fromLabel(data[0]);
+        
         switch (this.keyType) {
             case ECDSA:
+			    this.keyType = KeyType.ECDSA;
+                this.curveParams = new Object[]{Curve.P256.toString()};
+                ECNamedCurveParameterSpec spec0 = ECNamedCurveTable.getParameterSpec(Curve.P256.toString());
+                ECParameterSpec param0 = new ECNamedCurveSpec(spec0.getName(), spec0.getCurve(), spec0.getG(), spec0.getN());
+                ECPublicKeySpec pubSpec0 = new ECPublicKeySpec(
+                        ECPointUtil.decodePoint(
+                                param0.getCurve(),
+                                Arrays.copyOfRange(data, 2, data.length)),
+                        param0);
+                KeyFactory kf0 = KeyFactory.getInstance("EC", "SC");
+                this.publicKey = kf0.generatePublic(pubSpec0);
+                break;
             case SM2:
+                this.keyType = KeyType.fromLabel(data[0]);
                 Curve c = Curve.fromLabel(data[1]);
                 this.curveParams = new Object[]{c.toString()};
                 ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec(c.toString());
@@ -392,13 +409,14 @@ public class Account {
         int N = n;
         int r = 8;
         int p = 8;
+        int dkLen = 64;
         Address script_hash = Address.addressFromPubKey(serializePublicKey());
         String address = script_hash.toBase58();
 
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
         byte[] addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4);
 
-        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, 64);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(addresshash), N, r, p, dkLen);
         byte[] derivedhalf1 = new byte[32];
         byte[] derivedhalf2 = new byte[32];
         System.arraycopy(derivedkey, 0, derivedhalf1, 0, 32);

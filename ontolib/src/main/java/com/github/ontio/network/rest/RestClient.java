@@ -139,10 +139,10 @@ public class RestClient extends AbstractConnector {
 
     @Override
     public Object getRawTransactionJson(String txhash) throws Exception {
-        String rs = api.getTransaction(txhash, false);
+        String rs = api.getTransaction(txhash, true);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
-            return rr.Result;
+            return Transaction.deserializeFrom(Helper.hexToBytes((String) rr.Result)).json();
         }
         throw new Exception(to(rr));
     }
@@ -238,12 +238,21 @@ public class RestClient extends AbstractConnector {
         }
         throw new Exception(to(rr));
     }
-
+    @Override
     public String getAllowance(String asset,String from,String to) throws Exception{
         String rs = api.getAllowance(asset,from,to);
         Result rr = JSON.parseObject(rs, Result.class);
         if (rr.Error == 0) {
             return (String)rr.Result;
+        }
+        throw new Exception(to(rr));
+    }
+    @Override
+    public Object getMemPoolTxState(String hash) throws Exception{
+        String rs = api.getMemPoolTxState(hash);
+        Result rr = JSON.parseObject(rs, Result.class);
+        if (rr.Error == 0) {
+            return rr.Result;
         }
         throw new Exception(to(rr));
     }

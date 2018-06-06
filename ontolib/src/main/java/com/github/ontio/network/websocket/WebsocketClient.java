@@ -109,6 +109,9 @@ public class WebsocketClient extends AbstractConnector {
             map.put("PreExec", "1");
         }
         mWebSocket.send(JSON.toJSONString(map));
+        if(preExec){
+            return "0";
+        }
         return "";
     }
 
@@ -321,7 +324,16 @@ public class WebsocketClient extends AbstractConnector {
         mWebSocket.send(JSON.toJSONString(map));
         return "";
     }
-
+    @Override
+    public Object getMemPoolTxState(String hash) throws Exception{
+        Map map = new HashMap<>();
+        map.put("Action", "getmempooltxstate");
+        map.put("Version", "1.0.0");
+        map.put("Hash", hash);
+        map.put("Id", generateReqId());
+        mWebSocket.send(JSON.toJSONString(map));
+        return "";
+    }
     public void wsStart() {
         //request = new Request.Builder().url(WS_URL).build();
         String httpUrl = null;

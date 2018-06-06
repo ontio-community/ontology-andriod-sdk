@@ -7,7 +7,6 @@ import com.github.ontio.core.VmType;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.sdk.abi.AbiFunction;
 import com.github.ontio.sdk.exception.SDKException;
-import com.github.ontio.smartcontract.nativevm.OntId;
 import com.github.ontio.smartcontract.neovm.BuildParams;
 import com.github.ontio.smartcontract.neovm.ClaimRecord;
 import com.github.ontio.smartcontract.neovm.Nep5;

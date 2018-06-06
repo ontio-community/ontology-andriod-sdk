@@ -73,10 +73,10 @@ public class RpcClient extends AbstractConnector {
     }
 
     @Override
-    public String getRawTransactionJson(String txhash) throws Exception {
+    public Object getRawTransactionJson(String txhash) throws Exception {
         Object result = null;
-        result = rpc.call("getrawtransaction", txhash.toString(), 1);
-        return result.toString();
+        result = rpc.call("getrawtransaction", txhash.toString());
+        return Transaction.deserializeFrom(Helper.hexToBytes((String) result)).json();
     }
 
     @Override
@@ -191,6 +191,15 @@ public class RpcClient extends AbstractConnector {
         Object result = rpc.call("getallowance", asset,from,to);
         try {
             return (String)result;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Override
+    public Object getMemPoolTxState(String hash) throws Exception {
+        Object result = rpc.call("getmempooltxstate", hash);
+        try {
+            return result;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
