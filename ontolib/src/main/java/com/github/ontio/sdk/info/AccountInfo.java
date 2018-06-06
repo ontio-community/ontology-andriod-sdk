@@ -33,10 +33,10 @@ public class AccountInfo {
 	private String prikeyWif;
 
 	public void setPrikey(String prikey){
-		this.prikey = prikey;
+		//this.prikey = prikey;
 	}
 	public void setPriwif(String priwif){
-		this.prikeyWif = priwif;
+		//this.prikeyWif = priwif;
 	}
 	public String getPrikeyWif(){
 		return prikeyWif;

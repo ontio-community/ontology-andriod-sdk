@@ -697,6 +697,7 @@ public class OntId {
         }
         String addr = ontid.replace(Common.didont, "");
         AccountInfo info = sdk.getWalletMgr().getAccountInfo(addr, password);
+        password = null;
         byte[] pk = Helper.hexToBytes(info.pubkey);
         byte[] parabytes = BuildParams.buildParams(ontid, attributes, pk);
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "addAttributes", parabytes, VmType.Native.value(), payer, gaslimit, gasprice);

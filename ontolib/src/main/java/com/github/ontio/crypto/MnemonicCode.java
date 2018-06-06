@@ -24,7 +24,7 @@ import io.github.novacrypto.bip39.wordlists.English;
 
 public class MnemonicCode {
 
-    public static StringBuilder generateMnemonicCodesStr(){
+    public static String generateMnemonicCodesStr(){
         final StringBuilder sb = new StringBuilder();
         byte[] entropy = new byte[Words.TWELVE.byteLength()];
         new SecureRandom().nextBytes(entropy);
@@ -35,7 +35,7 @@ public class MnemonicCode {
             }
         });
         new SecureRandom().nextBytes(entropy);
-        return sb;
+        return sb.toString();
     }
 
     public static byte[] getPrikeyFromMnemonicCodesStr(String mnemonicCodesStr){
@@ -43,6 +43,8 @@ public class MnemonicCode {
         byte[] seed = new SeedCalculator()
                 .withWordsFromWordList(English.INSTANCE)
                 .calculateSeed(Arrays.asList(mnemonicCodesArray), "");
+        mnemonicCodesArray = null;
+        mnemonicCodesStr = null;
         byte[] prikey = Arrays.copyOfRange(seed,0,32);
         return prikey;
     }
@@ -56,6 +58,7 @@ public class MnemonicCode {
         byte[] addresshashTmp = Digest.sha256(Digest.sha256(address.getBytes()));
         byte[] salt = Arrays.copyOfRange(addresshashTmp, 0, 4);
         byte[] derivedkey = ScryptPlugin.scrypt(password.getBytes(StandardCharsets.UTF_8), getChars(salt), N, r, p, dkLen);
+        password = null;
 
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[16];
@@ -66,6 +69,8 @@ public class MnemonicCode {
         Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(iv));
         byte[] encryptedkey = cipher.doFinal(mnemonicCodesStr.getBytes());
+        mnemonicCodesStr = null;
+
         return new String(Base64.encode(encryptedkey, Base64.NO_WRAP));
 
     }
@@ -85,6 +90,7 @@ public class MnemonicCode {
         byte[] salt = Arrays.copyOfRange(addresshashTmp, 0, 4);
 
         byte[] derivedkey = ScryptPlugin.scrypt(password.getBytes(StandardCharsets.UTF_8), getChars(salt), N, r, p, dkLen);
+        password = null;
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[16];
         System.arraycopy(derivedkey, 0, iv, 0, 16);

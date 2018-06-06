@@ -354,6 +354,7 @@ public class SmokeTest {
 
         Account accountRich = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
         Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
+        walletMgr.writeWallet();
 
 
         Transaction transactionR2P = ont.makeTransfer(richAddr,poorAddr,1,payAddr,gasLimit,gasPrice);
@@ -399,15 +400,15 @@ public class SmokeTest {
         assertTrue(richOngBalance > 0);
         assertTrue(poorOngBalance >= 0);
 
-        Account accountRich = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
-        Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
+//        Account accountRich = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
+//        Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix);
 
         Transaction transactionR2P = ong.makeTransfer(richAddr,poorAddr,1,payAddr,gasLimit,gasPrice);
         transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123");
         String transactionBodyStr = transactionR2P.toHexString();
         TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
         transactionBodyVO.setTxnStr(transactionBodyStr);
-        transactionBodyVO.setAddress(accountRich.address);
+        transactionBodyVO.setAddress(richAddr);
         ontopassService.assetTransfer(transactionBodyVO);
 
         Thread.sleep(7000);
@@ -446,14 +447,14 @@ public class SmokeTest {
         assertTrue(richOngApprove > 0);
         assertTrue(richOng >= 0);
 
-        Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
+//        Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix);
 
         Transaction transactionClaimOng = ong.makeClaimOng(richAddr,richAddr,amount,payAddr,gasLimit,gasPrice);
         transactionClaimOng = ontSdk.signTx(transactionClaimOng,richAddr,"123123");
         String transactionBodyStr = transactionClaimOng.toHexString();
         TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
         transactionBodyVO.setTxnStr(transactionBodyStr);
-        transactionBodyVO.setAddress(account.address);
+        transactionBodyVO.setAddress(richAddr);
         ontopassService.assetTransfer(transactionBodyVO);
 
         Thread.sleep(7000);

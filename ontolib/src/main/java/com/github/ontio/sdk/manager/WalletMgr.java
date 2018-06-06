@@ -39,6 +39,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.util.IOUtils;
 
 import java.io.*;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -284,12 +285,16 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
     public Account importAccount(String label,String encryptedPrikey, String password, String address) throws Exception {
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, address, walletFile.getScrypt().getN(), scheme);
         AccountInfo info = createAccount(label,password, Helper.hexToBytes(prikey));
+        prikey = null;
+        password = null;
         return getAccount(info.addressBase58);
     }
 
     public Account importAccount(String label, String encryptedPrikey, String password, byte[] prefix) throws Exception {
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
         AccountInfo info = createAccount(label, password, Helper.hexToBytes(prikey));
+        prikey = null;
+        password = null;
         return getAccount(info.addressBase58);
     }
 
@@ -305,6 +310,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
 
     private AccountInfo createAccount(String label,String password, byte[] prikey) throws Exception {
         com.github.ontio.account.Account acct = createAccount(label,password, prikey, true);
+        new SecureRandom().nextBytes(prikey);
         AccountInfo info = new AccountInfo();
         info.addressBase58 = Address.addressFromPubKey(acct.serializePublicKey()).toBase58();
         info.pubkey = Helper.toHexString(acct.serializePublicKey());
@@ -488,6 +494,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         }
         if (password != null) {
             acct.key = account.exportCtrEncryptedPrikey(password, walletFile.getScrypt().getN());
+            password = null;
         } else {
             acct.key = Helper.toHexString(account.serializePrivateKey());
         }
