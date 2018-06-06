@@ -47,7 +47,6 @@ import java.util.*;
  */
 public class WalletMgr {
     private Wallet wallet;
-    private Map acctPriKeyMap = new HashMap();
     private Map identityPriKeyMap = new HashMap();
     private Wallet walletFile;
     private SignatureScheme scheme = null;
@@ -285,14 +284,12 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
     public Account importAccount(String label,String encryptedPrikey, String password, String address) throws Exception {
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, address, walletFile.getScrypt().getN(), scheme);
         AccountInfo info = createAccount(label,password, Helper.hexToBytes(prikey));
-        storePrivateKey(acctPriKeyMap, info.addressBase58, password, prikey);
         return getAccount(info.addressBase58);
     }
 
     public Account importAccount(String label, String encryptedPrikey, String password, byte[] prefix) throws Exception {
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
         AccountInfo info = createAccount(label, password, Helper.hexToBytes(prikey));
-        storePrivateKey(acctPriKeyMap, info.addressBase58, password, prikey);
         return getAccount(info.addressBase58);
     }
 
@@ -315,7 +312,6 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         info.setPriwif(acct.exportWif());
         info.encryptedPrikey = acct.exportCtrEncryptedPrikey(password, walletFile.getScrypt().getN());
         info.addressU160 = acct.getAddressU160().toHexString();
-        storePrivateKey(acctPriKeyMap, info.addressBase58, password, Helper.toHexString(prikey));
         return info;
     }
 
@@ -537,11 +533,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         try {
             for (Account e : wallet.getAccounts()) {
                 if (e.address.equals(address.toBase58())) {
-                    String prikey = (String) acctPriKeyMap.get(e.address + "," + password);
-                    if (prikey == null) {
-                        prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(e.key, password, e.address, walletFile.getScrypt().getN(), scheme);
-                        storePrivateKey(acctPriKeyMap, e.address, password, prikey);
-                    }
+                    String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(e.key, password, e.address, walletFile.getScrypt().getN(), scheme);
                     return new com.github.ontio.account.Account(Helper.hexToBytes(prikey), scheme);
                 }
             }
