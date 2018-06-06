@@ -231,13 +231,9 @@ public class SmokeTest {
 
     @Test
     public void importAccountByPrikey() throws Exception {
-        //54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166
-        //
-        String prikey = "9c663937ffcadb1aa196bf08c76b2f8a18f214d4f32f029a06cde1a0ca73208a";
-        Account account = walletMgr.importAccount("aa",prikey,"123456");
-        assertNotNull(account.address,"AVZVSttsW3kbf9He2YduHSKB4ygLomy7eG");
-        //AVZVSttsW3kbf9He2YduHSKB4ygLomy7eG
-        //TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg
+        String prikey = "54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166";
+        Account account = walletMgr.createAccountFromPriKey("aa","123456",prikey);
+        assertNotNull(account.address,"TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg");
     }
 
     @Test
