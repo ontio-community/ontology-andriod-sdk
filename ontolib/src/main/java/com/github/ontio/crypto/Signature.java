@@ -33,7 +33,7 @@ public class Signature {
         this.scheme = SignatureScheme.values()[data[0]];
         if (scheme == SignatureScheme.SM3WITHSM2) {
             int i = 0;
-            while (i < data.length && data[i] != 0) {
+            while (i < data.length && data[i] != 0){
                 i++;
             }
             if (i >= data.length) {
@@ -41,8 +41,9 @@ public class Signature {
             }
             this.param = new SM2ParameterSpec(Arrays.copyOfRange(data, 1, i));
             this.value = Arrays.copyOfRange(data, i + 1, data.length);
+        } else {
+            this.value = Arrays.copyOfRange(data, 1, data.length);
         }
-        this.value = Arrays.copyOfRange(data, 1, data.length);
     }
 
     // serialize to byte array

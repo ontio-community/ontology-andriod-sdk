@@ -325,6 +325,15 @@ public class WebsocketClient extends AbstractConnector {
         return "";
     }
     @Override
+    public Object getMemPoolTxCount() throws Exception{
+        Map map = new HashMap<>();
+        map.put("Action", "getmempooltxcount");
+        map.put("Version", "1.0.0");
+        map.put("Id", generateReqId());
+        mWebSocket.send(JSON.toJSONString(map));
+        return "";
+    }
+    @Override
     public Object getMemPoolTxState(String hash) throws Exception{
         Map map = new HashMap<>();
         map.put("Action", "getmempooltxstate");

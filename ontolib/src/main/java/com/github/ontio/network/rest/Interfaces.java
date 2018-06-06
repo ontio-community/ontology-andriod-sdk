@@ -126,6 +126,12 @@ class Interfaces {
         Map<String, String> params = new HashMap<String, String>();
         return http.get(url + UrlConsts.Url_get_merkleproof + hash, params);
     }
+    public String getMemPoolTxCount() throws Exception {
+        Map<String, String> params = new HashMap<String, String>();
+
+        return http.get(url + UrlConsts.Url_get_mem_pool_tx_count, params);
+
+    }
     public String getMemPoolTxState(String hash) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         return http.get(url + UrlConsts.Url_get_mem_pool_tx_state + hash, params);

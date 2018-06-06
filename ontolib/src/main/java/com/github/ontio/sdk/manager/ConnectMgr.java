@@ -215,6 +215,10 @@ public class ConnectMgr {
         return connector.getAllowance(asset,from,to);
     }
 
+    public Object getMemPoolTxCount() throws Exception {
+        return connector.getMemPoolTxCount();
+    }
+
     public Object getMemPoolTxState(String hash) throws Exception {
         hash = hash.replace("0x", "");
         return connector.getMemPoolTxState(hash);
