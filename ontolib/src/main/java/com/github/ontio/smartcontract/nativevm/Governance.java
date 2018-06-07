@@ -19,6 +19,7 @@
 
 package com.github.ontio.smartcontract.nativevm;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
 import com.github.ontio.account.Account;
@@ -38,6 +39,7 @@ import com.github.ontio.sdk.wallet.Identity;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,27 +83,40 @@ public class Governance {
         BinaryWriter bw = new BinaryWriter(baos);
         bw.writeInt(governanceView.view);
 
-        byte[] t = baos.toByteArray();
-        byte[] t1 = "peerPool".getBytes();
-        byte[] t2 = new byte[t1.length + t.length];
-        System.arraycopy(t1,0,t2,0,t1.length);
-        System.arraycopy(t,0,t2,t1.length,t.length);
-        String value = sdk.getConnect().getStorage(contractAddress,Helper.toHexString(t2));
+        byte[] viewBytes = baos.toByteArray();
+        byte[] peerPoolBytes = "peerPool".getBytes();
+        byte[] keyBytes = new byte[peerPoolBytes.length + viewBytes.length];
+        System.arraycopy(peerPoolBytes,0,keyBytes,0,peerPoolBytes.length);
+        System.arraycopy(viewBytes,0,keyBytes,peerPoolBytes.length,viewBytes.length);
+        String value = sdk.getConnect().getStorage(contractAddress,Helper.toHexString(keyBytes));
         ByteArrayInputStream bais2 = new ByteArrayInputStream(Helper.hexToBytes(value));
         BinaryReader reader = new BinaryReader(bais2);
         int length = reader.readInt();
-        Map map = new HashMap<String,PeerPoolItem>();
+        Map peerPoolMap = new HashMap<String,PeerPoolItem>();
         for(int i = 0;i < length;i++){
             PeerPoolItem item = new PeerPoolItem();
             item.deserialize(reader);
-            map.put(item.peerPubkey,item);
+            peerPoolMap.put(item.peerPubkey,item.Json());
         }
-        return JSONObject.toJSONString(map);
+        return JSON.toJSONString(peerPoolMap);
     }
-    public String approveCandidate(String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+
+    /**
+     *
+     * @param adminOntId
+     * @param password
+     * @param peerPubkey
+     * @param payerAcct
+     * @param gaslimit
+     * @param gasprice
+     * @return
+     * @throws Exception
+     */
+    public String approveCandidate(String adminOntId,String password,String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
         byte[] params = new ApproveCandidateParam(peerPubkey).toArray();
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"approveCandidate",params, VmType.Native.value(),payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-        sdk.signTx(tx,new Account[][]{{payerAcct}});
+        sdk.signTx(tx,adminOntId,password);
+        sdk.addSign(tx,payerAcct);
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {
             return tx.hash().toString();
@@ -118,7 +133,7 @@ public class Governance {
         }
         return null;
     }
-    public String voteForPeer(Account account,String peerPubkey[],int[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+    public String voteForPeer(Account account,String peerPubkey[],long[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
         if(peerPubkey.length != posList.length){
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -138,7 +153,7 @@ public class Governance {
         }
         return null;
     }
-    public String unVoteForPeer(Account account,String peerPubkey[],int[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+    public String unVoteForPeer(Account account,String peerPubkey[],long[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
         if(peerPubkey.length != posList.length){
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -158,7 +173,19 @@ public class Governance {
         }
         return null;
     }
-    public String withdraw(Account account,String peerPubkey[],int[] withdrawList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+
+    /**
+     *
+     * @param account
+     * @param peerPubkey
+     * @param withdrawList
+     * @param payerAcct
+     * @param gaslimit
+     * @param gasprice
+     * @return
+     * @throws Exception
+     */
+    public String withdraw(Account account,String peerPubkey[],long[] withdrawList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
         if(peerPubkey.length != withdrawList.length){
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -178,12 +205,21 @@ public class Governance {
         }
         return null;
     }
-    public String commitDpos(Account account,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+
+    /**
+     *
+     * @param adminOntId
+     * @param password
+     * @param payerAcct
+     * @param gaslimit
+     * @param gasprice
+     * @return
+     * @throws Exception
+     */
+    public String commitDpos(String adminOntId,String password,Account payerAcct,long gaslimit,long gasprice) throws Exception{
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"commitDpos",new byte[]{}, VmType.Native.value(),payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-        sdk.signTx(tx,new Account[][]{{account}});
-        if(account.equals(payerAcct)){
-            sdk.addSign(tx,payerAcct);
-        }
+        sdk.signTx(tx,adminOntId,password);
+        sdk.addSign(tx,payerAcct);
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {
             return tx.hash().toString();
@@ -210,6 +246,17 @@ public class Governance {
         }
         return null;
     }
+
+    /**
+     *
+     * @param account
+     * @param peerPubkey
+     * @param payerAcct
+     * @param gaslimit
+     * @param gasprice
+     * @return
+     * @throws Exception
+     */
     public String quitNode(Account account,String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
         byte[] params = new QuitNodeParam(peerPubkey,account.getAddressU160()).toArray();
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"quitNode",params, VmType.Native.value(),payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
@@ -307,6 +354,20 @@ class PeerPoolItem extends Serializable{
         writer.writeByte((byte)status);
         writer.writeLong(initPos);
         writer.writeLong(totalPos);
+    }
+    public Object Json() {
+        Map map = new HashMap();
+        map.put("index",index);
+        map.put("peerPubkey",peerPubkey);
+        try {
+            map.put("address",address.toBase58());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        map.put("status",status);
+        map.put("initPos",initPos);
+        map.put("totalPos",totalPos);
+        return map;
     }
 }
 class GovernanceView extends Serializable{
@@ -414,8 +475,8 @@ class RegisterCandidateParam extends Serializable {
 class VoteForPeerParam extends Serializable {
     public Address address;
     public String[] peerPubkeys;
-    public int[] posList;
-    public VoteForPeerParam(Address address,String[] peerPubkeys,int[] posList){
+    public long[] posList;
+    public VoteForPeerParam(Address address,String[] peerPubkeys,long[] posList){
         this.address = address;
         this.peerPubkeys = peerPubkeys;
         this.posList = posList;
@@ -431,16 +492,16 @@ class VoteForPeerParam extends Serializable {
             writer.writeVarString(peerPubkey);
         }
         writer.writeInt(posList.length);
-        for(int pos: posList){
-            writer.writeInt(pos);
+        for(long pos: posList){
+            writer.writeVarInt(pos);
         }
     }
 }
 class WithdrawParam extends Serializable {
     public Address address;
     public String[] peerPubkeys;
-    public int[] withdrawList;
-    public WithdrawParam(Address address,String[] peerPubkeys,int[] withdrawList){
+    public long[] withdrawList;
+    public WithdrawParam(Address address,String[] peerPubkeys,long[] withdrawList){
         this.address = address;
         this.peerPubkeys = peerPubkeys;
         this.withdrawList = withdrawList;
@@ -456,8 +517,8 @@ class WithdrawParam extends Serializable {
             writer.writeVarString(peerPubkey);
         }
         writer.writeInt(withdrawList.length);
-        for(int withdraw : withdrawList){
-            writer.writeInt(withdraw);
+        for(long withdraw : withdrawList){
+            writer.writeVarInt(withdraw);
         }
     }
 }
@@ -516,36 +577,36 @@ class VoteCommitDposParam extends Serializable {
     }
 }
 class Configuration extends Serializable {
-    public int N = 7;
-    public int C = 2;
-    public int K = 7;
-    public int L = 112;
-    public int blockMsgDelay = 10000;
-    public int hashMsgDelay = 10000;
-    public int peerHandshakeTimeout = 10;
-    public int maxBlockChangeView = 1000;
+    public long N = 7;
+    public long C = 2;
+    public long K = 7;
+    public long L = 112;
+    public long blockMsgDelay = 10000;
+    public long hashMsgDelay = 10000;
+    public long peerHandshakeTimeout = 10;
+    public long maxBlockChangeView = 1000;
     @Override
     public void deserialize(BinaryReader reader) throws IOException {}
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
-        writer.writeInt(N);
-        writer.writeInt(C);
-        writer.writeInt(K);
-        writer.writeInt(L);
-        writer.writeInt(blockMsgDelay);
-        writer.writeInt(hashMsgDelay);
-        writer.writeInt(peerHandshakeTimeout);
-        writer.writeInt(maxBlockChangeView);
+    public void serialize(BinaryWriter writer) throws Exception {
+        writer.writeVarInt(N);
+        writer.writeVarInt(C);
+        writer.writeVarInt(K);
+        writer.writeVarInt(L);
+        writer.writeVarInt(blockMsgDelay);
+        writer.writeVarInt(hashMsgDelay);
+        writer.writeVarInt(peerHandshakeTimeout);
+        writer.writeVarInt(maxBlockChangeView);
     }
 }
 class GovernanceGlobalParam extends Serializable {
-    public int candidateFee;
-    public int minInitStake;
-    public int candidateNum;
-    public int A;
-    public int B;
-    public int Yita;
-    GovernanceGlobalParam(int candidateFee,int minInitStake,int candidateNum,int A,int B,int Yita){
+    public long candidateFee;
+    public long minInitStake;
+    public long candidateNum;
+    public long A;
+    public long B;
+    public long Yita;
+    GovernanceGlobalParam(long candidateFee,long minInitStake,long candidateNum,long A,long B,int Yita){
         this.candidateFee = candidateFee;
         this.minInitStake = minInitStake;
         this.candidateNum = candidateNum;
@@ -560,12 +621,12 @@ class GovernanceGlobalParam extends Serializable {
     }
 
     @Override
-    public void serialize(BinaryWriter writer) throws IOException {
-        writer.writeInt(candidateFee);
-        writer.writeInt(minInitStake);
-        writer.writeInt(candidateNum);
-        writer.writeInt(A);
-        writer.writeInt(B);
-        writer.writeInt(Yita);
+    public void serialize(BinaryWriter writer) throws Exception {
+        writer.writeVarInt(candidateFee);
+        writer.writeVarInt(minInitStake);
+        writer.writeVarInt(candidateNum);
+        writer.writeVarInt(A);
+        writer.writeVarInt(B);
+        writer.writeVarInt(Yita);
     }
 }
