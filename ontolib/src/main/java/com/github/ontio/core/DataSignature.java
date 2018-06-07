@@ -34,19 +34,28 @@ import java.util.HashSet;
 
 public class DataSignature extends Signable {
     private Account account;
-    private String data;
+    private byte[] data;
     private SignatureScheme scheme;
-    public DataSignature(){
+
+    public DataSignature() {
     }
-    public DataSignature(String data){
+
+    public DataSignature(byte[] data) {
         this.data = data;
     }
-    public DataSignature(SignatureScheme scheme, Account acct,String  data){
+
+    public DataSignature(SignatureScheme scheme, Account acct, byte[] data) {
         this.scheme = scheme;
         this.account = acct;
         this.data = data;
     }
-    public String getData(){
+    public DataSignature(SignatureScheme scheme, Account acct, String data) {
+        this.scheme = scheme;
+        this.account = acct;
+        this.data = data.getBytes();
+    }
+
+    public byte[] getData() {
         return data;
     }
     public byte[] signature() throws Exception {
@@ -66,8 +75,6 @@ public class DataSignature extends Signable {
 
     @Override
     public Address[] getAddressU160ForVerifying() throws Exception {
-        HashSet<Address> hashes = new HashSet<Address>();
-        hashes.add(Address.addressFromPubKey(account.serializePublicKey()));
         return null;
     }
 
@@ -81,7 +88,7 @@ public class DataSignature extends Signable {
 
     @Override
     public void serializeUnsigned(BinaryWriter writer) throws IOException {
-        writer.write(data.getBytes());
+        writer.write(data);
     }
 
     @Override
