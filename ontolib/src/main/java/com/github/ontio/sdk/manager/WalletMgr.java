@@ -47,7 +47,7 @@ import java.util.*;
  *
  */
 public class WalletMgr {
-    private Wallet wallet;
+    private Wallet walletInMem;
     private Wallet walletFile;
     private SignatureScheme scheme = null;
     private String filePath = null;
@@ -57,7 +57,7 @@ public class WalletMgr {
 
     public WalletMgr(Wallet wallet,SignatureScheme scheme) throws Exception {
         this.scheme = scheme;
-        this.wallet = wallet;
+        this.walletInMem = wallet;
         this.walletFile = wallet;
     }
 
@@ -67,13 +67,13 @@ public class WalletMgr {
         this.scheme = scheme;
         String text = sp.getString(key, "");
         if (text.isEmpty()) {
-            wallet = new Wallet();
-            wallet.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
+            walletInMem = new Wallet();
+            walletInMem.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
             walletFile = new Wallet();
             writeWallet();
         } else {
             Log.i("ontsdk", "WalletMgr: " + text);
-            wallet = JSON.parseObject(text, Wallet.class);
+            walletInMem = JSON.parseObject(text, Wallet.class);
             walletFile = JSON.parseObject(text, Wallet.class);
         }
     }
@@ -81,16 +81,16 @@ public class WalletMgr {
     private WalletMgr(SharedPreferences sp, String password, KeyType type, Object[] params) throws Exception {
         String text = sp.getString(key, "");
         if (text.isEmpty()) {
-            wallet = new Wallet();
-            wallet.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
+            walletInMem = new Wallet();
+            walletInMem.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
             walletFile = new Wallet();
             writeWallet();
         } else {
             Log.i("ontsdk", "WalletMgr: " + text);
-            wallet = JSON.parseObject(text, Wallet.class);
+            walletInMem = JSON.parseObject(text, Wallet.class);
             walletFile = JSON.parseObject(text, Wallet.class);
         }
-        wallet = JSON.parseObject(text, Wallet.class);
+        walletInMem = JSON.parseObject(text, Wallet.class);
         walletFile = JSON.parseObject(text, Wallet.class);
         if (getIdentitys().size() == 0) {
             createIdentity(password);
@@ -113,21 +113,21 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         this.filePath = path;
         File file = new File(filePath);
         if (!file.exists()) {
-            wallet = new Wallet();
-            wallet.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
+            walletInMem = new Wallet();
+            walletInMem.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
             walletFile = new Wallet();
             file.createNewFile();
             writeWallet();
         }
         InputStream inputStream = new FileInputStream(filePath);
         String text = IOUtils.toString(inputStream);
-        wallet = JSON.parseObject(text, Wallet.class);
+        walletInMem = JSON.parseObject(text, Wallet.class);
         walletFile = JSON.parseObject(text, Wallet.class);
-        if (wallet.getIdentities() == null) {
-            wallet.setIdentities(new ArrayList<Identity>());
+        if (walletInMem.getIdentities() == null) {
+            walletInMem.setIdentities(new ArrayList<Identity>());
         }
-        if (wallet.getAccounts() == null) {
-            wallet.setAccounts(new ArrayList<Account>());
+        if (walletInMem.getAccounts() == null) {
+            walletInMem.setAccounts(new ArrayList<Account>());
         }
         writeWallet();
     }
@@ -137,8 +137,8 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         this.filePath = path;
         File file = new File(filePath);
         if (!file.exists()) {
-            wallet = new Wallet();
-            wallet.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
+            walletInMem = new Wallet();
+            walletInMem.setCreateTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date()));
             walletFile = new Wallet();
             file.createNewFile();
             createIdentity(label, password);
@@ -146,23 +146,17 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         }
         InputStream inputStream = new FileInputStream(filePath);
         String text = IOUtils.toString(inputStream);
-        wallet = JSON.parseObject(text, Wallet.class);
+        walletInMem = JSON.parseObject(text, Wallet.class);
         walletFile = JSON.parseObject(text, Wallet.class);
-        if (wallet.getIdentities() == null) {
-            wallet.setIdentities(new ArrayList<Identity>());
+        if (walletInMem.getIdentities() == null) {
+            walletInMem.setIdentities(new ArrayList<Identity>());
         }
-        if (wallet.getAccounts() == null) {
-            wallet.setAccounts(new ArrayList<Account>());
+        if (walletInMem.getAccounts() == null) {
+            walletInMem.setAccounts(new ArrayList<Account>());
         }
         if (getIdentitys().size() == 0) {
             createIdentity(label, password);
             writeWallet();
-            return;
-        }
-        Identity identity = getDefaultIdentity();
-        if (identity != null) {
-            String addr = identity.ontid.replace(Common.didont, "");
-            String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(identity.controls.get(0).key, password, addr, walletFile.getScrypt().getN(), scheme);
         }
     }
 
@@ -175,17 +169,33 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         out.close();
     }
 
-    public Wallet openWallet() {
+    /**
+     *
+     * @return wallet file data
+     */
+    public Wallet getWalletFile() {
         return walletFile;
     }
 
+    /**
+     *
+     * @return wallet in memory
+     */
     public Wallet getWallet() {
-        return wallet;
+        return walletInMem;
     }
 
+    /**
+     *  wallet in memory = wallet file data
+     * @return
+     */
+    public Wallet resetWallet() {
+        walletInMem = walletFile.clone();
+        return walletInMem;
+    }
     public Wallet writeWallet() throws IOException {
-        writeFile(sp, JSON.toJSONString(wallet));
-        walletFile = wallet;
+        writeFile(sp, JSON.toJSONString(walletInMem));
+        walletFile = walletInMem.clone();
         return walletFile;
     }
 
@@ -203,12 +213,14 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
     public Identity importIdentity(String label,String encryptedPrikey, String password, String address) throws Exception {
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, address, walletFile.getScrypt().getN(), scheme);
         IdentityInfo info = createIdentity(label,password, Helper.hexToBytes(prikey));
+        prikey = null;
         return getIdentity(info.ontid);
     }
 
-    public Identity importIdentity(String label, String encryptedPrikey, String password, byte[] prefix) throws Exception {
-        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
+    public Identity importIdentity(String label, String encryptedPrikey, String password, byte[] salt) throws Exception {
+        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, salt, walletFile.getScrypt().getN(), scheme);
         IdentityInfo info = createIdentity(label, password, Helper.hexToBytes(prikey));
+        prikey = null;
         return getIdentity(info.ontid);
     }
 
@@ -227,6 +239,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
 
     public Identity createIdentityFromPriKey(String password, String prikey) throws Exception {
         IdentityInfo info = createIdentity("", password, Helper.hexToBytes(prikey));
+        prikey = null;
         return getIdentity(info.ontid);
     }
 
@@ -273,7 +286,9 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         password = null;
         return getAccount(info.addressBase58);
     }
-
+    public Account importAccount(String encryptedPrikey, String password, byte[] prefix) throws Exception {
+        return importAccount("",encryptedPrikey,password,prefix);
+    }
     public Account importAccount(String label, String encryptedPrikey, String password, byte[] prefix) throws Exception {
         String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
         AccountInfo info = createAccount(label, password, Helper.hexToBytes(prikey));
@@ -282,6 +297,11 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         return getAccount(info.addressBase58);
     }
 
+    public void createAccounts(int count, String password) throws Exception {
+        for (int i = 0; i < count; i++) {
+            createAccount("", password);
+        }
+    }
     public Account createAccount(String password) throws Exception {
         Account account = createAccount("", password);
         return account;
@@ -306,7 +326,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
     }
 
     public Account getDefaultAccount() {
-        for (Account e : wallet.getAccounts()) {
+        for (Account e : walletInMem.getAccounts()) {
             if (e.isDefault) {
                 return e;
             }
@@ -344,28 +364,6 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         return act.exportWif();
     }
 
-
-    public byte[] signatureData(com.github.ontio.account.Account acct, String str) throws SDKException {
-        DataSignature sign = null;
-        try {
-            sign = new DataSignature(getSignatureScheme(), acct, str);
-            return sign.signature();
-        } catch (Exception e) {
-            throw new SDKException(e);
-        }
-    }
-
-    public boolean verifySign(String pubkeyStr, byte[] data, byte[] signature) throws SDKException {
-        DataSignature sign = null;
-        try {
-            sign = new DataSignature();
-            return sign.verifySignature(new com.github.ontio.account.Account(false, Helper.hexToBytes(pubkeyStr)), data, signature);
-        } catch (Exception e) {
-            throw new SDKException(e);
-        }
-    }
-
-
     public com.github.ontio.account.Account getAccount(String address, String password) throws Exception {
         address = address.replace(Common.didont, "");
         return getAccountByAddress(Address.decodeBase58(address), password);
@@ -376,7 +374,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
     }
 
     private Identity addIdentity(String ontid) {
-        for (Identity e : wallet.getIdentities()) {
+        for (Identity e : walletInMem.getIdentities()) {
             if (e.ontid.equals(ontid)) {
                 return e;
             }
@@ -384,21 +382,21 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         Identity identity = new Identity();
         identity.ontid = ontid;
         identity.controls = new ArrayList<Control>();
-        wallet.getIdentities().add(identity);
+        walletInMem.getIdentities().add(identity);
         return identity;
     }
 
     private void addIdentity(Identity idt) {
-        for (Identity e : wallet.getIdentities()) {
+        for (Identity e : walletInMem.getIdentities()) {
             if (e.ontid.equals(idt.ontid)) {
                 return;
             }
         }
-        wallet.getIdentities().add(idt);
+        walletInMem.getIdentities().add(idt);
     }
 
     public List<Account> getAccounts() {
-        return wallet.getAccounts();
+        return walletInMem.getAccounts();
     }
 
 
@@ -416,11 +414,11 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
     }
 
     public List<Identity> getIdentitys() {
-        return wallet.getIdentities();
+        return walletInMem.getIdentities();
     }
 
     public Identity getIdentity(String ontid) {
-        for (Identity e : wallet.getIdentities()) {
+        for (Identity e : walletInMem.getIdentities()) {
             if (e.ontid.equals(ontid)) {
                 return e;
             }
@@ -429,7 +427,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
     }
 
     public Identity getDefaultIdentity() {
-        for (Identity e : wallet.getIdentities()) {
+        for (Identity e : walletInMem.getIdentities()) {
             if (e.isDefault) {
                 return e;
             }
@@ -440,7 +438,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
 
 
     public Account getAccount(String address) {
-        for (Account e : wallet.getAccounts()) {
+        for (Account e : walletInMem.getAccounts()) {
             if (e.address.equals(address)) {
                 return e;
             }
@@ -488,19 +486,19 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
             label = uuidStr.substring(0, 8);
         }
         if (saveAccountFlag) {
-            for (Account e : wallet.getAccounts()) {
+            for (Account e : walletInMem.getAccounts()) {
                 if (e.address.equals(acct.address)) {
                     throw new SDKException(ErrorCode.ParamErr("wallet account exist"));
                 }
             }
-            if (wallet.getAccounts().size() == 0) {
+            if (walletInMem.getAccounts().size() == 0) {
                 acct.isDefault = true;
-                wallet.setDefaultAccountAddress(acct.address);
+                walletInMem.setDefaultAccountAddress(acct.address);
             }
             acct.label = label;
-            wallet.getAccounts().add(acct);
+            walletInMem.getAccounts().add(acct);
         } else {
-            for (Identity e : wallet.getIdentities()) {
+            for (Identity e : walletInMem.getIdentities()) {
                 if (e.ontid.equals(Common.didont + acct.address)) {
                     return account;
                 }
@@ -508,28 +506,28 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
             Identity idt = new Identity();
             idt.ontid = Common.didont + acct.address;
             idt.label = label;
-            if (wallet.getIdentities().size() == 0) {
+            if (walletInMem.getIdentities().size() == 0) {
                 idt.isDefault = true;
-                wallet.setDefaultOntid(idt.ontid);
+                walletInMem.setDefaultOntid(idt.ontid);
             }
             idt.controls = new ArrayList<Control>();
             Control ctl = new Control(acct.key, "");
             idt.controls.add(ctl);
-            wallet.getIdentities().add(idt);
+            walletInMem.getIdentities().add(idt);
         }
         return account;
     }
 
     private com.github.ontio.account.Account getAccountByAddress(Address address, String password) throws Exception {
         try {
-            for (Account e : wallet.getAccounts()) {
+            for (Account e : walletInMem.getAccounts()) {
                 if (e.address.equals(address.toBase58())) {
                     String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(e.key, password, e.address, walletFile.getScrypt().getN(), scheme);
                     return new com.github.ontio.account.Account(Helper.hexToBytes(prikey), scheme);
                 }
             }
 
-            for (Identity e : wallet.getIdentities()) {
+            for (Identity e : walletInMem.getIdentities()) {
                 if (e.ontid.equals(Common.didont + address.toBase58())) {
                     String addr = e.ontid.replace(Common.didont, "");
                     String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(e.controls.get(0).key, password, addr, walletFile.getScrypt().getN(), scheme);
