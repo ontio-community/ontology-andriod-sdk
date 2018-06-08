@@ -144,7 +144,7 @@ public class Governance {
         byte[] params = new VoteForPeerParam(account.getAddressU160(),peerPubkey,posList).toArray();
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"voteForPeer",params, VmType.Native.value(),payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
         sdk.signTx(tx,new Account[][]{{account}});
-        if(account.equals(payerAcct)){
+        if(!account.equals(payerAcct)){
             sdk.addSign(tx,payerAcct);
         }
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
@@ -401,24 +401,7 @@ class GovernanceView extends Serializable{
         writer.writeSerializable(txhash);
     }
 }
-class RegisterSyncNodeParam extends Serializable {
-    public String peerPubkey;
-    public String address;
-    public long initPos;
-    public RegisterSyncNodeParam(String peerPubkey,String address,long initPos){
-        this.peerPubkey = peerPubkey;
-        this.address = address;
-        this.initPos = initPos;
-    }
-    @Override
-    public void deserialize(BinaryReader reader) throws IOException {}
-    @Override
-    public void serialize(BinaryWriter writer) throws Exception {
-        writer.writeVarString(peerPubkey);
-        writer.writeVarString(address);
-        writer.writeLong(initPos);
-    }
-}
+
 class ApproveCandidateParam extends Serializable {
     public String peerPubkey;
     public ApproveCandidateParam(String peerPubkey){
@@ -451,10 +434,10 @@ class RejectCandidateParam extends Serializable {
 class RegisterCandidateParam extends Serializable {
     public String peerPubkey;
     public Address address;
-    public int initPos;
+    public long initPos;
     public byte[] caller;
     public long keyNo;
-    public RegisterCandidateParam(String peerPubkey,Address address,int initPos,byte[] caller,long keyNo){
+    public RegisterCandidateParam(String peerPubkey,Address address,long initPos,byte[] caller,long keyNo){
         this.peerPubkey = peerPubkey;
         this.address = address;
         this.initPos = initPos;
@@ -467,9 +450,9 @@ class RegisterCandidateParam extends Serializable {
     public void serialize(BinaryWriter writer) throws Exception {
         writer.writeVarString(peerPubkey);
         writer.writeSerializable(address);
-        writer.writeInt(initPos);
+        writer.writeVarInt(initPos);
         writer.writeVarBytes(caller);
-        writer.writeLong(keyNo);
+        writer.writeVarInt(keyNo);
     }
 }
 class VoteForPeerParam extends Serializable {
@@ -491,7 +474,7 @@ class VoteForPeerParam extends Serializable {
         for(String peerPubkey: peerPubkeys){
             writer.writeVarString(peerPubkey);
         }
-        writer.writeInt(posList.length);
+        writer.writeVarInt(posList.length);
         for(long pos: posList){
             writer.writeVarInt(pos);
         }
@@ -512,11 +495,11 @@ class WithdrawParam extends Serializable {
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
         writer.writeSerializable(address);
-        writer.writeInt(peerPubkeys.length);
+        writer.writeVarInt(peerPubkeys.length);
         for(String peerPubkey : peerPubkeys){
             writer.writeVarString(peerPubkey);
         }
-        writer.writeInt(withdrawList.length);
+        writer.writeVarInt(withdrawList.length);
         for(long withdraw : withdrawList){
             writer.writeVarInt(withdraw);
         }
