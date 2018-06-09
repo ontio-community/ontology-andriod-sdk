@@ -44,16 +44,16 @@ public class State extends Serializable {
     }
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
-            from = reader.readSerializable(Address.class);
-            to = reader.readSerializable(Address.class);
-            value = reader.readVarInt();
+        from = new Address(reader.readVarBytes());
+        to = new Address(reader.readVarBytes());
+        value = new BigInteger(reader.readVarBytes()).longValue();
     }
 
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
-        writer.writeSerializable(from);
-        writer.writeSerializable(to);
-        writer.writeVarInt(value);
+        writer.writeVarBytes(from.toArray());
+        writer.writeVarBytes(to.toArray());
+        writer.writeVarBytes(BigInteger.valueOf(value).toByteArray());
 
     }
 

@@ -33,18 +33,14 @@ import java.util.Map;
  */
 public class Contract extends Serializable {
     public byte version;
-    public byte[] code = new byte[0];
     public Address constracHash;
     public String method;
     public byte[] args;
 
     public Contract(){}
 
-    public Contract(byte version, byte[] code, Address constracHash, String method, byte[] args) {
+    public Contract(byte version, Address constracHash, String method, byte[] args) {
         this.version = version;
-        if (code != null) {
-            this.code = code;
-        }
         this.constracHash = constracHash;
         this.method = method;
         this.args = args;
@@ -53,7 +49,6 @@ public class Contract extends Serializable {
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
         version = reader.readByte();
-        code = reader.readVarBytes();
         constracHash = reader.readSerializable(Address.class);
         method = new String(reader.readVarBytes());
         args = reader.readVarBytes();
@@ -62,7 +57,6 @@ public class Contract extends Serializable {
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
         writer.writeByte(version);
-        writer.writeVarBytes(code);
         writer.writeSerializable(constracHash);
         writer.writeVarBytes(method.getBytes());
         writer.writeVarBytes(args);

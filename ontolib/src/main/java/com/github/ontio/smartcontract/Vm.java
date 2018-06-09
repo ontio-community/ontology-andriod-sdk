@@ -74,14 +74,13 @@ public class Vm {
      * @param author
      * @param email
      * @param desp
-     * @param vmtype
      * @param payer
      * @param gaslimit
      * @param gasprice
      * @return
      * @throws SDKException
      */
-    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp, byte vmtype,String payer,long gaslimit,long gasprice) throws Exception {
+    public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp,String payer,long gaslimit,long gasprice) throws Exception {
         DeployCode tx = new DeployCode();
         if(payer != null){
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
@@ -92,7 +91,6 @@ public class Vm {
         tx.attributes[0].data = UUID.randomUUID().toString().getBytes();
         tx.code = Helper.hexToBytes(codeStr);
         tx.version = codeVersion;
-        tx.vmType = vmtype;
         tx.needStorage = needStorage;
         tx.name = name;
         tx.author = author;
@@ -108,24 +106,14 @@ public class Vm {
      * @param codeAddr
      * @param method
      * @param params
-     * @param vmtype
      * @param payer
      * @param gaslimit
      * @param gasprice
      * @return
      * @throws SDKException
      */
-    public InvokeCode makeInvokeCodeTransaction(String codeAddr,String method,byte[] params, byte vmtype, String payer,long gaslimit,long gasprice) throws Exception {
-        if(vmtype == VmType.NEOVM.value()) {
-            Contract contract = new Contract((byte) 0, null, Address.parse(codeAddr), "", params);
-            params = Helper.addBytes(new byte[]{0x67}, contract.toArray());
-        }else if(vmtype == VmType.WASMVM.value()) {
-            Contract contract = new Contract((byte) 1, null, Address.parse(codeAddr), method, params);
-            params = contract.toArray();
-        } else if(vmtype == VmType.Native.value()) {
-            Contract contract = new Contract((byte) 0, null, Address.parse(codeAddr), method, params);
-            params = contract.toArray();
-        }
+    public InvokeCode makeInvokeCodeTransaction(String codeAddr,String method,byte[] params,String payer,long gaslimit,long gasprice) throws Exception {
+        Contract contract = new Contract((byte) 0, Address.parse(codeAddr), "", params);
         InvokeCode tx = new InvokeCode();
         tx.attributes = new Attribute[1];
         tx.attributes[0] = new Attribute();
@@ -137,8 +125,6 @@ public class Vm {
         if(payer != null){
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         }
-
-        tx.vmType = vmtype;
         return tx;
     }
 }

@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class InvokeCode extends Transaction {
-    public byte vmType;
     public byte[] code;
 
     public InvokeCode() throws Exception {
@@ -42,14 +41,11 @@ public class InvokeCode extends Transaction {
 
     @Override
     protected void deserializeExclusiveData(BinaryReader reader) throws IOException {
-        vmType = reader.readByte();
         code = reader.readVarBytes();
     }
 
     @Override
     protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
-        byte[] temp = new byte[]{vmType};
-        writer.write(temp);
         writer.writeVarBytes(code);
     }
 
@@ -63,7 +59,6 @@ public class InvokeCode extends Transaction {
         Map obj = (Map) super.json();
         Map payload = new HashMap();
         payload.put("Code", Helper.toHexString(code));
-        payload.put("VmType", vmType & Byte.MAX_VALUE);
         obj.put("Payload", payload);
         return obj;
     }

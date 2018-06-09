@@ -29,7 +29,6 @@ import com.github.ontio.io.BinaryWriter;
 
 public class DeployCode extends Transaction {
     public byte[] code;
-    public byte vmType;
     public boolean needStorage;
     public String name;
     public String version;
@@ -44,7 +43,6 @@ public class DeployCode extends Transaction {
 
     @Override
     protected void deserializeExclusiveData(BinaryReader reader) throws IOException {
-        vmType = reader.readByte();
         code = reader.readVarBytes();
         needStorage = reader.readBoolean();
         name = reader.readVarString();
@@ -56,7 +54,6 @@ public class DeployCode extends Transaction {
 
     @Override
     protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
-        writer.writeByte(vmType);
         writer.writeVarBytes(code);
         writer.writeBoolean(needStorage);
         writer.writeVarString(name);
