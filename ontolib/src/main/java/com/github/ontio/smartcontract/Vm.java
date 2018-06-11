@@ -31,6 +31,7 @@ import com.github.ontio.core.asset.Contract;
 import com.github.ontio.core.payload.DeployCode;
 import com.github.ontio.core.payload.InvokeCode;
 import com.github.ontio.core.scripts.ScriptBuilder;
+import com.github.ontio.core.scripts.ScriptOp;
 import com.github.ontio.core.transaction.Attribute;
 import com.github.ontio.core.transaction.AttributeUsage;
 import com.github.ontio.core.transaction.Transaction;
@@ -45,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -53,6 +55,7 @@ import java.util.UUID;
 public class Vm {
     private OntSdk sdk;
     private String contractAddress = null;
+    public static  String NATIVE_INVOKE_NAME = "Ontology.Native.Invoke";
     public String getCodeAddress() {
         return contractAddress;
     }
@@ -127,4 +130,50 @@ public class Vm {
         }
         return tx;
     }
+
+    /**
+     *
+     * @param params
+     * @param payer
+     * @param gaslimit
+     * @param gasprice
+     * @return
+     * @throws SDKException
+     */
+    public InvokeCode makeInvokeCodeTransaction(byte[] params,String payer,long gaslimit,long gasprice) throws Exception {
+//        if(vmtype == VmType.NEOVM.value()) {
+//            Contract contract = new Contract((byte) 0,Address.parse(codeAddr), "", params);
+//            params = Helper.addBytes(new byte[]{0x67}, contract.toArray());
+//        }else if(vmtype == VmType.WASMVM.value()) {
+//            Contract contract = new Contract((byte) 1,Address.parse(codeAddr), method, params);
+//            params = contract.toArray();
+//        } else if(vmtype == VmType.Native.value()) {
+//            Contract contract = new Contract((byte) 0,Address.parse(codeAddr), method, params);
+//            params = contract.toArray();
+//        }
+        InvokeCode tx = new InvokeCode();
+        tx.attributes = new Attribute[0];
+        tx.nonce = new Random().nextInt();
+        tx.code = params;
+        tx.gasLimit = gaslimit;
+        tx.gasPrice = gasprice;
+        if(payer != null){
+            tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
+        }
+        return tx;
+    }
+
+    public Transaction buildNativeParams(Address codeAddr,String initMethod,byte[] args,String payer,long gaslimit,long gasprice) throws Exception {
+        ScriptBuilder sb = new ScriptBuilder();
+        sb.add(args);
+        sb.push(initMethod.getBytes());
+        sb.push(codeAddr.toArray());
+        sb.push(BigInteger.valueOf(0));
+        sb.add(ScriptOp.OP_SYSCALL);
+        sb.push(NATIVE_INVOKE_NAME.getBytes());
+        System.out.println(Helper.toHexString(sb.toArray()));
+        Transaction tx = makeInvokeCodeTransaction(sb.toArray(),payer,gaslimit,gasprice);
+        return tx;
+    }
+
 }

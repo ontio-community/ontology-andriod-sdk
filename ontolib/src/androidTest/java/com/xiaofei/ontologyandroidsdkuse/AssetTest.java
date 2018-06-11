@@ -5,6 +5,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.github.ontio.OntSdk;
+import com.github.ontio.common.Helper;
+import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
@@ -35,12 +37,13 @@ public class AssetTest {
     private Context appContext;
     private OntId ontIdTx;
     String password = "111111";
+    public static String privatekey1 = "49855b16636e70f100cc5f4f42bc20a6535d7414fb8845e7310f8dd065a97221";
 
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
-        ontSdk.setRestful("http://polaris1.ont.io:20334");
-        ontSdk.setRestful("http://192.168.50.73:20334");
+//        ontSdk.setRestful("http://polaris1.ont.io:20334");
+        ontSdk.setRestful("http://192.168.50.74:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -52,6 +55,26 @@ public class AssetTest {
 
     @After
     public void tearDown() throws Exception {
+
+    }
+
+    @Test
+    public void transferTest() throws Exception {
+
+        com.github.ontio.account.Account acct1 = new com.github.ontio.account.Account(Helper.hexToBytes(privatekey1), ontSdk.defaultSignScheme);
+
+        String privateKey = "0bc8c1f75a028672cd42c221bf81709dfc7abbbaf0d87cb6fdeaf9a20492c194";
+        com.github.ontio.account.Account account1 = new com.github.ontio.account.Account(Helper.hexToBytes(privateKey), SignatureScheme.SHA256WITHECDSA);
+//        long balance = ontSdk.nativevm().ont().queryBalanceOf(account1.getAddressU160().toBase58());
+//        System.out.println(balance);
+
+        ontSdk.nativevm().ont().sendTransfer(account1,acct1.getAddressU160().toBase58(),10,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
+        Thread.sleep(6000);
+        long balance2 = ontSdk.nativevm().ont().queryBalanceOf(account1.getAddressU160().toBase58());
+        System.out.println(balance2);
+
+        long balance3 = ontSdk.nativevm().ont().queryBalanceOf(acct1.getAddressU160().toBase58());
+        System.out.println(balance3);
 
     }
 

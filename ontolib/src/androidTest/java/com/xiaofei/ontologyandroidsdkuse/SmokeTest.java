@@ -213,7 +213,7 @@ public class SmokeTest {
     public void prikeyToWIF() throws Exception {
         String prikeyStrOrig = "e467a2a9c9f56b012c71cf2270df42843a9d7ff181934068b4a62bcdd570e8be";
         String wifStrOrig = "L4shZ7B4NFQw2eqKncuUViJdFRq6uk1QUb6HjiuedxN4Q2CaRQKW";
-        com.github.ontio.account.Account acct = new com.github.ontio.account.Account(Helper.hexToBytes(prikeyStrOrig), ontSdk.signatureScheme);
+        com.github.ontio.account.Account acct = new com.github.ontio.account.Account(Helper.hexToBytes(prikeyStrOrig), ontSdk.defaultSignScheme);
         String wif1 = acct.exportWif();
         assertNotNull(wif1);
         assertEquals(wif1,wifStrOrig);

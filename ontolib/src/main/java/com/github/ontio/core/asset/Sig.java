@@ -29,6 +29,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.github.ontio.core.program.Program.ProgramFromMultiPubKey;
+import static com.github.ontio.core.program.Program.ProgramFromParams;
+import static com.github.ontio.core.program.Program.ProgramFromPubKey;
+
 /**
  *
  */
@@ -54,14 +58,15 @@ public class Sig extends Serializable {
 
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
-    	writer.writeVarInt(pubKeys.length);
-    	for(int i=0;i<pubKeys.length;i++) {
-            writer.writeVarBytes(pubKeys[i]);
-        }
-        writer.writeVarInt(M);
-        writer.writeVarInt(sigData.length);
-        for (int i = 0; i < sigData.length; i++) {
-            writer.writeVarBytes(sigData[i]);
+        writer.writeVarBytes(ProgramFromParams(sigData));
+        try {
+            if(pubKeys.length == 1){
+                writer.writeVarBytes(ProgramFromPubKey(pubKeys[0]));
+            }else if(pubKeys.length > 1){
+                writer.writeVarBytes(ProgramFromMultiPubKey(M,pubKeys));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
