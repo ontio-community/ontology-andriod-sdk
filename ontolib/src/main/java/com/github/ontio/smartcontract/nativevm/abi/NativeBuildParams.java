@@ -144,7 +144,6 @@ public class NativeBuildParams {
                 Object val = list.get(i);
                 if (val instanceof byte[]) {
                     sb.push((byte[]) val);
-                    System.out.println(Helper.toHexString(sb.toArray()));
                 } else if (val instanceof Boolean) {
                     sb.push((Boolean) val);
                 } else if (val instanceof Long) {
@@ -153,9 +152,11 @@ public class NativeBuildParams {
                     sb.push((BigInteger)val);
                 } else if(val instanceof Address){
                     sb.push(((Address) val).toArray());
-                    System.out.println(Helper.toHexString(sb.toArray()));
                 }
                 else if(val instanceof Struct){
+                    sb.push(BigInteger.valueOf(0));
+                    sb.add(ScriptOp.OP_NEWSTRUCT);
+                    sb.add(ScriptOp.OP_TOALTSTACK);
                     for(int k =0;k<((Struct) val).list.size();k++) {
                         Object o = ((Struct) val).list.get(k);
                         createCodeParamsScript(sb, o);
@@ -163,6 +164,7 @@ public class NativeBuildParams {
                         sb.add(ScriptOp.OP_SWAP);
                         sb.add(ScriptOp.OP_APPEND);
                     }
+                    sb.add(ScriptOp.OP_FROMALTSTACK);
                 }
                 else if(val instanceof Struct[]){
                     sb.push(BigInteger.valueOf(0));
@@ -175,7 +177,6 @@ public class NativeBuildParams {
                     sb.add(ScriptOp.OP_FROMALTSTACK);
                     sb.push(new BigInteger(String.valueOf(structs.length)));
                     sb.pushPack();
-                    System.out.println("Struct:"+Helper.toHexString(sb.toArray()));
                 } else if (val instanceof List) {
                     List tmp = (List) val;
                     createCodeParamsScript(sb, tmp);

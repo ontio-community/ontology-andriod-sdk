@@ -65,16 +65,33 @@ public class AssetTest {
 
         String privateKey = "0bc8c1f75a028672cd42c221bf81709dfc7abbbaf0d87cb6fdeaf9a20492c194";
         com.github.ontio.account.Account account1 = new com.github.ontio.account.Account(Helper.hexToBytes(privateKey), SignatureScheme.SHA256WITHECDSA);
-//        long balance = ontSdk.nativevm().ont().queryBalanceOf(account1.getAddressU160().toBase58());
-//        System.out.println(balance);
+        System.out.println("*****" + ontSdk.nativevm().ong().queryBalanceOf(account1.getAddressU160().toBase58()));
+//        System.out.println(ontSdk.nativevm().ont().queryBalanceOf(acct1.getAddressU160().toBase58()));
+        String txhash = "";
+        if(false){
+//            txhash = ontSdk.nativevm().ong().sendTransfer(account1,acct1.getAddressU160().toBase58(),10,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
+//            txhash = ontSdk.nativevm().ong().sendApprove(account1,acct1.getAddressU160().toBase58(),1000,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
+            txhash = ontSdk.nativevm().ong().sendTransferFrom(acct1,account1.getAddressU160().toBase58(),acct1.getAddressU160().toBase58(),1000,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
+            Thread.sleep(6000);
+        }
+//        System.out.println(ontSdk.nativevm().ong().queryBalanceOf(account1.getAddressU160().toBase58()));
+        System.out.println("********" + ontSdk.nativevm().ong().queryAllowance(account1.getAddressU160().toBase58(),acct1.getAddressU160().toBase58()));
+        if(false){
+            System.out.println(ontSdk.nativevm().ong().queryBalanceOf(account1.getAddressU160().toBase58()));
+            System.out.println(ontSdk.nativevm().ong().unclaimOng(account1.getAddressU160().toBase58()));
+            ontSdk.nativevm().ong().claimOng(account1,account1.getAddressU160().toBase58(),21071968349040L,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
+            Thread.sleep(6000);
+            System.out.println(ontSdk.nativevm().ong().queryBalanceOf(account1.getAddressU160().toBase58()));
+        }
 
-        ontSdk.nativevm().ont().sendTransfer(account1,acct1.getAddressU160().toBase58(),10,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
-        Thread.sleep(6000);
-        long balance2 = ontSdk.nativevm().ont().queryBalanceOf(account1.getAddressU160().toBase58());
-        System.out.println(balance2);
+        if(false){
+            System.out.print(ontSdk.getConnect().getSmartCodeEvent(Helper.reverse(txhash)));
+            long balance2 = ontSdk.nativevm().ont().queryBalanceOf(account1.getAddressU160().toBase58());
+            System.out.println(balance2);
 
-        long balance3 = ontSdk.nativevm().ont().queryBalanceOf(acct1.getAddressU160().toBase58());
-        System.out.println(balance3);
+            long balance3 = ontSdk.nativevm().ont().queryBalanceOf(acct1.getAddressU160().toBase58());
+            System.out.println(balance3);
+        }
 
     }
 
