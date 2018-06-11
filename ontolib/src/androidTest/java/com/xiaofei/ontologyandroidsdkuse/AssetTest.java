@@ -6,6 +6,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Helper;
+import com.github.ontio.crypto.Digest;
 import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.WalletMgr;
@@ -21,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -56,6 +58,15 @@ public class AssetTest {
     @After
     public void tearDown() throws Exception {
 
+    }
+
+    @Test
+    public void accountDemo() throws Exception {
+        String privateKey = "0bc8c1f75a028672cd42c221bf81709dfc7abbbaf0d87cb6fdeaf9a20492c194";
+        com.github.ontio.account.Account account1 = new com.github.ontio.account.Account(Helper.hexToBytes(privateKey), SignatureScheme.SHA256WITHECDSA);
+        byte[] salt = new byte[]{(byte)251,(byte)155,(byte)65,(byte)228,(byte)3,(byte)251,(byte)77,(byte)136,(byte)106,(byte)44,(byte)2,(byte)255,(byte)194,(byte)185,(byte)234,(byte)196};
+        String aa = account1.exportGcmEncryptedPrikey("111111",salt,4096);
+        System.out.println(aa);
     }
 
     @Test
