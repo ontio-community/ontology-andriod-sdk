@@ -88,10 +88,10 @@ public class Vm {
         if(payer != null){
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         }
-        tx.attributes = new Attribute[1];
-        tx.attributes[0] = new Attribute();
-        tx.attributes[0].usage = AttributeUsage.Nonce;
-        tx.attributes[0].data = UUID.randomUUID().toString().getBytes();
+        tx.attributes = new Attribute[0];
+//        tx.attributes[0] = new Attribute();
+//        tx.attributes[0].usage = AttributeUsage.Nonce;
+//        tx.attributes[0].data = UUID.randomUUID().toString().getBytes();
         tx.code = Helper.hexToBytes(codeStr);
         tx.version = codeVersion;
         tx.needStorage = needStorage;
@@ -171,7 +171,6 @@ public class Vm {
         sb.push(BigInteger.valueOf(0));
         sb.add(ScriptOp.OP_SYSCALL);
         sb.push(NATIVE_INVOKE_NAME.getBytes());
-        System.out.println(Helper.toHexString(sb.toArray()));
         Transaction tx = makeInvokeCodeTransaction(sb.toArray(),payer,gaslimit,gasprice);
         return tx;
     }

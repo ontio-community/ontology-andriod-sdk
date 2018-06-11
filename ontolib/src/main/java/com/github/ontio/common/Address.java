@@ -195,9 +195,4 @@ public class Address extends UIntBase implements Comparable<Address> {
         System.arraycopy(checksum, 0, data, 21, 4);
         return Base58.encode(data);
     }
-
-    @Override
-    public String toHexString(){
-        return Helper.toHexString(this.toArray());
-    }
 }

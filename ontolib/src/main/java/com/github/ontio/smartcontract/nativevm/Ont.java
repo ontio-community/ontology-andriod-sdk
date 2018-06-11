@@ -233,7 +233,6 @@ public class Ont {
         List list = new ArrayList();
         list.add(new Struct().add(Address.decodeBase58(sender),Address.decodeBase58(recvAddr),amount));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
-        System.out.println("###" + Helper.toHexString(args));
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(ontContract)),"approve",args,payer,gaslimit, gasprice);
         return tx;
     }
