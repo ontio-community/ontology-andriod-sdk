@@ -45,7 +45,7 @@ import java.util.Comparator;
  *
  */
 public class Address extends UIntBase implements Comparable<Address> {
-    public static final byte COIN_VERSION = 0x41;
+    public static final byte COIN_VERSION = 0x17;
 
     public Address() throws Exception {
         this(null);

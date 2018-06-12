@@ -71,7 +71,7 @@ public class Transfers extends Serializable {
             throw new IOException(ex);
         }
     }
-    public Object json() {
+    public Object json() throws Exception {
         Map json = new HashMap<>();
         List list = new ArrayList<>();
         for(int i=0;i<states.length;i++){

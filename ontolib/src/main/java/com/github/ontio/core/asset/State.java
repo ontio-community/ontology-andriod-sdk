@@ -69,7 +69,7 @@ public class State extends Serializable {
             throw new IOException(ex);
         }
     }
-    public Object json() {
+    public Object json() throws Exception {
         Map json = new HashMap<>();
         json.put("from", from.toHexString());
         json.put("to", to.toHexString());
