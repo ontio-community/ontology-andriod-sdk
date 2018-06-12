@@ -51,7 +51,7 @@ import java.util.UUID;
  */
 public class Ont {
     private OntSdk sdk;
-    private final String ontContract = "ff00000000000000000000000000000000000001";
+    private final String ontContract = "0000000000000000000000000000000000000001";
     private int precision = 1;
 
     public Ont(OntSdk sdk) {
@@ -150,9 +150,15 @@ public class Ont {
         if (address == null || address.equals("")) {
             throw new SDKException(ErrorCode.ParamErr("address should not be null"));
         }
-        byte[] arg = NativeBuildParams.buildParams(Address.decodeBase58(address).toArray());
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(ontContract)),"balanceOf",arg,null,0,0);
+//        byte[] arg = NativeBuildParams.buildParams(Address.decodeBase58(address).toArray());
+//        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(ontContract)),"balanceOf",arg,null,0,0);
 //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract, "balanceOf", Address.decodeBase58(address).toArray(),null, 0, 0);
+
+        List list = new ArrayList();
+        list.add(Address.decodeBase58(address));
+        byte[] arg = NativeBuildParams.createCodeParamsScript(list);
+
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(ontContract)),"balanceOf",arg,null,0,0);
         Object obj = sdk.getConnect().sendRawTransactionPreExec(tx.toHexString());
         String res = ((JSONObject) obj).getString("Result");
         if (res == null || res.equals("")) {

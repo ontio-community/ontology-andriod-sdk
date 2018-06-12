@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  *
  */
-class Interfaces {
+public class Interfaces {
     private final URL url;
 
     public Interfaces(String url) throws MalformedURLException {
@@ -75,7 +75,7 @@ class Interfaces {
         return request;
     }
 
-    private Object send(Object request) throws IOException {
+    public Object send(Object request) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
