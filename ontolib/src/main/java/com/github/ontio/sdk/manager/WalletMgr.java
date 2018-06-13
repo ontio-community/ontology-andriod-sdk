@@ -270,7 +270,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         info.addressU160 = acct.getAddressU160().toHexString();
         return info;
     }
-    public Account importAccount(String encryptedPrikey, String password, String address,byte[] salt) throws Exception {
+    public Account importAccountWithRandomLabelByAddress(String encryptedPrikey, String password, String address,byte[] salt) throws Exception {
         return importAccount("",encryptedPrikey,password,address,salt);
     }
 
@@ -281,7 +281,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         password = null;
         return getAccount(info.addressBase58);
     }
-    public Account importAccount(String encryptedPrikey, String password, byte[] prefix,byte[] salt) throws Exception {
+    public Account importAccountWithRandomLabelByPrefix(String encryptedPrikey, String password, byte[] prefix,byte[] salt) throws Exception {
         return importAccount("",encryptedPrikey,password,prefix,salt);
     }
     public Account importAccount(String label, String encryptedPrikey, String password, byte[] prefix,byte[] salt) throws Exception {

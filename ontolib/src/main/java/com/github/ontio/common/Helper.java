@@ -170,11 +170,15 @@ public class Helper {
         System.out.println(toString(map));
     }
 
+    public static byte[] getPrefixByte(String address) throws NoSuchAlgorithmException {
+        byte[] addresshash = Digest.sha256(Digest.sha256(address.getBytes()));
+        byte[] prefix = Arrays.copyOfRange(addresshash,0,4);
+        return prefix;
+    }
 
-    public static String getPrefix(String text) throws Exception {
-        byte[] sha256 = Digest.sha256(Digest.sha256(text.getBytes()));
-        byte[] addresshash = Arrays.copyOfRange(sha256, 0, 4);
-        String s = Helper.toHexString(addresshash);
-	    return s;
+    public static String getPrefixStr(String address) throws Exception {
+        byte[] prefix = getPrefixByte(address);
+        String prefixStr = Helper.toHexString(prefix);
+	    return prefixStr;
     }
 }

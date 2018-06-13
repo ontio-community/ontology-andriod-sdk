@@ -88,7 +88,7 @@ public class AssetTest {
         Identity identity = ontSdk.getWalletMgr().createIdentity(password);
         ontSdk.getWalletMgr().importIdentity(identity.controls.get(0).key,password,identity.controls.get(0).getSalt(),identity.ontid.replace(Common.didont,""));
 //                Account account = ontSdk.getWalletMgr().createAccount(password);
-                ontSdk.getWalletMgr().importAccount(identity.controls.get(0).key,password,identity.ontid.replace(Common.didont,""),identity.controls.get(0).getSalt());
+                ontSdk.getWalletMgr().importAccountWithRandomLabelByAddress(identity.controls.get(0).key,password,identity.ontid.replace(Common.didont,""),identity.controls.get(0).getSalt());
 //        System.out.println(account.address);
 //        int aa = 0;
     }
