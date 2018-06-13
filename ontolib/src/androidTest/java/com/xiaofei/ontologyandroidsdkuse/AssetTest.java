@@ -7,6 +7,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
+import com.github.ontio.core.ontid.Attribute;
 import com.github.ontio.crypto.Digest;
 import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.manager.ConnectMgr;
@@ -42,11 +43,14 @@ public class AssetTest {
     String password = "111111";
     public static String privatekey1 = "83614c773f668a531132e765b5862215741c9148e7b2f9d386b667e4fbd93e39";
 
+
+
+
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
-//        ontSdk.setRestful("http://139.219.129.55:20334");
+        ontSdk.setRestful("http://192.168.50.74:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -62,11 +66,29 @@ public class AssetTest {
     }
 
     @Test
+    public void ontidtest() throws Exception {
+        com.github.ontio.account.Account payAcct = new com.github.ontio.account.Account(Helper.hexToBytes(privatekey1),SignatureScheme.SHA256WITHECDSA);
+        Identity identity = ontSdk.getWalletMgr().createIdentity(password);
+
+
+        ontSdk.nativevm().ontId().sendRegister(identity,password,identity.controls.get(0).getSalt(),payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+        Thread.sleep(6000);
+        System.out.println(ontSdk.nativevm().ontId().sendGetDDO(identity.ontid));
+//        Attribute[] attributes = new Attribute[1];
+//        attributes[0] = new Attribute("key1".getBytes(),"String".getBytes(),"value1".getBytes());
+//        ontSdk.nativevm().ontId().sendAddAttributes(identity.ontid,password,identity.controls.get(0).getSalt(),attributes,payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+////        ontSdk.nativevm().ontId().sendRegisterWithAttrs(identity,password,identity.controls.get(0).getSalt(),attributes,payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+        Thread.sleep(6000);
+        System.out.println("resultresultresultresult:");
+        System.out.println(ontSdk.nativevm().ontId().sendGetDDO(identity.ontid));
+    }
+
+    @Test
     public void addresstest() throws Exception {
         Identity identity = ontSdk.getWalletMgr().createIdentity(password);
         ontSdk.getWalletMgr().importIdentity(identity.controls.get(0).key,password,identity.controls.get(0).getSalt(),identity.ontid.replace(Common.didont,""));
-                Account account = ontSdk.getWalletMgr().createAccount(password);
-                ontSdk.getWalletMgr().importAccount(account.key,password,account.address,account.getSalt());
+//                Account account = ontSdk.getWalletMgr().createAccount(password);
+                ontSdk.getWalletMgr().importAccount(identity.controls.get(0).key,password,identity.ontid.replace(Common.didont,""),identity.controls.get(0).getSalt());
 //        System.out.println(account.address);
 //        int aa = 0;
     }

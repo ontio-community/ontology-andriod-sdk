@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class Auth {
     private OntSdk sdk;
-    private final String contractAddress = "ff00000000000000000000000000000000000006";
+    private final String contractAddress = "0000000000000000000000000000000000000006";
     public Auth(OntSdk sdk) {
         this.sdk = sdk;
     }
