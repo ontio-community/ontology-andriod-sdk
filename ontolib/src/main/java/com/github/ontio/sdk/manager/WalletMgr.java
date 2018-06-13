@@ -270,23 +270,13 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         info.addressU160 = acct.getAddressU160().toHexString();
         return info;
     }
-    public Account importAccountWithRandomLabelByAddress(String encryptedPrikey, String password, String address,byte[] salt) throws Exception {
+    public Account importAccountWithRandomLabel(String encryptedPrikey, String password, String address,byte[] salt) throws Exception {
         return importAccount("",encryptedPrikey,password,address,salt);
     }
 
     public Account importAccount(String label,String encryptedPrikey, String password, String address,byte[] salt) throws Exception {
         String prikey = com.github.ontio.account.Account.getGcmDecodedPrivateKey(encryptedPrikey, password, address,salt, walletFile.getScrypt().getN(), scheme);
         AccountInfo info = createAccount(label,password, Helper.hexToBytes(prikey));
-        prikey = null;
-        password = null;
-        return getAccount(info.addressBase58);
-    }
-    public Account importAccountWithRandomLabelByPrefix(String encryptedPrikey, String password, byte[] prefix,byte[] salt) throws Exception {
-        return importAccount("",encryptedPrikey,password,prefix,salt);
-    }
-    public Account importAccount(String label, String encryptedPrikey, String password, byte[] prefix,byte[] salt) throws Exception {
-        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
-        AccountInfo info = createAccount(label, password, Helper.hexToBytes(prikey));
         prikey = null;
         password = null;
         return getAccount(info.addressBase58);

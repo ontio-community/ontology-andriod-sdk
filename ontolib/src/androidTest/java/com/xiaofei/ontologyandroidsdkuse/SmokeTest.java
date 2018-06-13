@@ -394,8 +394,7 @@ public class SmokeTest {
         assertTrue(richOngBalance > 0);
         assertTrue(poorOngBalance >= 0);
 
-        Account accountRich = walletMgr.importAccount("rich",richKey,"123123",richPrefix,null);
-        Account accountPoor = walletMgr.importAccount("poor",poorKey,"123123",poorPrefix,null);
+        Account accountRich = walletMgr.createAccountFromPriKey("123456", richKey);
 
         Transaction transactionR2P = ong.makeTransfer(richAddr,poorAddr,1,payAddr,gasLimit,gasPrice);
         transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123",accountRich.getSalt());
@@ -441,7 +440,7 @@ public class SmokeTest {
         assertTrue(richOngApprove > 0);
         assertTrue(richOng >= 0);
 
-        Account account = walletMgr.importAccount("rich",richKey,"123123",richPrefix,null);
+        Account account = walletMgr.createAccountFromPriKey("123456", richKey);
 
         Transaction transactionClaimOng = ong.makeClaimOng(richAddr,richAddr,amount,payAddr,gasLimit,gasPrice);
         transactionClaimOng = ontSdk.signTx(transactionClaimOng,richAddr,"123123",account.getSalt());
@@ -470,7 +469,7 @@ public class SmokeTest {
         String prefixHexStr = jsonObject.getString("prefix");
         byte[] prefix = Helper.hexToBytes(prefixHexStr);
         final String encryptedPrikey = jsonObject.getString("key");
-        Account account = walletMgr.importAccount("",encryptedPrikey,password,prefix,null);
+        Account account = walletMgr.importAccount("",encryptedPrikey,password,addressOrig,null);
 
         assertEquals(account.address,addressOrig);
 

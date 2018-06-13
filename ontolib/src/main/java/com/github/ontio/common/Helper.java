@@ -169,16 +169,4 @@ public class Helper {
     public static void print(Map<String,Object> map){
         System.out.println(toString(map));
     }
-
-    public static byte[] getPrefixByte(String address) throws NoSuchAlgorithmException {
-        byte[] addresshash = Digest.sha256(Digest.sha256(address.getBytes()));
-        byte[] prefix = Arrays.copyOfRange(addresshash,0,4);
-        return prefix;
-    }
-
-    public static String getPrefixStr(String address) throws Exception {
-        byte[] prefix = getPrefixByte(address);
-        String prefixStr = Helper.toHexString(prefix);
-	    return prefixStr;
-    }
 }
