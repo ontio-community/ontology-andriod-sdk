@@ -187,6 +187,40 @@ public class SmokeTest {
     }
 
     @Test
+    public void sendAddRemoveIdentityAttributeWithSelfPay() throws Exception {
+        String label = "aa";
+        String password = "123456";
+        Identity identity = walletMgr.createIdentity(label,password);
+        String address = identity.ontid.replace(Common.didont,"");
+        byte[] salt = identity.controls.get(0).getSalt();
+
+        Transaction transaction = ontId.makeRegister(identity.ontid,password,salt,address,gasLimit,gasPrice);
+        transaction = ontSdk.signTx(transaction,address,password,salt);
+        String transactionBodyStr = transaction.toHexString();
+        boolean isSuccess = connectMgr.sendRawTransaction(transactionBodyStr);
+        assertTrue(isSuccess);
+
+        Thread.sleep(6000);
+
+        String string = ontId.sendGetDDO(identity.ontid);
+        assertTrue(string.contains(identity.ontid));
+
+        Attribute[] attributes = new Attribute[]{new Attribute("lalala".getBytes(),"String".getBytes(),"hahaha".getBytes())};
+        Transaction transactionAdd = ontId.makeAddAttributes(identity.ontid,password,salt,attributes,address,gasLimit,gasPrice);
+        transactionAdd = ontSdk.signTx(transactionAdd,address,password,salt);
+        String transactionAddBodyStr = transactionAdd.toHexString();
+        boolean isAddSuccess = connectMgr.sendRawTransaction(transactionAddBodyStr);
+        assertTrue(isAddSuccess);
+
+        Thread.sleep(6000);
+
+        string = ontId.sendGetDDO(identity.ontid);
+        assertTrue(string.contains(identity.ontid));
+        assertTrue(string.contains("lalala"));
+        assertTrue(string.contains("hahaha"));
+    }
+
+    @Test
     public void importIdentity() throws Exception {
         String password = "123456";
         Identity identity = walletMgr.createIdentity(password);
@@ -327,10 +361,10 @@ public class SmokeTest {
 
     @Test
     public void getBalance() throws Exception {
-//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
-//        AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn 4671d05f1aa520066457efa62a0cbba012dda64e7d5c0555c2a6b29407713fce poor
+//        ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG 59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc rich
+//        AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe 6da9f512db2991bcfd963d9073b0d6541a3f9dff139b7b0959f79778d6f4e870 poor
 
-        JSONObject balanceObj = (JSONObject) connectMgr.getBalance("AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW");
+        JSONObject balanceObj = (JSONObject) connectMgr.getBalance("ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG");
         assertNotNull(balanceObj);
         long ontBalance = balanceObj.getLongValue("ont");
         long ongBalance = balanceObj.getLongValue("ong");
@@ -356,8 +390,6 @@ public class SmokeTest {
 
         Account accountRich = walletMgr.createAccountFromPriKey(richPassword, richKey);
         byte[] saltRich = accountRich.getSalt();
-        //walletMgr.writeWallet();
-
 
         Transaction transactionR2P = ont.makeTransfer(richAddr,poorAddr,1,payAddr,gasLimit,gasPrice);
         transactionR2P = ontSdk.signTx(transactionR2P,richAddr,richPassword,saltRich);
@@ -385,12 +417,12 @@ public class SmokeTest {
     @Test
     public void sendTransferOntWithSelfPay() throws Exception {
         final int amount = 1;
-//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
-//        AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn 4671d05f1aa520066457efa62a0cbba012dda64e7d5c0555c2a6b29407713fce poor
-        final String richAddr = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
-        final String richKey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
+//        ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG 59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc rich
+//        AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe 6da9f512db2991bcfd963d9073b0d6541a3f9dff139b7b0959f79778d6f4e870 poor
+        final String richAddr = "ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG";
+        final String richKey = "59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc";
         final String richPassword = "123456";
-        final String poorAddr = "AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn";
+        final String poorAddr = "AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe";
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
         JSONObject poorBalanceObj = (JSONObject) connectMgr.getBalance(poorAddr);
         int richOntBalance = richBalanceObj.getIntValue("ont");
@@ -464,12 +496,12 @@ public class SmokeTest {
     @Test
     public void sendTransferOngWithSelfPay() throws Exception {
         final int amount = 1;
-//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
-//        AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn 4671d05f1aa520066457efa62a0cbba012dda64e7d5c0555c2a6b29407713fce poor
-        final String richAddr = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
-        final String richKey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
+//        ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG 59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc rich
+//        AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe 6da9f512db2991bcfd963d9073b0d6541a3f9dff139b7b0959f79778d6f4e870 poor
+        final String richAddr = "ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG";
+        final String richKey = "59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc";
         final String richPassword = "123456";
-        final String poorAddr = "AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn";
+        final String poorAddr = "AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe";
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
         JSONObject poorBalanceObj = (JSONObject) connectMgr.getBalance(poorAddr);
         int richOngBalance = richBalanceObj.getIntValue("ong");
@@ -500,18 +532,18 @@ public class SmokeTest {
 
     @Test
     public void getUnclaimOng() throws Exception {
-//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
-        final String address = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
+//        ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG 59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc rich
+        final String address = "ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG";
         long unclaimOng = ong.unclaimOng(address);
         assertTrue(unclaimOng >= 0);
     }
 
     @Test
     public void claimOng() throws Exception {
-//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
+//        ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG 59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc rich
         final int amount = 1;
-        final String richAddr = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
-        final String richKey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
+        final String richAddr = "ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG";
+        final String richKey = "59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc";
         final String richPassword = "123456";
         long richOngApprove = ong.unclaimOng(richAddr);
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
@@ -540,10 +572,10 @@ public class SmokeTest {
 
     @Test
     public void claimOngWithSelfPay() throws Exception {
-//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
+//        ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG 59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc rich
         final int amount = 1;
-        final String richAddr = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
-        final String richKey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
+        final String richAddr = "ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG";
+        final String richKey = "59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc";
         final String richPassword = "123456";
         long richOngApprove = ong.unclaimOng(richAddr);
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
