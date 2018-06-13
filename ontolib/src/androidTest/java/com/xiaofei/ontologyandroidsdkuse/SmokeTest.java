@@ -104,29 +104,6 @@ public class SmokeTest {
     }
 
     @Test
-    public void getAppConfig() throws IOException {
-        Call<OntoResult> call = ontoServiceApi.getAppConfig();
-        Response<OntoResult> response = call.execute();
-        OntoResult ontoResult = response.body();
-        JSONObject result = (JSONObject) ontoResult.getResult();
-        AppConfig appConfig = JSON.parseObject(result.toJSONString(),AppConfig.class);
-        String testNetUrlStr = appConfig.getTestnetAddr();
-        assertNotNull(testNetUrlStr);
-        assertNotEquals(testNetUrlStr,"");
-        assertEquals(testNetUrlStr,"http://polaris1.ont.io");
-    }
-
-    @Test
-    public void getAppConfig2() throws IOException {
-        AppConfig appConfig = ontoService.getAppConfig();
-        String testNetUrlStr = appConfig.getTestnetAddr();
-        assertNotNull(testNetUrlStr);
-        assertNotEquals(testNetUrlStr,"");
-        assertEquals(testNetUrlStr,"http://polaris1.ont.io");
-
-    }
-
-    @Test
     public void ontsdkGetInstance(){
         OntSdk ontSdk = OntSdk.getInstance();
         assertNotNull(ontSdk);
@@ -256,6 +233,22 @@ public class SmokeTest {
         Account account = walletMgr.createAccountFromPriKey("123456",prikeyHexStr);
         assertNotNull(account);
         assertEquals(account.address,"TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg");
+    }
+
+    @Test
+    public void importAccountByKeystore() throws Exception {
+
+        String keystore = "{\"scrypt\":{\"dkLen\":64,\"n\":4096,\"p\":8,\"r\":8},\"prefix\":\"0d1d4d73\",\"key\":\"6aoszVlHicmvbvyU5L1Ehu0Lm2hmgSyCa3HfsFgSqnM=\",\"type\":\"A\",\"algorithm\":\"ECDSA\",\"parameters\":{\"curve\":\"P-256\"},\"label\":\"巨款\"}";
+        String password = "111111";
+        String addressOrig = "TA9fnuAZyrsZtCJoRBQUvGiDAG4ufgUf3t";
+        JSONObject jsonObject = JSON.parseObject(keystore);
+        String prefixHexStr = jsonObject.getString("prefix");
+        byte[] prefix = Helper.hexToBytes(prefixHexStr);
+        final String encryptedPrikey = jsonObject.getString("key");
+        Account account = walletMgr.importAccount("",encryptedPrikey,password,addressOrig,null);
+
+        assertEquals(account.address,addressOrig);
+
     }
 
     @Test
@@ -559,31 +552,5 @@ public class SmokeTest {
         long richOngAfter = richBalanceAfterObj.getLongValue("ong");
         assertTrue(richOngApproveAfter == richOngApprove - amount);
         assertTrue(richOngAfter == richOng + amount);
-    }
-
-    @Test
-    public void importAccountByKeystore() throws Exception {
-
-        String keystore = "{\"scrypt\":{\"dkLen\":64,\"n\":4096,\"p\":8,\"r\":8},\"prefix\":\"0d1d4d73\",\"key\":\"6aoszVlHicmvbvyU5L1Ehu0Lm2hmgSyCa3HfsFgSqnM=\",\"type\":\"A\",\"algorithm\":\"ECDSA\",\"parameters\":{\"curve\":\"P-256\"},\"label\":\"巨款\"}";
-        String password = "111111";
-        String addressOrig = "TA9fnuAZyrsZtCJoRBQUvGiDAG4ufgUf3t";
-        JSONObject jsonObject = JSON.parseObject(keystore);
-        String prefixHexStr = jsonObject.getString("prefix");
-        byte[] prefix = Helper.hexToBytes(prefixHexStr);
-        final String encryptedPrikey = jsonObject.getString("key");
-        Account account = walletMgr.importAccount("",encryptedPrikey,password,addressOrig,null);
-
-        assertEquals(account.address,addressOrig);
-
-    }
-
-    @Test
-    public void getSmartCodeEvent() throws Exception {
-        String txnHash = "1f8b9009ff5b59b61a7e00c95fcc455a287b43d423e3d61ed1698fac54bafb16";
-        JSONObject jsonObject = (JSONObject) connectMgr.getSmartCodeEvent(txnHash);
-        String txnHashNew = jsonObject.getString("TxHash");
-        String stateStr = jsonObject.getString("State");
-        assertEquals(txnHashNew,txnHash);
-        assertEquals(stateStr,"1");
     }
 }
