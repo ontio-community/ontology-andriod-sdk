@@ -58,7 +58,7 @@ import java.util.List;
 
 public class OntId {
     private OntSdk sdk;
-    private String contractAddress = "ff00000000000000000000000000000000000003";
+    private String contractAddress = "0000000000000000000000000000000000000003";
 
 
     public OntId(OntSdk sdk) {
