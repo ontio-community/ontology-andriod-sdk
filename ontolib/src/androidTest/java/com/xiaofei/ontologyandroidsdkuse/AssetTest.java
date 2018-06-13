@@ -83,16 +83,16 @@ public class AssetTest {
         String privateKey = "0bc8c1f75a028672cd42c221bf81709dfc7abbbaf0d87cb6fdeaf9a20492c194";
         com.github.ontio.account.Account acct1 = new com.github.ontio.account.Account(Helper.hexToBytes(privateKey), ontSdk.defaultSignScheme);
 
-//
         com.github.ontio.account.Account account1 = new com.github.ontio.account.Account(Helper.hexToBytes(privatekey1), SignatureScheme.SHA256WITHECDSA);
-        System.out.println("*****" + ontSdk.nativevm().ont().queryBalanceOf(account1.getAddressU160().toBase58()));
+
         System.out.println(ontSdk.getConnect().getBalance(account1.getAddressU160().toBase58()));
-//        System.out.println(ontSdk.nativevm().ont().queryBalanceOf(acct1.getAddressU160().toBase58()));
+        System.out.println("ong:" + ontSdk.nativevm().ong().unclaimOng( account1.getAddressU160().toBase58()));
         String txhash = "";
         if(true){
-//            txhash = ontSdk.nativevm().ont().sendTransfer(account1,acct1.getAddressU160().toBase58(),10,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
-//            txhash = ontSdk.nativevm().ont().sendApprove(account1,acct1.getAddressU160().toBase58(),1000,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
-            txhash = ontSdk.nativevm().ont().sendTransferFrom(acct1,account1.getAddressU160().toBase58(),acct1.getAddressU160().toBase58(),1000,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
+//            txhash = ontSdk.nativevm().ong().sendTransfer(account1,"AWc6N2Yawk12Jt14F7sjGGos4nFc8UztVe",100000,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
+            txhash = ontSdk.nativevm().ont().sendApprove(account1,acct1.getAddressU160().toBase58(),10,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
+//            txhash = ontSdk.nativevm().ont().sendTransferFrom(acct1,account1.getAddressU160().toBase58(),acct1.getAddressU160().toBase58(),1000,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
+//            ontSdk.nativevm().ong().claimOng(account1,account1.getAddressU160().toBase58(),397022742650L,account1,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
         }
         System.out.println(ontSdk.getConnect().getBalance(account1.getAddressU160().toBase58()));

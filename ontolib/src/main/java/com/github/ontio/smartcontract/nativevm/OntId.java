@@ -204,10 +204,14 @@ public class OntId {
         }
         IdentityInfo info = sdk.getWalletMgr().getIdentityInfo(ontid, password,salt);
         byte[] pk = Helper.hexToBytes(info.pubkey);
-//        byte[] parabytes = BuildParams.buildParams(ontid, pk, attributes);
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "regIDWithAttributes", parabytes, payer, gaslimit, gasprice);
+
         List list = new ArrayList();
-        list.add(new Struct().add(ontid.getBytes(),pk,attributes));
+        Struct struct = new Struct().add(ontid.getBytes(), pk);
+        struct.add(attributes.length);
+        for (int i = 0; i < attributes.length; i++) {
+            struct.add(attributes[i].key, attributes[i].valueType, attributes[i].value);
+        }
+        list.add(struct);
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"regIDWithAttributes",args,payer,gaslimit, gasprice);
         return tx;
@@ -757,11 +761,15 @@ public class OntId {
         password = null;
         byte[] pk = Helper.hexToBytes(info.pubkey);
         List list = new ArrayList();
-        list.add(new Struct().add(ontid, attributes, pk));
-        byte[] arg = NativeBuildParams.createCodeParamsScript(list);
-        System.out.println("args:" + Helper.toHexString(arg));
-        System.out.println("ontid:" + Helper.toHexString(ontid.getBytes()));
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"addAttributes",arg,payer,gaslimit,gasprice);
+        Struct struct = new Struct().add(ontid.getBytes());
+        struct.add(attributes.length);
+        for (int i = 0; i < attributes.length; i++) {
+            struct.add(attributes[i].key, attributes[i].valueType, attributes[i].value);
+        }
+        struct.add(pk);
+        list.add(struct);
+        byte[] args = NativeBuildParams.createCodeParamsScript(list);
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"addAttributes",args,payer,gaslimit,gasprice);
         return tx;
     }
 
