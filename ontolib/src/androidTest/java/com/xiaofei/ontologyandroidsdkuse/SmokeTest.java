@@ -466,22 +466,21 @@ public class SmokeTest {
 
     @Test
     public void claimOng() throws Exception {
-//b14757ed---kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=---123123---TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z rich
+//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
         final int amount = 1;
-        final String richAddr = "TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z";
-        final String richKey = "kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=";
-        final String richPrefixStr = "b14757ed";
-        final byte[] richPrefix = Helper.hexToBytes(richPrefixStr);
+        final String richAddr = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
+        final String richKey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
+        final String richPassword = "123456";
         long richOngApprove = ong.unclaimOng(richAddr);
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
         long richOng = richBalanceObj.getLongValue("ong");
         assertTrue(richOngApprove > 0);
         assertTrue(richOng >= 0);
 
-        Account account = walletMgr.createAccountFromPriKey("123456", richKey);
+        Account account = walletMgr.createAccountFromPriKey(richPassword, richKey);
 
         Transaction transactionClaimOng = ong.makeClaimOng(richAddr,richAddr,amount,payAddr,gasLimit,gasPrice);
-        transactionClaimOng = ontSdk.signTx(transactionClaimOng,richAddr,"123123",account.getSalt());
+        transactionClaimOng = ontSdk.signTx(transactionClaimOng,richAddr,richPassword,account.getSalt());
         String transactionBodyStr = transactionClaimOng.toHexString();
         TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
         transactionBodyVO.setTxnStr(transactionBodyStr);
@@ -489,6 +488,37 @@ public class SmokeTest {
         ontopassService.assetTransfer(transactionBodyVO);
 
         Thread.sleep(7000);
+
+        long richOngApproveAfter = ong.unclaimOng(richAddr);
+        JSONObject richBalanceAfterObj = (JSONObject) connectMgr.getBalance(richAddr);
+        long richOngAfter = richBalanceAfterObj.getLongValue("ong");
+        assertTrue(richOngApproveAfter == richOngApprove - amount);
+        assertTrue(richOngAfter == richOng + amount);
+    }
+
+    @Test
+    public void claimOngWithSelfPay() throws Exception {
+//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
+        final int amount = 1;
+        final String richAddr = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
+        final String richKey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
+        final String richPassword = "123456";
+        long richOngApprove = ong.unclaimOng(richAddr);
+        JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
+        long richOng = richBalanceObj.getLongValue("ong");
+        assertTrue(richOngApprove > 0);
+        assertTrue(richOng >= 0);
+
+        Account account = walletMgr.createAccountFromPriKey(richPassword, richKey);
+        byte[] salt = account.getSalt();
+
+        Transaction transactionClaimOng = ong.makeClaimOng(richAddr,richAddr,amount,richAddr,gasLimit,gasPrice);
+        transactionClaimOng = ontSdk.signTx(transactionClaimOng,richAddr,richPassword,salt);
+        String transactionBodyStr = transactionClaimOng.toHexString();
+        boolean isSuccess = connectMgr.sendRawTransaction(transactionBodyStr);
+        assertTrue(isSuccess);
+
+        Thread.sleep(6000);
 
         long richOngApproveAfter = ong.unclaimOng(richAddr);
         JSONObject richBalanceAfterObj = (JSONObject) connectMgr.getBalance(richAddr);
