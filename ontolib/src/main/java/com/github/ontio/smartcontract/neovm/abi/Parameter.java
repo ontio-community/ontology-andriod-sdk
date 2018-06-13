@@ -17,13 +17,15 @@
  *
  */
 
-package com.github.ontio.sdk.abi;
+package com.github.ontio.smartcontract.neovm.abi;
 
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.sdk.exception.SDKException;
 import com.alibaba.fastjson.JSON;
 
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -58,7 +60,7 @@ public class Parameter {
                 boolean tmp = (boolean) value;
                 this.value = JSON.toJSONString(tmp);
             } else if ("Integer".equals(type)) {
-                long tmp = (long) value;
+                long tmp = (long)value;
                 this.value = JSON.toJSONString(tmp);
             } else if ("Array".equals(type)) {
                 List tmp = (List) value;
@@ -67,13 +69,20 @@ public class Parameter {
                 Object tmp = (Object) value;
                 this.value = JSON.toJSONString(tmp);
             } else if ("Void".equals(type)) {
+            } else if ("Map".equals(type)) {
+                Map tmp = (Map) value;
+                this.value = JSON.toJSONString(tmp);
+            } else if ("Struct".equals(type)) {
+                Struct tmp = (Struct) value;
+                this.value = JSON.toJSONString(tmp);
             } else {
                 throw new SDKException(ErrorCode.TypeError);
             }
             return true;
-        }catch  (Exception e) {
-            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return false;
     }
 
     @Override

@@ -23,11 +23,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.ErrorCode;
-import com.github.ontio.core.VmType;
 import com.github.ontio.core.transaction.Transaction;
-import com.github.ontio.sdk.abi.AbiFunction;
 import com.github.ontio.sdk.exception.SDKException;
-import com.github.ontio.smartcontract.neovm.BuildParams;
+import com.github.ontio.smartcontract.neovm.abi.AbiFunction;
+import com.github.ontio.smartcontract.neovm.abi.BuildParams;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +44,7 @@ public class WasmVm {
         this.sdk = sdk;
     }
 
-    public String sendTransaction(String contractAddr,String payer, String password,byte[] salt,long gaslimit, long gas, AbiFunction func, boolean preExec) throws Exception {
+    public String sendTransaction(String contractAddr, String payer, String password, byte[] salt, long gaslimit, long gas, AbiFunction func, boolean preExec) throws Exception {
         byte[] params = BuildParams.serializeAbiFunction(func);
         if (preExec) {
             Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr, null, params, payer, gaslimit,gas);

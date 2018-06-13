@@ -17,7 +17,7 @@
  *
  */
 
-package com.github.ontio.smartcontract.neovm;
+package com.github.ontio.smartcontract.neovm.abi;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -27,8 +27,6 @@ import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.scripts.ScriptBuilder;
 import com.github.ontio.core.transaction.Transaction;
-import com.github.ontio.sdk.abi.AbiFunction;
-import com.github.ontio.sdk.abi.Parameter;
 import com.github.ontio.sdk.exception.SDKException;
 
 import java.lang.reflect.Array;

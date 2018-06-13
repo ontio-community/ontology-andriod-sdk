@@ -25,7 +25,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -63,6 +65,35 @@ public class AssetTest {
     @After
     public void tearDown() throws Exception {
 
+    }
+
+    @Test
+    public void ontidtest2() throws Exception {
+        com.github.ontio.account.Account payAcct = new com.github.ontio.account.Account(Helper.hexToBytes(privatekey1),SignatureScheme.SHA256WITHECDSA);
+        Identity identity = ontSdk.getWalletMgr().createIdentity(password);
+        Identity identity1 = ontSdk.getWalletMgr().createIdentity(password);
+
+//
+        Attribute[] attributes = new Attribute[1];
+        attributes[0] = new Attribute("key1".getBytes(),"String".getBytes(),"value1".getBytes());
+//        ontSdk.nativevm().ontId().sendRegisterWithAttrs(identity,password,identity.controls.get(0).getSalt(),attributes,payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+        ontSdk.nativevm().ontId().sendRegister(identity,password,identity.controls.get(0).getSalt(),payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+        ontSdk.nativevm().ontId().sendRegister(identity,password,identity.controls.get(0).getSalt(),payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+        Thread.sleep(6000);
+        System.out.println(ontSdk.nativevm().ontId().sendGetDDO(identity.ontid));
+//        ontSdk.nativevm().ontId().sendAddAttributes(identity.ontid,password,identity.controls.get(0).getSalt(),attributes,payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("Issuer", identity.ontid);
+        map.put("Subject", identity1.ontid);
+
+        Map clmRevMap = new HashMap();
+        clmRevMap.put("typ","AttestContract");
+        clmRevMap.put("addr",identity1.ontid.replace(Common.didont,""));
+
+        String claim = ontSdk.nativevm().ontId().createOntIdClaim(identity.ontid,password,identity1.controls.get(0).getSalt(), "claim:context", map, map,clmRevMap,System.currentTimeMillis()/1000 +100000);
+        Thread.sleep(6000);
+        System.out.println(ontSdk.nativevm().ontId().sendGetDDO(identity.ontid));
     }
 
     @Test
