@@ -151,26 +151,19 @@ public class SmokeTest {
 
     @Test
     public void importIdentity() throws Exception {
-        List<Identity> identities = wallet.getIdentities();
-        identities.clear();
-        walletMgr.writeWallet();
-        assertEquals(identities.size(), 0);
+        String password = "123456";
+        Identity identity = walletMgr.createIdentity(password);
+        Map map = WalletQR.exportIdentityQRCode(wallet, identity);
+        wallet.getIdentities().clear();
+        String encryptedKey = (String) map.get("key");
+        String address = (String) map.get("address");
+        String saltStr = (String) map.get("salt");
+        String label = (String) map.get("label");
+        byte[] salt = Base64.decode(saltStr,Base64.NO_WRAP);
 
-        Identity identity = walletMgr.createIdentity("123456");
-        byte[] salt = identity.controls.get(0).getSalt();
-        com.github.ontio.account.Account account = walletMgr.getAccount(identity.ontid,"123456",salt);
-        String prikeyStr = account.exportCtrEncryptedPrikey("123456",4096);
-        assertTrue(identities.size() == 1);
-        identities.clear();
-        walletMgr.writeWallet();
-        assertTrue(identities.size() == 0);
-
-
-        String addr = identity.ontid.substring(8);
-        walletMgr.importIdentity("aaa",prikeyStr,"123456",salt,addr);
-        assertTrue(identities.size() == 1);
-        Identity identity1 = identities.get(0);
-        assertEquals(identity.ontid,identity1.ontid);
+        Identity identityNew = walletMgr.importIdentity(label, encryptedKey, password, salt, address);
+        assertEquals(identityNew.ontid,identity.ontid);
+        assertEquals(identityNew.label,identity.label);
     }
 
     @Test
