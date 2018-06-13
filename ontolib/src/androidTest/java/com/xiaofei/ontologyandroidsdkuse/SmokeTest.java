@@ -150,6 +150,43 @@ public class SmokeTest {
     }
 
     @Test
+    public void sendAddRemoveIdentityAttribute() throws Exception {
+        Identity identity = walletMgr.createIdentity("aa","123456");
+        byte[] salt = identity.controls.get(0).getSalt();
+
+        Transaction transaction = ontId.makeRegister(identity.ontid,"123456",salt,payAddr,gasLimit,gasPrice);
+        transaction = ontSdk.signTx(transaction,identity.ontid.replace(Common.didont,""),"123456",salt);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("OwnerOntId",identity.ontid);
+        jsonObject.put("TxnStr",transaction.toHexString());
+        JSONObject jsonObjectResult = ontopassService.ontidRegiste(jsonObject);
+        String devicecode = jsonObjectResult.getString("DeviceCode");
+        assertNotEquals(devicecode,"");
+
+        Thread.sleep(7000);
+
+        String string = ontId.sendGetDDO(identity.ontid);
+        assertTrue(string.contains(identity.ontid));
+
+        Attribute[] attributes = new Attribute[]{new Attribute("lalala".getBytes(),"String".getBytes(),"hahaha".getBytes())};
+        Transaction transactionAdd = ontId.makeAddAttributes(identity.ontid,"123456",salt,attributes,payAddr,gasLimit,gasPrice);
+        transactionAdd = ontSdk.signTx(transactionAdd,identity.ontid.replace(Common.didont,""),"123456",salt);
+        JSONObject jsonObjectAdd = new JSONObject();
+        jsonObjectAdd.put("OwnerOntId",identity.ontid);
+        jsonObjectAdd.put("DeviceCode",devicecode);
+        jsonObjectAdd.put("TxnStr",transactionAdd.toHexString());
+        jsonObjectAdd.put("ClaimId","");
+        ontopassService.ddoUpdate(jsonObjectAdd);
+
+        Thread.sleep(7000);
+        System.out.println(ontSdk.getConnect().getTransactionJson(transactionAdd.hash().toHexString()));
+        string = ontId.sendGetDDO(identity.ontid);
+        assertTrue(string.contains(identity.ontid));
+        assertTrue(string.contains("lalala"));
+        assertTrue(string.contains("hahaha"));
+    }
+
+    @Test
     public void importIdentity() throws Exception {
         String password = "123456";
         Identity identity = walletMgr.createIdentity(password);
@@ -287,44 +324,6 @@ public class SmokeTest {
         assertTrue(sizeAccounts > 0);
         assertTrue(sizeIdentities > 0);
     }
-
-    @Test
-    public void sendAddRemoveIdentityAttribute() throws Exception {
-        Identity identity = walletMgr.createIdentity("aa","123456");
-        byte[] salt = identity.controls.get(0).getSalt();
-
-        Transaction transaction = ontId.makeRegister(identity.ontid,"123456",salt,payAddr,gasLimit,gasPrice);
-        transaction = ontSdk.signTx(transaction,identity.ontid.replace(Common.didont,""),"123456",salt);
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("OwnerOntId",identity.ontid);
-        jsonObject.put("TxnStr",transaction.toHexString());
-        JSONObject jsonObjectResult = ontopassService.ontidRegiste(jsonObject);
-        String devicecode = jsonObjectResult.getString("DeviceCode");
-        assertNotEquals(devicecode,"");
-
-        Thread.sleep(7000);
-
-        String string = ontId.sendGetDDO(identity.ontid);
-        assertTrue(string.contains(identity.ontid));
-
-        Attribute[] attributes = new Attribute[]{new Attribute("lalala".getBytes(),"String".getBytes(),"hahaha".getBytes())};
-        Transaction transactionAdd = ontId.makeAddAttributes(identity.ontid,"123456",salt,attributes,payAddr,gasLimit,gasPrice);
-        transactionAdd = ontSdk.signTx(transactionAdd,identity.ontid.replace(Common.didont,""),"123456",salt);
-        JSONObject jsonObjectAdd = new JSONObject();
-        jsonObjectAdd.put("OwnerOntId",identity.ontid);
-        jsonObjectAdd.put("DeviceCode",devicecode);
-        jsonObjectAdd.put("TxnStr",transactionAdd.toHexString());
-        jsonObjectAdd.put("ClaimId","");
-        ontopassService.ddoUpdate(jsonObjectAdd);
-
-        Thread.sleep(7000);
-        System.out.println(ontSdk.getConnect().getTransactionJson(transactionAdd.hash().toHexString()));
-        string = ontId.sendGetDDO(identity.ontid);
-        assertTrue(string.contains(identity.ontid));
-        assertTrue(string.contains("lalala"));
-        assertTrue(string.contains("hahaha"));
-    }
-
 
     @Test
     public void getBalance() throws Exception {
