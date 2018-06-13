@@ -375,6 +375,43 @@ public class SmokeTest {
     }
 
     @Test
+    public void sendTransferOntWithSelfPay() throws Exception {
+        final int amount = 1;
+//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
+//        AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn 4671d05f1aa520066457efa62a0cbba012dda64e7d5c0555c2a6b29407713fce poor
+        final String richAddr = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
+        final String richKey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
+        final String richPassword = "123456";
+        final String poorAddr = "AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn";
+        JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
+        JSONObject poorBalanceObj = (JSONObject) connectMgr.getBalance(poorAddr);
+        int richOntBalance = richBalanceObj.getIntValue("ont");
+        int poorOntBalance = poorBalanceObj.getIntValue("ont");
+        assertTrue(richOntBalance > 0);
+        assertTrue(poorOntBalance >= 0);
+
+        Account accountRich = walletMgr.createAccountFromPriKey(richPassword, richKey);
+        byte[] saltRich = accountRich.getSalt();
+
+        Transaction transactionR2P = ont.makeTransfer(richAddr,poorAddr,1,richAddr,gasLimit,gasPrice);
+        transactionR2P = ontSdk.signTx(transactionR2P,richAddr,richPassword,saltRich);
+        String transactionBodyStr = transactionR2P.toHexString();
+        boolean isSuccess = connectMgr.sendRawTransaction(transactionBodyStr);
+        assertTrue(isSuccess);
+
+        Thread.sleep(6000);
+
+        JSONObject richOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(richAddr);
+        JSONObject poorOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(poorAddr);
+        long richOntBalanceAfter = richOntBalanceObjAfter.getLongValue("ont");
+        long poorOntBalanceAfter = poorOntBalanceObjAfter.getLongValue("ont");
+
+        assertTrue(richOntBalanceAfter == richOntBalance -amount);
+        assertTrue(poorOntBalanceAfter == poorOntBalance +amount);
+
+    }
+
+    @Test
     public void sendTransferOng() throws Exception {
         final int amount = 1;
 //b14757ed---kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=---123123---TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z rich
@@ -421,7 +458,8 @@ public class SmokeTest {
 
     @Test
     public void getUnclaimOng() throws Exception {
-        final String address = "TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z";
+//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
+        final String address = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
         long unclaimOng = ong.unclaimOng(address);
         assertTrue(unclaimOng >= 0);
     }
