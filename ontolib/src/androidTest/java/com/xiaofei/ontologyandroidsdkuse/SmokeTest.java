@@ -108,11 +108,14 @@ public class SmokeTest {
 
     @Test
     public void makeRegister() throws Exception {
-        Identity identity = walletMgr.createIdentity("aa","123456");
+        String label = "aa";
+        String password = "123456";
+        Identity identity = walletMgr.createIdentity(label,password);
+        String address = identity.ontid.replace(Common.didont,"");
         byte[] salt = identity.controls.get(0).getSalt();
 
-        Transaction transaction = ontId.makeRegister(identity.ontid,"123456",salt,payAddr,gasLimit,gasPrice);
-        transaction = ontSdk.signTx(transaction,identity.ontid.replace(Common.didont,""),"123456",salt);
+        Transaction transaction = ontId.makeRegister(identity.ontid,password,salt,address,gasLimit,gasPrice);
+        transaction = ontSdk.signTx(transaction,address,password,salt);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("OwnerOntId",identity.ontid);
         jsonObject.put("TxnStr",transaction.toHexString());
@@ -121,6 +124,26 @@ public class SmokeTest {
         assertNotEquals(devicecode,"");
 
         Thread.sleep(7000);
+
+        String string = ontId.sendGetDDO(identity.ontid);
+        assertTrue(string.contains(identity.ontid));
+    }
+
+    @Test
+    public void makeRegisterWithSelfPay() throws Exception {
+        String label = "aa";
+        String password = "123456";
+        Identity identity = walletMgr.createIdentity(label,password);
+        String address = identity.ontid.replace(Common.didont,"");
+        byte[] salt = identity.controls.get(0).getSalt();
+
+        Transaction transaction = ontId.makeRegister(identity.ontid,password,salt,address,gasLimit,gasPrice);
+        transaction = ontSdk.signTx(transaction,address,password,salt);
+        String transactionBodyStr = transaction.toHexString();
+        boolean isSuccess = connectMgr.sendRawTransaction(transactionBodyStr);
+        assertTrue(isSuccess);
+
+        Thread.sleep(6000);
 
         String string = ontId.sendGetDDO(identity.ontid);
         assertTrue(string.contains(identity.ontid));
