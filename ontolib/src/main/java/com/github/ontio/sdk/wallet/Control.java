@@ -33,6 +33,7 @@ public class Control {
     public String id = "";
     public String key = "";
     public String salt = "";
+    public String hash = "sha256";
     @JSONField(name = "enc-alg")
     public String encAlg = "aes-256-gcm";
     public String address = "";
