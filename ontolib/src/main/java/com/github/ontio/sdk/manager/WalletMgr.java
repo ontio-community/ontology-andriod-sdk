@@ -309,7 +309,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
 
     private AccountInfo createAccount(String label,String password, byte[] prikey) throws Exception {
         byte[] salt = ECC.generateKey(16);
-        com.github.ontio.account.Account acct = createAccount(label,password, prikey,salt, true);
+        com.github.ontio.account.Account acct = createAccount(label,password, salt,prikey, true);
         new SecureRandom().nextBytes(prikey);
         AccountInfo info = new AccountInfo();
         info.addressBase58 = Address.addressFromPubKey(acct.serializePublicKey()).toBase58();
@@ -462,10 +462,10 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         Account acct;
         switch (scheme) {
             case SHA256WITHECDSA:
-                acct = new Account("ECDSA", new Object[]{Curve.P256.toString()}, "aes-256-ctr", "SHA256withECDSA", "sha256");
+                acct = new Account("ECDSA", new Object[]{Curve.P256.toString()}, "aes-256-gcm", "SHA256withECDSA", "sha256");
                 break;
             case SM3WITHSM2:
-                acct = new Account("SM2", new Object[]{Curve.SM2P256V1.toString()}, "aes-256-ctr", "SM3withSM2", "sha256");
+                acct = new Account("SM2", new Object[]{Curve.SM2P256V1.toString()}, "aes-256-gcm", "SM3withSM2", "sha256");
                 break;
             default:
                 throw new SDKException(ErrorCode.OtherError("scheme type error"));
@@ -492,6 +492,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
                 walletInMem.setDefaultAccountAddress(acct.address);
             }
             acct.label = label;
+            acct.setSalt(salt);
             walletInMem.getAccounts().add(acct);
         } else {
             for (Identity e : walletInMem.getIdentities()) {
@@ -508,6 +509,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
             }
             idt.controls = new ArrayList<Control>();
             Control ctl = new Control(acct.key, "");
+            ctl.setSalt(salt);
             idt.controls.add(ctl);
             walletInMem.getIdentities().add(idt);
         }

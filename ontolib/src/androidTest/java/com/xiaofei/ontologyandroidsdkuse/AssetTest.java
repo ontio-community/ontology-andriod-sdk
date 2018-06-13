@@ -5,6 +5,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.github.ontio.OntSdk;
+import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
 import com.github.ontio.crypto.Digest;
 import com.github.ontio.crypto.SignatureScheme;
@@ -62,9 +63,12 @@ public class AssetTest {
 
     @Test
     public void addresstest() throws Exception {
-        Account account = ontSdk.getWalletMgr().createAccount(password);
-        System.out.println(account.address);
-        int aa = 0;
+        Identity identity = ontSdk.getWalletMgr().createIdentity(password);
+        ontSdk.getWalletMgr().importIdentity(identity.controls.get(0).key,password,identity.controls.get(0).getSalt(),identity.ontid.replace(Common.didont,""));
+                Account account = ontSdk.getWalletMgr().createAccount(password);
+                ontSdk.getWalletMgr().importAccount(account.key,password,account.address,account.getSalt());
+//        System.out.println(account.address);
+//        int aa = 0;
     }
 
     @Test
