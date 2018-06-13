@@ -414,16 +414,12 @@ public class SmokeTest {
     @Test
     public void sendTransferOng() throws Exception {
         final int amount = 1;
-//b14757ed---kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=---123123---TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z rich
-//4fd1e7fe---6LL8RCFR8lhpkAAyvEXVRKGzs6Q5ZNh4so4SGXrPHMs=---123123---TA9hEJap1EWcAo9DfrKFHCHcuRAG9xRMft poor
-        final String richAddr = "TA6JpJ3hcKa94H164pRwAZuw1Q1fkqmd2z";
-        final String richKey = "kOoJt2p+H4nEMIPBLQe9Mca4Z9IRIMnydGgqG23kh/c=";
-        final String poorAddr = "TA9hEJap1EWcAo9DfrKFHCHcuRAG9xRMft";
-        final String poorKey = "6LL8RCFR8lhpkAAyvEXVRKGzs6Q5ZNh4so4SGXrPHMs=";
-        final String richPrefixStr = "b14757ed";
-        final String poorPrefixStr = "4fd1e7fe";
-        final byte[] richPrefix = Helper.hexToBytes(richPrefixStr);
-        final byte[] poorPrefix = Helper.hexToBytes(poorPrefixStr);
+//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
+//        AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn 4671d05f1aa520066457efa62a0cbba012dda64e7d5c0555c2a6b29407713fce poor
+        final String richAddr = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
+        final String richKey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
+        final String richPassword = "123456";
+        final String poorAddr = "AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn";
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
         JSONObject poorBalanceObj = (JSONObject) connectMgr.getBalance(poorAddr);
         int richOngBalance = richBalanceObj.getIntValue("ong");
@@ -431,10 +427,11 @@ public class SmokeTest {
         assertTrue(richOngBalance > 0);
         assertTrue(poorOngBalance >= 0);
 
-        Account accountRich = walletMgr.createAccountFromPriKey("123456", richKey);
+        Account accountRich = walletMgr.createAccountFromPriKey(richPassword, richKey);
+        byte[] salt = accountRich.getSalt();
 
         Transaction transactionR2P = ong.makeTransfer(richAddr,poorAddr,1,payAddr,gasLimit,gasPrice);
-        transactionR2P = ontSdk.signTx(transactionR2P,richAddr,"123123",accountRich.getSalt());
+        transactionR2P = ontSdk.signTx(transactionR2P,richAddr,richPassword,salt);
         String transactionBodyStr = transactionR2P.toHexString();
         TransactionBodyVO transactionBodyVO = new TransactionBodyVO();
         transactionBodyVO.setTxnStr(transactionBodyStr);
@@ -445,6 +442,43 @@ public class SmokeTest {
 
         //get transaction from chain
         //get smartcode event from chain
+
+        JSONObject richOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(richAddr);
+        JSONObject poorOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(poorAddr);
+        long richOngBalanceAfter = richOntBalanceObjAfter.getLongValue("ong");
+        long poorOngBalanceAfter = poorOntBalanceObjAfter.getLongValue("ong");
+
+        assertTrue(richOngBalanceAfter == richOngBalance -amount);
+        assertTrue(poorOngBalanceAfter == poorOngBalance +amount);
+
+    }
+
+    @Test
+    public void sendTransferOngWithSelfPay() throws Exception {
+        final int amount = 1;
+//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
+//        AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn 4671d05f1aa520066457efa62a0cbba012dda64e7d5c0555c2a6b29407713fce poor
+        final String richAddr = "AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW";
+        final String richKey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
+        final String richPassword = "123456";
+        final String poorAddr = "AGRVFoguJnKa1Uu9gBMGCtvyoFfZhwTCVn";
+        JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
+        JSONObject poorBalanceObj = (JSONObject) connectMgr.getBalance(poorAddr);
+        int richOngBalance = richBalanceObj.getIntValue("ong");
+        int poorOngBalance = poorBalanceObj.getIntValue("ong");
+        assertTrue(richOngBalance > 0);
+        assertTrue(poorOngBalance >= 0);
+
+        Account accountRich = walletMgr.createAccountFromPriKey(richPassword, richKey);
+        byte[] salt = accountRich.getSalt();
+
+        Transaction transactionR2P = ong.makeTransfer(richAddr,poorAddr,1,richAddr,gasLimit,gasPrice);
+        transactionR2P = ontSdk.signTx(transactionR2P,richAddr,richPassword,salt);
+        String transactionBodyStr = transactionR2P.toHexString();
+        boolean isSuccess = connectMgr.sendRawTransaction(transactionBodyStr);
+        assertTrue(isSuccess);
+
+        Thread.sleep(6000);
 
         JSONObject richOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(richAddr);
         JSONObject poorOntBalanceObjAfter = (JSONObject) connectMgr.getBalance(poorAddr);
