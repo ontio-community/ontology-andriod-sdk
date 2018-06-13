@@ -5,7 +5,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Base64;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Common;
@@ -98,10 +97,13 @@ public class SmokeTest {
 
     @Test
     public void createIdentity() throws Exception {
+        List<Identity> identities = wallet.getIdentities();
+        int sizeOrig = identities.size();
         Identity identity = walletMgr.createIdentity("123456");
         assertNotNull(identity);
         assertNotNull(identity.ontid);
-        assertNotEquals(identity.ontid,"");
+        int sizeNew = identities.size();
+        assertTrue(sizeNew == sizeOrig + 1);
     }
 
     @Test
@@ -258,13 +260,16 @@ public class SmokeTest {
     @Test
     public void writeWallet() throws Exception {
         walletMgr.createAccount("123456");
+        walletMgr.createIdentity("123456");
         walletMgr.writeWallet();
     }
 
     @Test
     public void openWallet(){
-        int size = wallet.getAccounts().size();
-        assertTrue(size > 0);
+        int sizeAccounts = wallet.getAccounts().size();
+        int sizeIdentities = wallet.getIdentities().size();
+        assertTrue(sizeAccounts > 0);
+        assertTrue(sizeIdentities > 0);
     }
 
     @Test
