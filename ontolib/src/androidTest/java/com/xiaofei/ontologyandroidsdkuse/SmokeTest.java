@@ -3,12 +3,14 @@ package com.xiaofei.ontologyandroidsdkuse;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Base64;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
+import com.github.ontio.common.WalletQR;
 import com.github.ontio.core.ontid.Attribute;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.crypto.MnemonicCode;
@@ -31,6 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Retrofit;
 
@@ -227,19 +230,19 @@ public class SmokeTest {
 
     @Test
     public void importAccountByKeystore() throws Exception {
+        String password = "123456";
+        Account account = walletMgr.createAccount(password);
+        Map map = WalletQR.exportAccountQRCode(wallet, account);
+        wallet.getAccounts().clear();
+        String encryptedKey = (String) map.get("key");
+        String address = (String) map.get("address");
+        String saltStr = (String) map.get("salt");
+        String label = (String) map.get("label");
+        byte[] salt = Base64.decode(saltStr,Base64.NO_WRAP);
 
-
-        String keystore = "{\"scrypt\":{\"dkLen\":64,\"n\":4096,\"p\":8,\"r\":8},\"prefix\":\"0d1d4d73\",\"key\":\"6aoszVlHicmvbvyU5L1Ehu0Lm2hmgSyCa3HfsFgSqnM=\",\"type\":\"A\",\"algorithm\":\"ECDSA\",\"parameters\":{\"curve\":\"P-256\"},\"label\":\"巨款\"}";
-        String password = "111111";
-        String addressOrig = "TA9fnuAZyrsZtCJoRBQUvGiDAG4ufgUf3t";
-        JSONObject jsonObject = JSON.parseObject(keystore);
-        String prefixHexStr = jsonObject.getString("prefix");
-        byte[] prefix = Helper.hexToBytes(prefixHexStr);
-        final String encryptedPrikey = jsonObject.getString("key");
-        Account account = walletMgr.importAccount("",encryptedPrikey,password,addressOrig,null);
-
-        assertEquals(account.address,addressOrig);
-
+        Account accountNew = walletMgr.importAccount(label,encryptedKey,password,address,salt);
+        assertEquals(account.address,accountNew.address);
+        assertEquals(account.label,accountNew.label);
     }
 
     @Test

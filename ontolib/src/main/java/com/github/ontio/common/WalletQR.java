@@ -1,5 +1,7 @@
 package com.github.ontio.common;
 
+import android.util.Base64;
+
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Control;
 import com.github.ontio.sdk.wallet.Identity;
@@ -20,6 +22,8 @@ public class WalletQR {
         map.put("parameters", control.parameters);
         map.put("algorithm", "ECDSA");
         map.put("scrypt", walletFile.getScrypt());
+        map.put("address",address);
+        map.put("salt", control.salt);
         return map;
     }
 
@@ -31,6 +35,8 @@ public class WalletQR {
         map.put("parameters", account.parameters);
         map.put("algorithm", "ECDSA");
         map.put("scrypt", walletFile.getScrypt());
+        map.put("address",account.address);
+        map.put("salt", account.salt);
         return map;
     }
 }
