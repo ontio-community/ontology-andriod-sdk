@@ -20,8 +20,6 @@ import com.github.ontio.sdk.wallet.Wallet;
 import com.github.ontio.smartcontract.nativevm.Ong;
 import com.github.ontio.smartcontract.nativevm.Ont;
 import com.github.ontio.smartcontract.nativevm.OntId;
-import com.xiaofei.ontologyandroidsdkuse.model.AppConfig;
-import com.xiaofei.ontologyandroidsdkuse.model.OntoResult;
 import com.xiaofei.ontologyandroidsdkuse.model.TransactionBodyVO;
 import com.xiaofei.ontologyandroidsdkuse.service.OntoService;
 import com.xiaofei.ontologyandroidsdkuse.service.OntoServiceApi;
@@ -32,20 +30,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.fastjson.FastJsonConverterFactory;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -73,12 +62,6 @@ public class SmokeTest {
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://dev.ont.io/")
-                .addConverterFactory(FastJsonConverterFactory.create())
-                .build();
-        ontoServiceApi = retrofit.create(OntoServiceApi.class);
-        ontoService = new OntoService();
         ontopassService = new OntopassService();
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
@@ -167,14 +150,15 @@ public class SmokeTest {
         String mnsStr = MnemonicCode.generateMnemonicCodesStr().toString();
         byte[] prikey = MnemonicCode.getPrikeyFromMnemonicCodesStr(mnsStr);
         String prikeyStr = Helper.toHexString(prikey);
-        Account account = walletMgr.createAccountFromPriKey("bbb","123456",prikeyStr);
-        String encryptedMnsStr = MnemonicCode.encryptMnemonicCodesStr(mnsStr,"123456",account.address);
+        String password = "123456";
+        Account account = walletMgr.createAccountFromPriKey("bbb",password,prikeyStr);
+        String encryptedMnsStr = MnemonicCode.encryptMnemonicCodesStr(mnsStr,password,account.address);
         assertNotNull(account);
         assertNotNull(account.address);
         assertNotEquals(account.address,"");
         assertEquals(account.label,"bbb");
 
-        String mnsStrNew = MnemonicCode.decryptMnemonicCodesStr(encryptedMnsStr,"123456",account.address);
+        String mnsStrNew = MnemonicCode.decryptMnemonicCodesStr(encryptedMnsStr,password,account.address);
         assertEquals(mnsStrNew,mnsStr);
     }
 
@@ -210,9 +194,10 @@ public class SmokeTest {
 
     @Test
     public void importAccountByPrikey() throws Exception {
-        String prikey = "54670753cc5f20e9a99d21104c1743037891a8aadb62146bdd0fd422edf38166";
+//        AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW 2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087 rich
+        String prikey = "2b5887abb1421ab101714906c8578aac340d2713f3b7b34135fed191686f9087";
         Account account = walletMgr.createAccountFromPriKey("aa","123456",prikey);
-        assertNotNull(account.address,"TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg");
+        assertEquals(account.address,"AUYkVYChHVmzFw6PKuZ9FKxX6LdTRvKJkW");
     }
 
     @Test
@@ -224,19 +209,25 @@ public class SmokeTest {
         //wif: 5JTTXdfPVtGMNybRgyFz7gUD3BpRbCypn6D8zpEPKobGJvhX2jX
         //address: TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg
         //password: 123456
-        String mnemonicCodesStr = "guilt any betray day cinnamon erupt often loyal blanket spice extend exact";
+
+//        economy utility unlock library awful proof episode where skirt autumn toilet prison
+//        87ba38545e2b5392b2d9356d36927caf969113f62a9eded366a0b8035441ea8d
+//        ASLN3uW6fsHc7hStfE2XBnMqb5MQJigLK9
+        String mnemonicCodesStr = "economy utility unlock library awful proof episode where skirt autumn toilet prison";
         String[] mnemonicCodes = mnemonicCodesStr.split(" ");
         assertEquals(mnemonicCodes.length,12);
-        //Account account = walletMgr.importAccountFromMnemonicCodes("aa",mnemonicCodes,"123456");
         byte[] prikey = MnemonicCode.getPrikeyFromMnemonicCodesStr(mnemonicCodesStr);
         String prikeyHexStr = Helper.toHexString(prikey);
+        String prikeyHexStrOrig = "87ba38545e2b5392b2d9356d36927caf969113f62a9eded366a0b8035441ea8d";
+        assertEquals(prikeyHexStrOrig,prikeyHexStr);
         Account account = walletMgr.createAccountFromPriKey("123456",prikeyHexStr);
         assertNotNull(account);
-        assertEquals(account.address,"TA8SrRAVUWSiqNzwzriirwRFn6GC4QeADg");
+        assertEquals(account.address,"ASLN3uW6fsHc7hStfE2XBnMqb5MQJigLK9");
     }
 
     @Test
     public void importAccountByKeystore() throws Exception {
+
 
         String keystore = "{\"scrypt\":{\"dkLen\":64,\"n\":4096,\"p\":8,\"r\":8},\"prefix\":\"0d1d4d73\",\"key\":\"6aoszVlHicmvbvyU5L1Ehu0Lm2hmgSyCa3HfsFgSqnM=\",\"type\":\"A\",\"algorithm\":\"ECDSA\",\"parameters\":{\"curve\":\"P-256\"},\"label\":\"巨款\"}";
         String password = "111111";
@@ -253,23 +244,24 @@ public class SmokeTest {
 
     @Test
     public void importAccount() throws Exception {
-        List<Account> accounts = walletMgr.getAccounts();
-        accounts.clear();
-        assertEquals(accounts.size(), 0);
+        List<Account> accounts = wallet.getAccounts();
+        int sizeOrig = accounts.size();
+        String password = "123456";
+        Account account = walletMgr.createAccount(password);
+        int sizeNew = accounts.size();
+        assertTrue(sizeNew == sizeOrig + 1);
+    }
+
+    @Test
+    public void writeWallet() throws Exception {
+        walletMgr.createAccount("123456");
         walletMgr.writeWallet();
+    }
 
-        Account account = walletMgr.createAccount("123456");
-        com.github.ontio.account.Account accountDiff = walletMgr.getAccount(account.address,"123456",account.getSalt());
-        String prikeyStr = accountDiff.exportCtrEncryptedPrikey("123456",4096);
-        assertTrue(accounts.size() == 1);
-        accounts.clear();
-        assertTrue(accounts.size() == 0);
-        walletMgr.writeWallet();
-
-        Account account1 = walletMgr.importAccount("aaa",prikeyStr,"123456",account.address,account.getSalt());
-        assertTrue(accounts.size() == 1);
-        assertEquals(account.address, account1.address);
-
+    @Test
+    public void openWallet(){
+        int size = wallet.getAccounts().size();
+        assertTrue(size > 0);
     }
 
     @Test
