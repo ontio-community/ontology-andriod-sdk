@@ -85,11 +85,15 @@ public class NativeBuildParams {
                 } else if (val instanceof Boolean) {
                     builder.push((Boolean) val);
                     System.out.println(Helper.toHexString(builder.toArray()));
+                } else if(val instanceof Integer){
+                    builder.push(BigInteger.valueOf((int) val));
                 } else if (val instanceof Long) {
                     builder.push(BigInteger.valueOf((long)val));
                 } else if(val instanceof Address){
                     builder.push(((Address) val).toArray());
                     System.out.println(Helper.toHexString(builder.toArray()));
+                } else if(val instanceof String){
+                    builder.push(((String)val).getBytes());
                 } else if (val instanceof List) {
                     List tmp = (List) val;
                     createCodeParamsScript(builder, tmp);
@@ -113,11 +117,15 @@ public class NativeBuildParams {
             } else if (val instanceof Boolean) {
                 builder.push((Boolean) val);
                 System.out.println(Helper.toHexString(builder.toArray()));
+            } else if(val instanceof Integer){
+                builder.push(BigInteger.valueOf((int) val));
             } else if (val instanceof Long) {
                 builder.push(BigInteger.valueOf((long) val));
             } else if (val instanceof Address) {
                 builder.push(((Address) val).toArray());
                 System.out.println(Helper.toHexString(builder.toArray()));
+            } else if(val instanceof String){
+                builder.push(((String)val).getBytes());
             } else if(val instanceof Struct){
                 for(int k =0;k<((Struct) val).list.size();k++) {
                     Object o = ((Struct) val).list.get(k);
@@ -146,12 +154,16 @@ public class NativeBuildParams {
                     sb.push((byte[]) val);
                 } else if (val instanceof Boolean) {
                     sb.push((Boolean) val);
+                } else if(val instanceof Integer){
+                    sb.push(BigInteger.valueOf((int)val));
                 } else if (val instanceof Long) {
                     sb.push(BigInteger.valueOf((Long) val));
                 } else if(val instanceof BigInteger){
                     sb.push((BigInteger)val);
                 } else if(val instanceof Address){
                     sb.push(((Address) val).toArray());
+                }else if(val instanceof String){
+                    sb.push(((String)val).getBytes());
                 }
                 else if(val instanceof Struct){
                     sb.push(BigInteger.valueOf(0));

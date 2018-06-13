@@ -281,16 +281,16 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         password = null;
         return getAccount(info.addressBase58);
     }
-//    public Account importAccount(String encryptedPrikey, String password, byte[] prefix) throws Exception {
-//        return importAccount("",encryptedPrikey,password,prefix);
-//    }
-//    public Account importAccount(String label, String encryptedPrikey, String password, byte[] prefix) throws Exception {
-//        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
-//        AccountInfo info = createAccount(label, password, Helper.hexToBytes(prikey));
-//        prikey = null;
-//        password = null;
-//        return getAccount(info.addressBase58);
-//    }
+    public Account importAccount(String encryptedPrikey, String password, byte[] prefix,byte[] salt) throws Exception {
+        return importAccount("",encryptedPrikey,password,prefix,salt);
+    }
+    public Account importAccount(String label, String encryptedPrikey, String password, byte[] prefix,byte[] salt) throws Exception {
+        String prikey = com.github.ontio.account.Account.getCtrDecodedPrivateKey(encryptedPrikey, password, prefix, walletFile.getScrypt().getN(), scheme);
+        AccountInfo info = createAccount(label, password, Helper.hexToBytes(prikey));
+        prikey = null;
+        password = null;
+        return getAccount(info.addressBase58);
+    }
 
     public void createAccounts(int count, String password) throws Exception {
         for (int i = 0; i < count; i++) {
