@@ -77,8 +77,8 @@ public class AssetTest {
         Attribute[] attributes = new Attribute[1];
         attributes[0] = new Attribute("key1".getBytes(),"String".getBytes(),"value1".getBytes());
 //        ontSdk.nativevm().ontId().sendRegisterWithAttrs(identity,password,identity.controls.get(0).getSalt(),attributes,payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
-        ontSdk.nativevm().ontId().sendRegister(identity,password,identity.controls.get(0).getSalt(),payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
-        ontSdk.nativevm().ontId().sendRegister(identity,password,identity.controls.get(0).getSalt(),payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+//        ontSdk.nativevm().ontId().sendRegister(identity,password,identity.controls.get(0).getSalt(),payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+//        ontSdk.nativevm().ontId().sendRegister(identity,password,identity.controls.get(0).getSalt(),payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
         Thread.sleep(6000);
         System.out.println(ontSdk.nativevm().ontId().sendGetDDO(identity.ontid));
 //        ontSdk.nativevm().ontId().sendAddAttributes(identity.ontid,password,identity.controls.get(0).getSalt(),attributes,payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
@@ -101,7 +101,7 @@ public class AssetTest {
         com.github.ontio.account.Account payAcct = new com.github.ontio.account.Account(Helper.hexToBytes(privatekey1),SignatureScheme.SHA256WITHECDSA);
         Identity identity = ontSdk.getWalletMgr().createIdentity(password);
 
-        ontSdk.nativevm().ontId().sendRegister(identity,password,identity.controls.get(0).getSalt(),payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+//        ontSdk.nativevm().ontId().sendRegister(identity,password,identity.controls.get(0).getSalt(),payAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
         Thread.sleep(6000);
         System.out.println(ontSdk.nativevm().ontId().sendGetDDO(identity.ontid));
 
@@ -125,7 +125,7 @@ public class AssetTest {
         Identity identity = ontSdk.getWalletMgr().createIdentity(password);
         ontSdk.getWalletMgr().importIdentity(identity.controls.get(0).key,password,identity.controls.get(0).getSalt(),identity.ontid.replace(Common.didont,""));
 //                Account account = ontSdk.getWalletMgr().createAccount(password);
-                ontSdk.getWalletMgr().importAccountWithRandomLabel(identity.controls.get(0).key,password,identity.ontid.replace(Common.didont,""),identity.controls.get(0).getSalt());
+//                ontSdk.getWalletMgr().importAccountWithRandomLabel(identity.controls.get(0).key,password,identity.ontid.replace(Common.didont,""),identity.controls.get(0).getSalt());
 //        System.out.println(account.address);
 //        int aa = 0;
     }
