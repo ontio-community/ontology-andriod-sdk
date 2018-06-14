@@ -97,7 +97,7 @@ public class WalletMgr {
             writeWallet();
             return;
         }
-        Identity identity = getWallet().getDefaultIdentity();
+        String identity = getWallet().getDefaultIdentity();
     }
 
     private static void writeFile(SharedPreferences sp, String sets) throws IOException {
