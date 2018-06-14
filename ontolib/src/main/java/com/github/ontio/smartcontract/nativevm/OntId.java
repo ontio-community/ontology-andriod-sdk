@@ -175,7 +175,7 @@ public class OntId {
         Transaction tx = makeRegisterWithAttrs(ontid, password,salt, attributes, payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
         sdk.signTx(tx, ontid, password,salt);
         sdk.addSign(tx, payerAcct);
-        Identity identity = sdk.getWalletMgr().addOntIdController(ontid, info.encryptedPrikey, info.ontid);
+        Identity identity = sdk.getWalletMgr().getWallet().addOntIdController(ontid, info.encryptedPrikey, info.ontid);
         sdk.getWalletMgr().writeWallet();
         boolean b = false;
         b = sdk.getConnect().sendRawTransaction(tx.toHexString());
