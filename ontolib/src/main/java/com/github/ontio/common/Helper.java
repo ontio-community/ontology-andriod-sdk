@@ -139,13 +139,7 @@ public class Helper {
 		}
 		return bt;
 	}
-    public static String getContractAddress(String codeHexStr,byte vmtype) throws Exception {
-        Address code = Address.toScriptHash(Helper.hexToBytes(codeHexStr));
-        byte[] hash = code.toArray();
-        hash[0] = vmtype;
-        String codeHash = Helper.toHexString(hash);
-        return codeHash;
-    }
+
 
     public static byte[] addBytes(byte[] data1, byte[] data2) {
         byte[] data3 = new byte[data1.length + data2.length];

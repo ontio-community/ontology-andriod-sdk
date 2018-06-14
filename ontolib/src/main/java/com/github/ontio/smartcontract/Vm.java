@@ -87,9 +87,7 @@ public class Vm {
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         }
         tx.attributes = new Attribute[0];
-//        tx.attributes[0] = new Attribute();
-//        tx.attributes[0].usage = AttributeUsage.Nonce;
-//        tx.attributes[0].data = UUID.randomUUID().toString().getBytes();
+        tx.nonce = new Random().nextInt();
         tx.code = Helper.hexToBytes(codeStr);
         tx.version = codeVersion;
         tx.needStorage = needStorage;
@@ -101,25 +99,13 @@ public class Vm {
         tx.description = desp;
         return tx;
     }
-
-    /**
-     *
-     * @param codeAddr
-     * @param method
-     * @param params
-     * @param payer
-     * @param gaslimit
-     * @param gasprice
-     * @return
-     * @throws SDKException
-     */
-    public InvokeCode makeInvokeCodeTransaction(String codeAddr,String method,byte[] params,String payer,long gaslimit,long gasprice) throws Exception {
-        Contract contract = new Contract((byte) 0, Address.parse(codeAddr), "", params);
+    //NEO makeInvokeCodeTransaction
+    public InvokeCode makeInvokeCodeTransaction(String codeAddr,String method,byte[] params, String payer,long gaslimit,long gasprice) throws Exception {
+        params = Helper.addBytes(params,new byte[]{0x67});
+        params = Helper.addBytes(params, Address.parse(codeAddr).toArray());
         InvokeCode tx = new InvokeCode();
-        tx.attributes = new Attribute[1];
-        tx.attributes[0] = new Attribute();
-        tx.attributes[0].usage = AttributeUsage.Nonce;
-        tx.attributes[0].data = UUID.randomUUID().toString().getBytes();
+        tx.attributes = new Attribute[0];
+        tx.nonce = new Random().nextInt();
         tx.code = params;
         tx.gasLimit = gaslimit;
         tx.gasPrice = gasprice;
@@ -128,9 +114,8 @@ public class Vm {
         }
         return tx;
     }
-
     /**
-     *
+     * Native makeInvokeCodeTransaction
      * @param params
      * @param payer
      * @param gaslimit
@@ -139,16 +124,7 @@ public class Vm {
      * @throws SDKException
      */
     public InvokeCode makeInvokeCodeTransaction(byte[] params,String payer,long gaslimit,long gasprice) throws Exception {
-//        if(vmtype == VmType.NEOVM.value()) {
-//            Contract contract = new Contract((byte) 0,Address.parse(codeAddr), "", params);
-//            params = Helper.addBytes(new byte[]{0x67}, contract.toArray());
-//        }else if(vmtype == VmType.WASMVM.value()) {
-//            Contract contract = new Contract((byte) 1,Address.parse(codeAddr), method, params);
-//            params = contract.toArray();
-//        } else if(vmtype == VmType.Native.value()) {
-//            Contract contract = new Contract((byte) 0,Address.parse(codeAddr), method, params);
-//            params = contract.toArray();
-//        }
+
         InvokeCode tx = new InvokeCode();
         tx.attributes = new Attribute[0];
         tx.nonce = new Random().nextInt();
@@ -163,7 +139,9 @@ public class Vm {
 
     public Transaction buildNativeParams(Address codeAddr,String initMethod,byte[] args,String payer,long gaslimit,long gasprice) throws Exception {
         ScriptBuilder sb = new ScriptBuilder();
-        sb.add(args);
+        if(args.length >0) {
+            sb.add(args);
+        }
         sb.push(initMethod.getBytes());
         sb.push(codeAddr.toArray());
         sb.push(BigInteger.valueOf(0));
@@ -172,5 +150,4 @@ public class Vm {
         Transaction tx = makeInvokeCodeTransaction(sb.toArray(),payer,gaslimit,gasprice);
         return tx;
     }
-
 }

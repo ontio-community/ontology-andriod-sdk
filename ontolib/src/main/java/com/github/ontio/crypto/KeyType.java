@@ -3,6 +3,7 @@ package com.github.ontio.crypto;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.sdk.exception.SDKException;
 
+
 public enum KeyType {
     ECDSA(0x12),
     SM2(0x13),

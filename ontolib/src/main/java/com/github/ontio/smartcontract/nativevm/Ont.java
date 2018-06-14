@@ -33,7 +33,8 @@ import com.github.ontio.core.asset.*;
 import com.github.ontio.core.payload.Vote;
 import com.github.ontio.io.BinaryWriter;
 import com.github.ontio.sdk.exception.SDKException;
-import com.github.ontio.sdk.info.AccountInfo;
+import com.github.ontio.smartcontract.nativevm.abi.AbiFunction;
+import com.github.ontio.smartcontract.nativevm.abi.AbiInfo;
 import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams;
 import com.github.ontio.smartcontract.nativevm.abi.Struct;
 
@@ -52,8 +53,7 @@ import java.util.UUID;
 public class Ont {
     private OntSdk sdk;
     private final String ontContract = "0000000000000000000000000000000000000001";
-    private int precision = 1;
-
+    private String nativeAbi = "{\"hash\":\"0000000000000000000000000000000000000001\",\"functions\":[{\"name\":\"init\",\"parameters\":[],\"returntype\":\"Bool\"},{\"name\":\"transfer\",\"parameters\":[{\"name\":\"transfers\",\"type\":\"Struct\",\"subType\":[{\"name\":\"from\",\"type\":\"Address\"},{\"name\":\"to\",\"type\":\"Address\"},{\"name\":\"value\",\"type\":\"Int\"}]}],\"returntype\":\"Bool\"},{\"name\":\"approve\",\"parameters\":[{\"name\":\"from\",\"type\":\"Address\"},{\"name\":\"to\",\"type\":\"Address\"},{\"name\":\"value\",\"type\":\"Int\"}],\"returntype\":\"Bool\"},{\"name\":\"transferFrom\",\"parameters\":[{\"name\":\"sender\",\"type\":\"Address\"},{\"name\":\"from\",\"type\":\"Address\"},{\"name\":\"to\",\"type\":\"Address\"},{\"name\":\"value\",\"type\":\"Int\"}],\"returntype\":\"Bool\"},{\"name\":\"name\",\"parameters\":[],\"returntype\":\"String\"},{\"name\":\"symbol\",\"parameters\":[],\"returntype\":\"String\"},{\"name\":\"decimals\",\"parameters\":[],\"returntype\":\"Int\"},{\"name\":\"totalSupply\",\"parameters\":[],\"returntype\":\"Int\"},{\"name\":\"balanceOf\",\"parameters\":[{\"name\":\"account\",\"type\":\"Address\"}],\"returntype\":\"Int\"},{\"name\":\"allowance\",\"parameters\":[{\"name\":\"account\",\"type\":\"Address\"}],\"returntype\":\"Int\"}],\"events\":[{\"name\":\"transfer\",\"parameters\":[{\"name\":\"from\",\"type\":\"Address\"},{\"name\":\"to\",\"type\":\"Address\"},{\"name\":\"value\",\"type\":\"Int\"}]}]}";
     public Ont(OntSdk sdk) {
         this.sdk = sdk;
     }
@@ -110,16 +110,20 @@ public class Ont {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw new SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"));
         }
-        amount = amount * precision;
-        State state = new State(Address.decodeBase58(sender), Address.decodeBase58(recvAddr), amount);
-        Transfers transfers = new Transfers(new State[]{state});
+
+//        AbiInfo abiinfo = JSON.parseObject(nativeAbi, AbiInfo.class);
+//        AbiFunction func = abiinfo.getFunction("transfer");
+//        func.name = "transfer";
+//        func.setParamsValue(new Struct().add(Address.decodeBase58(sender),Address.decodeBase58(recvAddr),amount));
+//        System.out.println(func.toString());
+//        byte[] params = NativeBuildParams.serializeAbiFunction(func);
+//        System.out.println("params:"+Helper.toHexString(params));
 
         List list = new ArrayList();
-        Struct[] states = new Struct[]{new Struct().add(Address.decodeBase58(sender),Address.decodeBase58(recvAddr),amount)};
-        list.add(states);
-        byte[] params = NativeBuildParams.createCodeParamsScript(list);
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(ontContract)),"transfer",params,payer,gaslimit, gasprice);
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract, "transfer", transfers.toArray(),payer, gaslimit, gasprice);
+        Struct[] structs = new Struct[]{new Struct().add(Address.decodeBase58(sender),Address.decodeBase58(recvAddr),amount)};
+        list.add(structs);
+        byte[] args = NativeBuildParams.createCodeParamsScript(list);
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(ontContract)),"transfer",args,payer,gaslimit, gasprice);
         return tx;
     }
 

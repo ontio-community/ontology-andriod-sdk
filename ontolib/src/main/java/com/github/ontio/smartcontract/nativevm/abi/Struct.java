@@ -11,7 +11,7 @@ import java.util.List;
  * @date 2018/6/10
  */
 public class Struct {
-    public List list = new ArrayList();
+    public List<Object> list = new ArrayList();
     public Struct(){
 
     }

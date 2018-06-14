@@ -97,7 +97,6 @@ public class WalletMgr {
             writeWallet();
             return;
         }
-        //String identity = getWallet().getDefaultIdentity();
     }
 
     private static void writeFile(SharedPreferences sp, String sets) throws IOException {
@@ -365,7 +364,8 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         return info;
     }
 
-    private com.github.ontio.account.Account createAccount(String label, String password, byte[] salt,byte[] privateKey, boolean saveAccountFlag) throws Exception {
+
+    private com.github.ontio.account.Account createAccount(String label, String password, byte[] salt,byte[] privateKey, boolean accountFlag) throws Exception {
         com.github.ontio.account.Account account = new com.github.ontio.account.Account(privateKey, scheme);
         Account acct;
         switch (scheme) {
@@ -389,7 +389,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
             String uuidStr = UUID.randomUUID().toString();
             label = uuidStr.substring(0, 8);
         }
-        if (saveAccountFlag) {
+        if (accountFlag) {
             for (Account e : walletInMem.getAccounts()) {
                 if (e.address.equals(acct.address)) {
                     throw new SDKException(ErrorCode.ParamErr("wallet account exist"));
@@ -405,7 +405,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
         } else {
             for (Identity e : walletInMem.getIdentities()) {
                 if (e.ontid.equals(Common.didont + acct.address)) {
-                    return account;
+                    throw new SDKException(ErrorCode.ParamErr("wallet Identity exist"));
                 }
             }
             Identity idt = new Identity();

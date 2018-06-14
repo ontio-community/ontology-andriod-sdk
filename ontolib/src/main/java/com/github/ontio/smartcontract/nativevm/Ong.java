@@ -50,7 +50,6 @@ public class Ong {
     private OntSdk sdk;
     private final String ontContract = "0000000000000000000000000000000000000001";
     private final String ongContract = "0000000000000000000000000000000000000002";
-    private int precision = 1;
 
     public Ong(OntSdk sdk) {
         this.sdk = sdk;
@@ -125,7 +124,7 @@ public class Ong {
         if(gasprice < 0 || gaslimit < 0){
             throw new SDKException(ErrorCode.ParamError);
         }
-        Transfers transfers = new Transfers(states);
+
         List list = new ArrayList();
         Struct[] structs = new Struct[states.length];
         for (int i = 0; i < states.length; i++) {

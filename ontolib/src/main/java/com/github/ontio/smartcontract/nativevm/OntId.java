@@ -80,7 +80,7 @@ public class OntId {
      * @return
      * @throws Exception
      */
-    public String sendRegister(Identity ident, String password,byte[] salt, Account payerAcct, long gaslimit, long gasprice, boolean isPreExec) throws Exception {
+    public String sendRegister(Identity ident, String password, Account payerAcct, long gaslimit, long gasprice, boolean isPreExec) throws Exception {
         if (ident == null || password == null || password.equals("") || payerAcct == null) {
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
@@ -90,15 +90,15 @@ public class OntId {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-        Transaction tx = makeRegister(ident.ontid, password,salt, payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
+        Transaction tx = makeRegister(ident.ontid, password,ident.controls.get(0).getSalt(), payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
         sdk.getWalletMgr().writeWallet();
-        sdk.signTx(tx, ident.ontid, password,salt);
+        sdk.signTx(tx, ident.ontid, password,ident.controls.get(0).getSalt());
         sdk.addSign(tx, payerAcct);
         if (isPreExec) {
             Object obj = sdk.getConnect().sendRawTransactionPreExec(tx.toHexString());
             String result = ((JSONObject) obj).getString("Result");
             if (Integer.parseInt(result) == 0) {
-                throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error"));
+                throw new SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error: "+ obj));
             }
         } else {
             boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
@@ -109,12 +109,12 @@ public class OntId {
         return tx.hash().toHexString();
     }
 
-    public String sendRegisterPreExec(Identity ident, String password,byte[] salt, Account payerAcct, long gaslimit, long gasprice) throws Exception {
-        return sendRegister(ident, password, salt,payerAcct, gaslimit, gasprice, true);
+    public String sendRegisterPreExec(Identity ident, String password, Account payerAcct, long gaslimit, long gasprice) throws Exception {
+        return sendRegister(ident, password, payerAcct, gaslimit, gasprice, true);
     }
 
-    public String sendRegister(Identity ident, String password,byte[] salt, Account payerAcct, long gaslimit, long gasprice) throws Exception {
-        return sendRegister(ident, password,salt,payerAcct, gaslimit, gasprice, false);
+    public String sendRegister(Identity ident, String password, Account payerAcct, long gaslimit, long gasprice) throws Exception {
+        return sendRegister(ident, password, payerAcct, gaslimit, gasprice, false);
     }
 
 
@@ -138,8 +138,6 @@ public class OntId {
         }
         IdentityInfo info = sdk.getWalletMgr().getIdentityInfo(ontid, password,salt);
         byte[] pk = Helper.hexToBytes(info.pubkey);
-//        byte[] parabytes = BuildParams.buildParams(info.ontid, pk);
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "regIDWithPublicKey", parabytes,payer, gaslimit, gasprice);
 
         List list = new ArrayList();
         list.add(new Struct().add(info.ontid,pk));
@@ -160,7 +158,7 @@ public class OntId {
      * @throws Exception
      */
 
-    public String sendRegisterWithAttrs(Identity ident, String password, byte[] salt,Attribute[] attributes, Account payerAcct, long gaslimit, long gasprice) throws Exception {
+    public String sendRegisterWithAttrs(Identity ident, String password, Attribute[] attributes, Account payerAcct, long gaslimit, long gasprice) throws Exception {
         if (ident == null || password == null || password.equals("") || payerAcct == null) {
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
@@ -170,15 +168,14 @@ public class OntId {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-        IdentityInfo info = sdk.getWalletMgr().getIdentityInfo(ident.ontid, password,salt);
+        IdentityInfo info = sdk.getWalletMgr().getIdentityInfo(ident.ontid, password,ident.controls.get(0).getSalt());
         String ontid = info.ontid;
-        Transaction tx = makeRegisterWithAttrs(ontid, password,salt, attributes, payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
-        sdk.signTx(tx, ontid, password,salt);
+        Transaction tx = makeRegisterWithAttrs(ontid, password,ident.controls.get(0).getSalt(), attributes, payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
+        sdk.signTx(tx, ontid, password,ident.controls.get(0).getSalt());
         sdk.addSign(tx, payerAcct);
         Identity identity = sdk.getWalletMgr().getWallet().addOntIdController(ontid, info.encryptedPrikey, info.ontid);
         sdk.getWalletMgr().writeWallet();
-        boolean b = false;
-        b = sdk.getConnect().sendRawTransaction(tx.toHexString());
+        boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         return tx.hash().toHexString();
     }
 
@@ -236,8 +233,6 @@ public class OntId {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-//        byte[] parabytes = BuildParams.buildParams(ontid.getBytes());
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "getPublicKeys", parabytes,null, 0, 0);
 
         List list = new ArrayList();
         list.add(ontid.getBytes());
@@ -602,8 +597,6 @@ public class OntId {
         String addr = ontid.replace(Common.didont, "");
         AccountInfo info = sdk.getWalletMgr().getAccountInfo(addr, password,salt);
         byte[] pk = Helper.hexToBytes(info.pubkey);
-//        byte[] parabytes = BuildParams.buildParams(ontid, Address.decodeBase58(recoveryAddr), pk);
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "addRecovery", parabytes,payer, gaslimit, gasprice);
 
         List list = new ArrayList();
         list.add(new Struct().add(ontid,Address.decodeBase58(recoveryAddr), pk));
@@ -660,10 +653,8 @@ public class OntId {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-        Address newAddr = Address.decodeBase58(newRecoveryOntId.replace(Common.didont, ""));
-        Address oldAddr = Address.decodeBase58(oldRecoveryOntId.replace(Common.didont, ""));
-//        byte[] parabytes = BuildParams.buildParams(ontid, newAddr, oldAddr);
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "changeRecovery", parabytes, payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
+        Address newAddr = Address.decodeBase58(newRecoveryOntId.replace(Common.didont,""));
+        Address oldAddr = Address.decodeBase58(oldRecoveryOntId.replace(Common.didont,""));
 
         List list = new ArrayList();
         list.add(new Struct().add(ontid,newAddr, oldAddr));
@@ -693,11 +684,11 @@ public class OntId {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-        Address newAddr = Address.decodeBase58(newRecoveryOntId.replace(Common.didont, ""));
-        Address oldAddr = Address.decodeBase58(oldRecoveryOntId.replace(Common.didont, ""));
-        byte[] parabytes = BuildParams.buildParams(ontid.getBytes(), newAddr.toArray(), oldAddr.toArray());
+        Address newAddr = Address.decodeBase58(newRecoveryOntId.replace(Common.didont,""));
+        Address oldAddr = Address.decodeBase58(oldRecoveryOntId.replace(Common.didont,""));
+        byte[] parabytes = NativeBuildParams.buildParams(ontid.getBytes(),newAddr.toArray(),oldAddr.toArray());
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "changeRecovery", parabytes, payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
-        sdk.signTx(tx, new Account[][]{accounts});
+        sdk.signTx(tx, new com.github.ontio.account.Account[][]{accounts});
         sdk.addSign(tx, payerAcct);
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {
@@ -794,7 +785,7 @@ public class OntId {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
         String addr = ontid.replace(Common.didont, "");
-        Transaction tx = makeRemoveAttribute(ontid, password,salt, path, payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
+        Transaction tx = makeRemoveAttribute(ontid, password, salt,path, payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
         sdk.signTx(tx, addr, password,salt);
         sdk.addSign(tx, payerAcct);
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
@@ -826,8 +817,6 @@ public class OntId {
         String addr = ontid.replace(Common.didont, "");
         AccountInfo info = sdk.getWalletMgr().getAccountInfo(addr, password,salt);
         byte[] pk = Helper.hexToBytes(info.pubkey);
-//        byte[] parabytes = BuildParams.buildParams(ontid.getBytes(), path.getBytes(), pk);
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "removeAttribute", parabytes,addr, gaslimit, gasprice);
 
         List list = new ArrayList();
         list.add(new Struct().add(ontid.getBytes(), path.getBytes(), pk));
@@ -937,7 +926,7 @@ public class OntId {
                 throw new SDKException(ErrorCode.NotExistCliamIssuer);
             }
             String pubkeyId = null;
-            Account acct = sdk.getWalletMgr().getAccount(signerOntid, password,salt);
+            com.github.ontio.account.Account acct = sdk.getWalletMgr().getAccount(signerOntid, password,salt);
             String pk = Helper.toHexString(acct.serializePublicKey());
             for (int i = 0; i < owners.size(); i++) {
                 JSONObject obj = owners.getJSONObject(i);
@@ -1015,8 +1004,6 @@ public class OntId {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-//        byte[] parabytes = BuildParams.buildParams(ontid.getBytes());
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "getDDO", parabytes,null, 0, 0);
 
         List list = new ArrayList();
         list.add(ontid.getBytes());

@@ -30,6 +30,7 @@ import com.github.ontio.io.BinaryWriter;
 import com.github.ontio.io.Serializable;
 
 
+
 public class Attribute extends Serializable {
 
 	public AttributeUsage usage;
