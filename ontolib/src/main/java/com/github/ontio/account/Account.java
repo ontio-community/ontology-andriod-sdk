@@ -46,6 +46,7 @@ import java.util.Arrays;
 import android.util.Base64;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -472,7 +473,7 @@ public class Account {
             throw new SDKException(ErrorCode.ParamError);
         }
 
-        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), salt, N, r, p, dkLen);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(salt), N, r, p, dkLen);
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[12];
         System.arraycopy(derivedkey, 0, iv, 0, 12);
@@ -480,7 +481,7 @@ public class Account {
         try {
             SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, new GCMParameterSpec(128,iv));
             cipher.updateAAD(getAddressU160().toBase58().getBytes());
             byte[] encryptedkey = cipher.doFinal(serializePrivateKey());
             return new String(Base64.encode(encryptedkey,Base64.NO_WRAP));
@@ -503,7 +504,7 @@ public class Account {
         int p = 8;
         int dkLen = 64;
 
-        byte[] derivedkey = SCrypt.generate(passphrase.getBytes(StandardCharsets.UTF_8), salt, N, r, p, dkLen);
+        byte[] derivedkey = ScryptPlugin.scrypt(passphrase.getBytes(StandardCharsets.UTF_8), getChars(salt), N, r, p, dkLen);
         byte[] derivedhalf2 = new byte[32];
         byte[] iv = new byte[12];
         System.arraycopy(derivedkey, 0, iv, 0, 12);
@@ -511,7 +512,7 @@ public class Account {
 
         SecretKeySpec skeySpec = new SecretKeySpec(derivedhalf2, "AES");
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, new GCMParameterSpec(128,iv));
         cipher.updateAAD(address.getBytes());
 
         byte[] rawkey = new byte[0];
