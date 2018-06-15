@@ -70,9 +70,6 @@ public class Governance {
      * @throws Exception
      */
     public String registerCandidate(Account account, String peerPubkey, int initPos, String ontid,String ontidpwd,byte[] salt,  long keyNo, Account payerAcct, long gaslimit, long gasprice) throws Exception{
-//        byte[] params = new RegisterCandidateParam(peerPubkey,account.getAddressU160(),initPos,ontid.getBytes(),keyNo).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"registerCandidate",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey,account.getAddressU160(),initPos,ontid.getBytes(),keyNo));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -152,8 +149,6 @@ public class Governance {
      * @throws Exception
      */
     public String approveCandidate(String adminOntId,String password,byte[] salt, String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
-//        byte[] params = new ApproveCandidateParam(peerPubkey).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"approveCandidate",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
@@ -178,9 +173,6 @@ public class Governance {
      * @throws Exception
      */
     public String rejectCandidate(String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
-//        byte[] params = new RejectCandidateParam(peerPubkey).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"rejectCandidate",params, payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -213,8 +205,6 @@ public class Governance {
         for(int i =0;i < peerPubkey.length;i++){
             map.put(peerPubkey[i],posList[i]);
         }
-//        byte[] params = new VoteForPeerParam(account.getAddressU160(),peerPubkey,posList).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"voteForPeer",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
         List list = new ArrayList();
         Struct struct = new Struct();
@@ -260,8 +250,6 @@ public class Governance {
         for(int i =0;i < peerPubkey.length;i++){
             map.put(peerPubkey[i],posList[i]);
         }
-//        byte[] params = new VoteForPeerParam(account.getAddressU160(),peerPubkey,posList).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"unVoteForPeer",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
         List list = new ArrayList();
         Struct struct = new Struct();
@@ -307,8 +295,6 @@ public class Governance {
         for(int i =0;i < peerPubkey.length;i++){
             map.put(peerPubkey[i],withdrawList[i]);
         }
-//        byte[] params = new WithdrawParam(account.getAddressU160(),peerPubkey,withdrawList).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"withdraw",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
         List list = new ArrayList();
         Struct struct = new Struct();
@@ -346,7 +332,6 @@ public class Governance {
      * @throws Exception
      */
     public String commitDpos(String adminOntId,String password,byte[] salt, Account payerAcct,long gaslimit,long gasprice) throws Exception{
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"commitDpos",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"rejectCandidate",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
         sdk.signTx(tx,adminOntId,password,salt);
@@ -368,9 +353,6 @@ public class Governance {
      * @throws Exception
      */
     public String blackNode(String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
-//        byte[] params = new BlackNodeParam(peerPubkey).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"blackNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -393,9 +375,6 @@ public class Governance {
      * @throws Exception
      */
     public String whiteNode(String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
-//        byte[] params = new WhiteNodeParam(peerPubkey).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"whiteNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -419,9 +398,6 @@ public class Governance {
      * @throws Exception
      */
     public String quitNode(Account account,String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
-//        byte[] params = new QuitNodeParam(peerPubkey,account.getAddressU160()).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"quitNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey,account.getAddressU160()));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -448,8 +424,6 @@ public class Governance {
      * @throws Exception
      */
     public String updateConfig(Configuration config,Account payerAcct,long gaslimit,long gasprice) throws Exception{
-//        byte[] params = config.toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"updateConfig",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
         List list = new ArrayList();
         list.add(new Struct().add(config.toArray()));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -477,9 +451,6 @@ public class Governance {
      * @throws Exception
      */
     public String updateGlobalParam(long candidateFee,long minInitStake,long candidateNum,long A,long B,long Yita,Account payerAcct,long gaslimit,long gasprice) throws Exception{
-//        byte[] params = new GovernanceGlobalParam(candidateFee,minInitStake,candidateNum,A,B,Yita).toArray();
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"updateGlobalParam",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         List list = new ArrayList();
         list.add(new Struct().add(candidateFee,minInitStake,candidateNum,A,B,Yita));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -501,8 +472,6 @@ public class Governance {
      * @throws Exception
      */
     public String callSplit(Account payerAcct,long gaslimit,long gasprice) throws Exception{
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"updateConfig",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"callSplit",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
         sdk.signTx(tx,new Account[][]{{payerAcct}});
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
