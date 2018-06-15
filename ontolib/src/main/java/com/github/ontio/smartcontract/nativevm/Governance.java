@@ -139,8 +139,7 @@ public class Governance {
 
     /**
      *
-     * @param adminOntId
-     * @param password
+     * @param adminAccount
      * @param peerPubkey
      * @param payerAcct
      * @param gaslimit
@@ -148,14 +147,16 @@ public class Governance {
      * @return
      * @throws Exception
      */
-    public String approveCandidate(String adminOntId,String password,byte[] salt, String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+    public String approveCandidate(Account adminAccount, String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
 
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"approveCandidate",args,payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
-        sdk.signTx(tx,adminOntId,password,salt);
-        sdk.addSign(tx,payerAcct);
+        sdk.signTx(tx,new Account[][]{{adminAccount}});
+        if(!adminAccount.equals(payerAcct)) {
+            sdk.addSign(tx,payerAcct);
+        }
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {
             return tx.hash().toString();
