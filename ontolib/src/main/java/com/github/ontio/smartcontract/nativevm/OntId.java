@@ -274,9 +274,6 @@ public class OntId {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-//        byte[] parabytes = BuildParams.buildParams(ontid.getBytes(), index);
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "getKeyState", parabytes, null, 0, 0);
-
         List list = new ArrayList();
         list.add(new Struct().add(ontid.getBytes(),index));
         byte[] arg = NativeBuildParams.createCodeParamsScript(list);
@@ -296,9 +293,6 @@ public class OntId {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-//        byte[] parabytes = BuildParams.buildParams(ontid.getBytes());
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "getAttributes", parabytes, null, 0, 0);
-
         List list = new ArrayList();
         list.add(ontid.getBytes());
         byte[] arg = NativeBuildParams.createCodeParamsScript(list);
@@ -415,20 +409,14 @@ public class OntId {
         if (recoveryOntid == null) {
             AccountInfo info = sdk.getWalletMgr().getAccountInfo(ontid, password,salt);
             byte[] pk = Helper.hexToBytes(info.pubkey);
-//            parabytes = NativeBuildParams.buildParams(ontid.getBytes(), Helper.hexToBytes(newpubkey), pk);
-
             List list = new ArrayList();
             list.add(new Struct().add(ontid.getBytes(),Helper.hexToBytes(newpubkey),pk));
             arg = NativeBuildParams.createCodeParamsScript(list);
         } else {
-//            parabytes = NativeBuildParams.buildParams(ontid, Helper.hexToBytes(newpubkey), Address.decodeBase58(recoveryOntid.replace(Common.didont,"")).toArray());
-
             List list = new ArrayList();
             list.add(new Struct().add(ontid.getBytes(),Helper.hexToBytes(newpubkey),Address.decodeBase58(recoveryOntid.replace(Common.didont,"")).toArray()));
             arg = NativeBuildParams.createCodeParamsScript(list);
         }
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "addKey", parabytes,payer, gaslimit, gasprice);
-
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"addKey",arg,payer,gaslimit,gasprice);
         return tx;
     }
@@ -524,20 +512,15 @@ public class OntId {
         if (recoveryAddr == null) {
             AccountInfo info = sdk.getWalletMgr().getAccountInfo(ontid.replace(Common.didont, ""), password,salt);
             byte[] pk = Helper.hexToBytes(info.pubkey);
-//            parabytes = NativeBuildParams.buildParams(ontid, Helper.hexToBytes(removePubkey), pk);
             List list = new ArrayList();
             list.add(new Struct().add(ontid.getBytes(),Helper.hexToBytes(removePubkey),pk));
             arg = NativeBuildParams.createCodeParamsScript(list);
 
         } else {
-//            parabytes = NativeBuildParams.buildParams(ontid, Helper.hexToBytes(removePubkey), Address.decodeBase58(recoveryAddr).toArray());
             List list = new ArrayList();
             list.add(new Struct().add(ontid.getBytes(),Helper.hexToBytes(removePubkey),Address.decodeBase58(recoveryAddr.replace(Common.didont,"")).toArray()));
             arg = NativeBuildParams.createCodeParamsScript(list);
         }
-
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "removeKey", parabytes, payer, gaslimit, gasprice);
-
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"removeKey",arg,payer,gaslimit,gasprice);
 
         return tx;

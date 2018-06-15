@@ -154,9 +154,6 @@ public class Ont {
         if (address == null || address.equals("")) {
             throw new SDKException(ErrorCode.ParamErr("address should not be null"));
         }
-//        byte[] arg = NativeBuildParams.buildParams(Address.decodeBase58(address).toArray());
-//        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(ontContract)),"balanceOf",arg,null,0,0);
-//        Transaction tx = sdk.vm().makeInvokeCodeTransaction(ontContract, "balanceOf", Address.decodeBase58(address).toArray(),null, 0, 0);
 
         List list = new ArrayList();
         list.add(Address.decodeBase58(address));

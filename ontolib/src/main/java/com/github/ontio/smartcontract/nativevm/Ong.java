@@ -106,9 +106,6 @@ public class Ong {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw new SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"));
         }
-//        State state = new State(Address.decodeBase58(sendAddr), Address.decodeBase58(recvAddr), amount);
-//        Transfers transfers = new Transfers(new State[]{state});
-
         List list = new ArrayList();
         Struct[] structs = new Struct[]{new Struct().add(Address.decodeBase58(sendAddr),Address.decodeBase58(recvAddr),amount)};
         list.add(structs);
