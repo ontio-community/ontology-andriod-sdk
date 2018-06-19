@@ -117,10 +117,24 @@ public class Governance {
 
     /**
      *
+     * @param peerPubkey
      * @return
-     * @throws IOException
+     * @throws Exception
      */
-    public String getPeerPoolMap() throws Exception {
+    public String getPeerInfo(String peerPubkey) throws Exception {
+        return getPeerPoolMap(peerPubkey);
+    }
+
+    /**
+     *
+     * @return
+     * @throws Exception
+     */
+    public String getPeerInfoAll() throws Exception {
+        return getPeerPoolMap(null);
+    }
+
+    private String getPeerPoolMap(String peerPubkey) throws Exception {
         String view = sdk.getConnect().getStorage(Helper.reverse(contractAddress),Helper.toHexString("governanceView".getBytes()));
         GovernanceView governanceView = new GovernanceView();
         ByteArrayInputStream bais = new ByteArrayInputStream(Helper.hexToBytes(view));
@@ -145,6 +159,12 @@ public class Governance {
             PeerPoolItem item = new PeerPoolItem();
             item.deserialize(reader);
             peerPoolMap.put(item.peerPubkey,item.Json());
+        }
+        if(peerPubkey != null) {
+            if(!peerPoolMap.containsKey(peerPubkey)) {
+                return null;
+            }
+            return JSON.toJSONString(peerPoolMap.get(peerPubkey));
         }
         return JSON.toJSONString(peerPoolMap);
     }
