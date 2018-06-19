@@ -80,7 +80,7 @@ public class GovernanceTest {
             System.out.println(sdk.getConnect().getBalance(account.getAddressU160().toBase58()));
         }
         System.out.println("account:" + sdk.getConnect().getBalance(account.getAddressU160().toBase58()));
-        String res = sdk.nativevm().governance().getPeerPoolMap();
+        String res = sdk.nativevm().governance().getPeerInfoAll();
         JSONObject jsr = JSONObject.parseObject(res);
         System.out.println(jsr.getString(Helper.toHexString(account6.serializePublicKey())));
     }
