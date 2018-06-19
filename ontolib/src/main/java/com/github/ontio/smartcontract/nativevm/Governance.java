@@ -25,6 +25,7 @@ import com.github.ontio.OntSdk;
 import com.github.ontio.account.Account;
 import com.github.ontio.common.*;
 import com.github.ontio.core.VmType;
+import com.github.ontio.core.governance.VoteInfo;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.io.BinaryReader;
 import com.github.ontio.io.BinaryWriter;
@@ -51,6 +52,7 @@ import java.util.Map;
 public class Governance {
     private OntSdk sdk;
     private final String contractAddress = "0000000000000000000000000000000000000007";
+    private final String VOTE_INFO_POOL = "voteInfoPool";
     public Governance(OntSdk sdk) {
         this.sdk = sdk;
     }
@@ -86,6 +88,16 @@ public class Governance {
         return null;
     }
 
+    /**
+     *
+     * @param account
+     * @param peerPubkey
+     * @param payerAcct
+     * @param gaslimit
+     * @param gasprice
+     * @return
+     * @throws Exception
+     */
     public String unRegisterCandidate(Account account, String peerPubkey,Account payerAcct, long gaslimit, long gasprice) throws Exception{
 
         List list = new ArrayList();
@@ -135,6 +147,38 @@ public class Governance {
             peerPoolMap.put(item.peerPubkey,item.Json());
         }
         return JSON.toJSONString(peerPoolMap);
+    }
+
+    /**
+     *
+     * @param peerPubkey
+     * @param addr
+     * @return
+     */
+    public VoteInfo getVoteInfo(String peerPubkey, Address addr) {
+        byte[] peerPubkeyPrefix = new byte[0];
+        try {
+            peerPubkeyPrefix = Helper.hexToBytes(peerPubkey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        byte[] address = addr.toArray();
+        byte[] voteInfoPool = VOTE_INFO_POOL.getBytes();
+        byte[] key = new byte[voteInfoPool.length + peerPubkeyPrefix.length + address.length];
+        System.arraycopy(voteInfoPool,0,key,0,voteInfoPool.length);
+        System.arraycopy(peerPubkeyPrefix,0,key,voteInfoPool.length,peerPubkeyPrefix.length);
+        System.arraycopy(address,0,key,voteInfoPool.length + peerPubkeyPrefix.length,address.length);
+        String res = null;
+
+        try {
+            res = sdk.getConnect().getStorage(Helper.reverse(contractAddress),Helper.toHexString(key));
+            if(!res.equals("")){
+                return Serializable.from(Helper.hexToBytes(res), VoteInfo.class);
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 
     /**
