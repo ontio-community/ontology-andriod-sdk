@@ -27,6 +27,7 @@ import java.nio.*;
 
 import org.spongycastle.math.ec.ECPoint;
 
+
 public class BinaryWriter implements AutoCloseable {
 	private DataOutputStream writer;
 	private byte[] array = new byte[8];

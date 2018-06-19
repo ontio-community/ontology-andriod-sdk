@@ -1,5 +1,7 @@
 package com.github.ontio.common;
 
+import android.util.Base64;
+
 import com.github.ontio.sdk.wallet.Account;
 import com.github.ontio.sdk.wallet.Control;
 import com.github.ontio.sdk.wallet.Identity;
@@ -13,15 +15,15 @@ public class WalletQR {
     public static Map exportIdentityQRCode(Wallet walletFile, Identity identity) throws Exception {
         Control control = identity.controls.get(0);
         String address = identity.ontid.substring(8);
-        String prefix = Helper.getPrefix(address);
         Map map = new HashMap();
         map.put("type", "I");
         map.put("label",identity.label);
         map.put("key", control.key);
         map.put("parameters", control.parameters);
-        map.put("prefix", prefix);
         map.put("algorithm", "ECDSA");
         map.put("scrypt", walletFile.getScrypt());
+        map.put("address",address);
+        map.put("salt", control.salt);
         return map;
     }
 
@@ -30,10 +32,11 @@ public class WalletQR {
         map.put("type", "A");
         map.put("label", account.label);
         map.put("key", account.key);
-        map.put("prefix", Helper.getPrefix(account.address));
         map.put("parameters", account.parameters);
         map.put("algorithm", "ECDSA");
         map.put("scrypt", walletFile.getScrypt());
+        map.put("address",account.address);
+        map.put("salt", account.salt);
         return map;
     }
 }

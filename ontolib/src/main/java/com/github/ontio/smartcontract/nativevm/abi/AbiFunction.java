@@ -1,3 +1,5 @@
+package com.github.ontio.smartcontract.nativevm.abi;
+
 /*
  * Copyright (C) 2018 The ontology Authors
  * This file is part of The ontology library.
@@ -17,17 +19,17 @@
  *
  */
 
-package com.github.ontio.sdk.abi;
 
 import com.alibaba.fastjson.JSON;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.sdk.exception.SDKException;
+
 import java.util.List;
 
 /**
- * smartcode abi event
+ * smartcode abi function
  */
-public class AbiEvent {
+public class AbiFunction {
     public String name;
     public String returntype;
     public List<Parameter> parameters;
@@ -65,3 +67,4 @@ public class AbiEvent {
         return JSON.toJSONString(this);
     }
 }
+

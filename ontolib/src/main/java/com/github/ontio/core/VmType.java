@@ -25,6 +25,7 @@ import com.github.ontio.sdk.exception.SDKException;
 /**
  * list vm types
  */
+ 
 public enum VmType {
 
     Native(0xff),

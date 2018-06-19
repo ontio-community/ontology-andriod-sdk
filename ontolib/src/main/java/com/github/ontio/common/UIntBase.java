@@ -79,10 +79,14 @@ public abstract class UIntBase extends Serializable {
      */
     @Override
     public String toString() {
-        return Helper.toHexString(data_bytes);
-//        return Helper.toHexString(Helper.reverse(data_bytes));
+//        return Helper.toHexString(data_bytes);
+        return Helper.toHexString(Helper.reverse(data_bytes));
     }
-    
+
+    public String toHexString() throws Exception {
+        return Helper.reverse(Helper.toHexString(toArray()));
+    }
+
     @Override
     public void serialize(BinaryWriter writer) throws IOException {
     	writer.write(data_bytes);

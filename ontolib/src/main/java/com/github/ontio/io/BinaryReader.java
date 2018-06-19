@@ -59,6 +59,7 @@ import com.github.ontio.crypto.ECC;
  * 11.ToArray SerializableData to ToArray() func.
  ******************************************************************************
  */
+ 
 public class BinaryReader implements AutoCloseable {
 	private DataInputStream reader;
 	private byte[] array = new byte[8];

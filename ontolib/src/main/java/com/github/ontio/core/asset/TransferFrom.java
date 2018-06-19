@@ -63,7 +63,7 @@ public class TransferFrom extends Serializable {
     }
 
 
-    public Object json() {
+    public Object json() throws Exception {
         Map json = new HashMap<>();
         json.put("sender", sender.toHexString());
         json.put("from", from.toHexString());

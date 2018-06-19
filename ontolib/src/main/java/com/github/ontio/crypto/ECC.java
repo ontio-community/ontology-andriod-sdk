@@ -26,6 +26,7 @@ import org.spongycastle.asn1.x9.*;
 import org.spongycastle.crypto.params.ECDomainParameters;
 import org.spongycastle.math.ec.ECPoint;
 
+
 public class ECC {
 	private static final X9ECParameters secp256r1nc = ECNamedCurveTable.getByName("secp256r1");
 	public static final ECDomainParameters secp256r1 = new ECDomainParameters(secp256r1nc.getCurve(), secp256r1nc.getG(), secp256r1nc.getN(), secp256r1nc.getH(), secp256r1nc.getSeed());

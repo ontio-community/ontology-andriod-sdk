@@ -36,7 +36,7 @@ public class ScriptBuilder implements AutoCloseable {
         return add(op.getByte());
     }
 
-    private ScriptBuilder add(byte op) {
+    public ScriptBuilder add(byte op) {
         ms.write(op);
         return this;
     }

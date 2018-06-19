@@ -19,6 +19,8 @@
 
 package com.github.ontio.sdk.wallet;
 
+import android.util.Base64;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 
@@ -37,7 +39,7 @@ public class Account {
     public Map parameters = new HashMap() ;
     public String key = "";
     @JSONField(name = "enc-alg")
-    public String encAlg = "aes-256-ctr";
+    public String encAlg = "aes-256-gcm";
     public String salt = "";
     public String hash = "sha256";
     public String signatureScheme = "SHA256withECDSA";
@@ -84,12 +86,12 @@ public class Account {
         this.hash = hash;
     }
 
-    public String getSalt() {
-        return salt;
+    public byte[] getSalt() {
+        return Base64.decode(salt,Base64.NO_WRAP);
     }
 
-    public void setSalt(String salt) {
-        this.salt = salt;
+    public void setSalt(byte[] salt) {
+        this.salt = new String(Base64.encode(salt,Base64.NO_WRAP));
     }
 
     @Override

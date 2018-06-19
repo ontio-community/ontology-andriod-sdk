@@ -20,6 +20,8 @@
 package com.github.ontio.core.asset;
 
 import com.github.ontio.common.Helper;
+import com.github.ontio.core.program.Program;
+import com.github.ontio.core.program.ProgramInfo;
 import com.github.ontio.io.*;
 import com.github.ontio.crypto.ECC;
 
@@ -28,6 +30,10 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.github.ontio.core.program.Program.ProgramFromMultiPubKey;
+import static com.github.ontio.core.program.Program.ProgramFromParams;
+import static com.github.ontio.core.program.Program.ProgramFromPubKey;
 
 /**
  *
@@ -39,29 +45,25 @@ public class Sig extends Serializable {
 
     @Override
     public void deserialize(BinaryReader reader) throws IOException {
-    	int len = (int)reader.readVarInt();
-        pubKeys = new byte[len][];
-        for(int i=0;i<pubKeys.length;i++) {
-            pubKeys[i] = reader.readVarBytes();
-        }
-        M = (int)reader.readVarInt();
-        len = (int)reader.readVarInt();
-        sigData = new byte[len][];
-        for(int i=0;i<sigData.length;i++) {
-            sigData[i] = reader.readVarBytes();
-        }
+        byte[] invocationScript = reader.readVarBytes();
+        byte[] verificationScript = reader.readVarBytes();
+        sigData = Program.getParamInfo(invocationScript);
+        ProgramInfo info = Program.getProgramInfo(verificationScript);
+        pubKeys = info.publicKey;
+        M = info.m;
     }
 
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
-    	writer.writeVarInt(pubKeys.length);
-    	for(int i=0;i<pubKeys.length;i++) {
-            writer.writeVarBytes(pubKeys[i]);
-        }
-        writer.writeVarInt(M);
-        writer.writeVarInt(sigData.length);
-        for (int i = 0; i < sigData.length; i++) {
-            writer.writeVarBytes(sigData[i]);
+        writer.writeVarBytes(ProgramFromParams(sigData));
+        try {
+            if(pubKeys.length == 1){
+                writer.writeVarBytes(ProgramFromPubKey(pubKeys[0]));
+            }else if(pubKeys.length > 1){
+                writer.writeVarBytes(ProgramFromMultiPubKey(M,pubKeys));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

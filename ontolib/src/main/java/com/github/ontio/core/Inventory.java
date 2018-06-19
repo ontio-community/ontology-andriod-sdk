@@ -22,6 +22,7 @@ package com.github.ontio.core;
 import com.github.ontio.common.UInt256;
 import com.github.ontio.crypto.Digest;
 
+
 public abstract class Inventory extends Signable {
     //[NonSerialized]
     private UInt256 _hash = null;

@@ -20,6 +20,7 @@
 package com.github.ontio.core.asset;
 
 import com.github.ontio.common.Address;
+import com.github.ontio.common.Helper;
 import com.github.ontio.crypto.Digest;
 import com.github.ontio.io.*;
 
@@ -44,17 +45,16 @@ public class State extends Serializable {
     }
     @Override
     public void deserialize(BinaryReader reader) throws Exception {
-            from = reader.readSerializable(Address.class);
-            to = reader.readSerializable(Address.class);
-            value = reader.readVarInt();
+        from = new Address(reader.readVarBytes());
+        to = new Address(reader.readVarBytes());
+        value = Helper.BigIntFromBytes(reader.readVarBytes()).longValue();
     }
 
     @Override
     public void serialize(BinaryWriter writer) throws Exception {
-        writer.writeSerializable(from);
-        writer.writeSerializable(to);
-        writer.writeVarInt(value);
-
+        writer.writeVarBytes(from.toArray());
+        writer.writeVarBytes(to.toArray());
+        writer.writeVarBytes(Helper.BigInt2Bytes(BigInteger.valueOf(value)));
     }
 
     public static State deserializeFrom(byte[] value) throws Exception {
@@ -69,7 +69,7 @@ public class State extends Serializable {
             throw new IOException(ex);
         }
     }
-    public Object json() {
+    public Object json() throws Exception {
         Map json = new HashMap<>();
         json.put("from", from.toHexString());
         json.put("to", to.toHexString());

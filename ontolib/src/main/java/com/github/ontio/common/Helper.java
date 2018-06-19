@@ -25,6 +25,7 @@ import android.util.Log;
 import com.github.ontio.crypto.Digest;
 import com.github.ontio.sdk.exception.SDKException;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
@@ -53,6 +54,55 @@ public class Helper {
             result[i] = v[v.length - i - 1];
         }
         return result;
+    }
+
+    public static byte[] BigInt2Bytes(BigInteger bi){
+        if(bi.longValue() == 0) {
+            return new byte[]{};
+        }
+        byte[] bs = bi.toByteArray();
+        byte b = bs[0];
+        if(bi.intValue() < 0) {
+            for(int i= 0;i < bs.length;i++){
+                bs[i] = (byte)~b;
+            }
+            BigInteger temp = new BigInteger(bs);
+            BigInteger temp2 = temp.add(BigInteger.valueOf(1));
+            bs = temp2.toByteArray();
+            byte[] res = reverse(bs);
+            if(b >> 7 ==1){
+                byte[] t = new byte[res.length + 1];
+                System.arraycopy(res,0,t,0,res.length);
+                t[res.length] = (byte)0;
+                return t;
+            }
+            return res;
+        }else{
+            byte[] res = reverse(bs);
+            if(b >> 7 == 1){
+                byte[] t = new byte[res.length + 1];
+                System.arraycopy(res,0,t,0,res.length);
+                t[res.length] = (byte)0;
+                return t;
+            }
+            return res;
+        }
+    }
+
+    public static BigInteger BigIntFromBytes(byte[] ba){
+        if(ba.length == 0){
+            return BigInteger.valueOf(0);
+        }
+        byte[] bs = reverse(ba);
+        if(bs[0] >> 7 == 1) {
+            for(int i = 0;i < bs.length;i++) {
+                bs[i] = (byte)~bs[i];
+            }
+            BigInteger temp = new BigInteger(bs);
+            temp.add(BigInteger.valueOf(1));
+            return temp.negate();
+        }
+        return new BigInteger(bs);
     }
     
     public static byte[] hexToBytes(String value) throws Exception {
@@ -89,13 +139,7 @@ public class Helper {
 		}
 		return bt;
 	}
-    public static String getContractAddress(String codeHexStr,byte vmtype) throws Exception {
-        Address code = Address.toScriptHash(Helper.hexToBytes(codeHexStr));
-        byte[] hash = code.toArray();
-        hash[0] = vmtype;
-        String codeHash = Helper.toHexString(hash);
-        return codeHash;
-    }
+
 
     public static byte[] addBytes(byte[] data1, byte[] data2) {
         byte[] data3 = new byte[data1.length + data2.length];
@@ -118,13 +162,5 @@ public class Helper {
     }
     public static void print(Map<String,Object> map){
         System.out.println(toString(map));
-    }
-
-
-    public static String getPrefix(String text) throws Exception {
-        byte[] sha256 = Digest.sha256(Digest.sha256(text.getBytes()));
-        byte[] addresshash = Arrays.copyOfRange(sha256, 0, 4);
-        String s = Helper.toHexString(addresshash);
-	    return s;
     }
 }

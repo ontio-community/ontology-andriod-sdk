@@ -55,6 +55,7 @@ public class OntSdk {
     private NativeVm nativevm = null;
     private NeoVm neovm = null;
     private WasmVm wasmvm = null;
+    private SignServer signServer = null;
 
     private static OntSdk instance = null;
     public SignatureScheme defaultSignScheme = SignatureScheme.SHA256WITHECDSA;
@@ -69,9 +70,14 @@ public class OntSdk {
 
     private OntSdk() {
     }
-
-    public NativeVm nativevm() throws SDKException {
-        if (nativevm == null) {
+    public SignServer getSignServer() throws SDKException{
+        if(signServer == null){
+            throw new SDKException(ErrorCode.OtherError("signServer null"));
+        }
+        return signServer;
+    }
+    public NativeVm nativevm() throws SDKException{
+        if(nativevm == null){
             vm();
             nativevm = new NativeVm(getInstance());
         }
@@ -161,7 +167,9 @@ public class OntSdk {
         walletMgr.setSignatureScheme(scheme);
     }
 
-
+    public void setSignServer(String url) throws Exception{
+        this.signServer = new SignServer(url);
+    }
     public void setRpc(String url) throws MalformedURLException {
         this.connRpc = new ConnectMgr(url, "rpc");
     }
@@ -200,8 +208,8 @@ public class OntSdk {
      * @return
      * @throws Exception
      */
-    public Transaction addSign(Transaction tx, String addr, String password) throws Exception {
-        return addSign(tx, getWalletMgr().getAccount(addr, password));
+    public Transaction addSign(Transaction tx, String addr, String password,byte[] salt) throws Exception {
+        return addSign(tx, getWalletMgr().getAccount(addr, password,salt));
     }
 
     public Transaction addSign(Transaction tx, Account acct) throws Exception {
@@ -242,9 +250,9 @@ public class OntSdk {
         return tx;
     }
 
-    public Transaction signTx(Transaction tx, String address, String password) throws Exception {
+    public Transaction signTx(Transaction tx, String address, String password,byte[] salt) throws Exception {
         address = address.replace(Common.didont, "");
-        signTx(tx, new Account[][]{{getWalletMgr().getAccount(address, password)}});
+        signTx(tx, new Account[][]{{getWalletMgr().getAccount(address, password,salt)}});
         return tx;
     }
 

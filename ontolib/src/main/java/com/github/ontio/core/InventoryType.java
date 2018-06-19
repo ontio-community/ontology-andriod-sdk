@@ -23,6 +23,7 @@ package com.github.ontio.core;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.sdk.exception.SDKException;
 
+
 public enum InventoryType {
     TX(0x01),
     Block(0x02),

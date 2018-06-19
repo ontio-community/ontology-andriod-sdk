@@ -32,6 +32,7 @@ import com.github.ontio.io.Serializable;
 import com.github.ontio.common.Address;
 
 
+
 public abstract class Signable extends Serializable {
 
     public abstract void deserializeUnsigned(BinaryReader reader) throws Exception;

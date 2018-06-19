@@ -62,7 +62,7 @@ public class GovernanceTest {
         Account account6 = new Account(Helper.hexToBytes(privatekey6),SignatureScheme.SHA256WITHECDSA);
 
         if(true){
-            Identity adminOntid = sdk.getWalletMgr().importIdentity("ET5m04btJ/bhRvSomqfqSY05M1mlmePU74mY+yvpIjY=",password,account.getAddressU160().toBase58());
+//            Identity adminOntid = sdk.getWalletMgr().importIdentity("ET5m04btJ/bhRvSomqfqSY05M1mlmePU74mY+yvpIjY=",password,account.getAddressU160().toBase58());
             String contractAddr = "ff00000000000000000000000000000000000007";
 //            String txhash = sdk.nativevm().auth().assignFuncsToRole(adminOntid.ontid,password,contractAddr,"role",new String[]{"registerCandidate"},1,payerAcct,sdk.DEFAULT_GAS_LIMIT,0);
 //            String txhash = sdk.nativevm().auth().assignOntIDsToRole(adminOntid.ontid,password,contractAddr,"role",new String[]{adminOntid.ontid},1,payerAcct,sdk.DEFAULT_GAS_LIMIT,0);

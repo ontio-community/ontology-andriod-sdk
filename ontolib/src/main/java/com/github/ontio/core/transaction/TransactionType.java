@@ -22,6 +22,7 @@ package com.github.ontio.core.transaction;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.sdk.exception.SDKException;
 
+
 /**
  * list transaction types
  */
