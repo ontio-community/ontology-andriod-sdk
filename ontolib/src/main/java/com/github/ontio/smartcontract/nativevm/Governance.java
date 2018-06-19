@@ -237,13 +237,16 @@ public class Governance {
      * @return
      * @throws Exception
      */
-    public String rejectCandidate(String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+    public String rejectCandidate(Account adminAccount,String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"rejectCandidate",args,payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
 
-        sdk.signTx(tx,new Account[][]{{payerAcct}});
+        sdk.signTx(tx,new Account[][]{{adminAccount}});
+        if(!adminAccount.equals(payerAcct)) {
+            sdk.addSign(tx,payerAcct);
+        }
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {
             return tx.hash().toString();
@@ -397,7 +400,7 @@ public class Governance {
      */
     public String commitDpos(Account adminAccount, Account payerAcct,long gaslimit,long gasprice) throws Exception{
 
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"rejectCandidate",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"commitDpos",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
         sdk.signTx(tx,new Account[][]{{adminAccount}});
         if(!adminAccount.equals(payerAcct)){
             sdk.addSign(tx,payerAcct);
