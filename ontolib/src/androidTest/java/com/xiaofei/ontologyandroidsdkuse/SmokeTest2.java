@@ -43,7 +43,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
-public class SmokeTest {
+public class SmokeTest2 {
     private OntSdk ontSdk;
     private ConnectMgr connectMgr;
     private Ont ont;
@@ -64,7 +64,8 @@ public class SmokeTest {
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
         ontSdk.setRestful("http://polaris1.ont.io:20334");
-        ontopassService = new OntopassService("http://localhost:9099/");
+        ontopassService = new OntopassService("https://app.ont.io/S1/");
+//        ontopassService = new OntopassService("http://localhost:9099/");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -367,7 +368,7 @@ public class SmokeTest {
 //        ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG 59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc rich
 //        AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe 6da9f512db2991bcfd963d9073b0d6541a3f9dff139b7b0959f79778d6f4e870 poor
 
-        JSONObject balanceObj = (JSONObject) connectMgr.getBalance("ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG");
+        JSONObject balanceObj = (JSONObject) connectMgr.getBalance("AGgQU6yC4CJs6nd9v26LZLdP6LpkaUwY1s");
         assertNotNull(balanceObj);
         long ontBalance = balanceObj.getLongValue("ont");
         long ongBalance = balanceObj.getLongValue("ong");
@@ -380,9 +381,11 @@ public class SmokeTest {
         final int amount = 1;
 //        ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG 59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc rich
 //        AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe 6da9f512db2991bcfd963d9073b0d6541a3f9dff139b7b0959f79778d6f4e870 poor
-        final String richAddr = "ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG";
-        final String richKey = "59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc";
-        final String richPassword = "123456";
+        final String richAddr = "AazEvfQPcQ2GEFFPLF1ZLwQ7K5jDn81hve";
+        final String richEncryptedKey = "HJ/2rbSeYFqBrqa/ra78MOuWt1qFcJMAYY4sso0Bf0KYCTe+XQVyr1rFPn04cvX3";
+        final String richPassword = "\"111111'";
+        final String richSaltStr = "LkKNGCWN8ziDmnERyoMP6Q==";
+        final byte[] richSalt = Base64.decode(richSaltStr,Base64.NO_WRAP);
         final String poorAddr = "AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe";
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
         JSONObject poorBalanceObj = (JSONObject) connectMgr.getBalance(poorAddr);
@@ -391,7 +394,7 @@ public class SmokeTest {
         assertTrue(richOntBalance > 0);
         assertTrue(poorOntBalance >= 0);
 
-        Account accountRich = walletMgr.createAccountFromPriKey(richPassword, richKey);
+        Account accountRich = walletMgr.importAccount(richEncryptedKey,richPassword,richAddr, richSalt);
         byte[] saltRich = accountRich.getSalt();
 
         Transaction transactionR2P = ont.makeTransfer(richAddr,poorAddr,1,payAddr,gasLimit,gasPrice);
@@ -425,9 +428,11 @@ public class SmokeTest {
         final int amount = 1;
 //        ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG 59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc rich
 //        AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe 6da9f512db2991bcfd963d9073b0d6541a3f9dff139b7b0959f79778d6f4e870 poor
-        final String richAddr = "ATc5gXifZQ1C1gMCoRMrGEvhWxhvQ5w1RG";
-        final String richKey = "59fc435e3955d9eece982713e287549e19aeb33ebc7f7b70c28dc0959a16efdc";
-        final String richPassword = "123456";
+        final String richAddr = "AazEvfQPcQ2GEFFPLF1ZLwQ7K5jDn81hve";
+        final String richEncryptedKey = "HJ/2rbSeYFqBrqa/ra78MOuWt1qFcJMAYY4sso0Bf0KYCTe+XQVyr1rFPn04cvX3";
+        final String richPassword = "\"111111'";
+        final String richSaltStr = "LkKNGCWN8ziDmnERyoMP6Q==";
+        final byte[] richSalt = Base64.decode(richSaltStr,Base64.NO_WRAP);
         final String poorAddr = "AX2kRrJWLqdcrC9fq7CUswPjdXz6hGLBRe";
         JSONObject richBalanceObj = (JSONObject) connectMgr.getBalance(richAddr);
         JSONObject poorBalanceObj = (JSONObject) connectMgr.getBalance(poorAddr);
@@ -436,11 +441,10 @@ public class SmokeTest {
         assertTrue(richOntBalance > 0);
         assertTrue(poorOntBalance >= 0);
 
-        Account accountRich = walletMgr.createAccountFromPriKey(richPassword, richKey);
-        byte[] saltRich = accountRich.getSalt();
+        Account accountRich = walletMgr.importAccount(richEncryptedKey,richPassword,richAddr, richSalt);
 
         Transaction transactionR2P = ont.makeTransfer(richAddr,poorAddr,1,richAddr,gasLimit,gasPrice);
-        transactionR2P = ontSdk.signTx(transactionR2P,richAddr,richPassword,saltRich);
+        transactionR2P = ontSdk.signTx(transactionR2P,richAddr,richPassword,richSalt);
         String transactionBodyStr = transactionR2P.toHexString();
         boolean isSuccess = connectMgr.sendRawTransaction(transactionBodyStr);
         assertTrue(isSuccess);
