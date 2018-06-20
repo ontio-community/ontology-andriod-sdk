@@ -15,9 +15,9 @@ import retrofit2.converter.fastjson.FastJsonConverterFactory;
 
 public class OntopassService implements IOntopassService {
     private OntopassServiceApi ontopassServiceApi;
-    public OntopassService(){
+    public OntopassService(String url){
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://app.ont.io/S1/")
+                .baseUrl(url)
                 .addConverterFactory(FastJsonConverterFactory.create())
                 .build();
         this.ontopassServiceApi = retrofit.create(OntopassServiceApi.class);
