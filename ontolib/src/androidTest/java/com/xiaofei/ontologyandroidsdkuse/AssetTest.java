@@ -75,8 +75,6 @@ public class AssetTest {
     @Test
     public void ongTest() throws Exception {
 //        ontSdk.getWalletMgr().importIdentity("dRiHlKa16kKGuWEYWhXUxvHcPlLiJcorAN3ocZ9fQ8p832p4OdIIiy+kR6eImjYd","111111", Base64.decode("sJwpxe1zDsBt9hI2iA2zKQ==",Base64.NO_WRAP),"AakBoSAJapitE4sMPmW7bs8tfT4YqPeZEU");
-
-
         Account account99 = ontSdk.getWalletMgr().createAccountFromPriKey("111111","6717c0df45159d5b5ef383521e5d8ed8857a02cdbbfdefeeeb624f9418b0895e");
         int aa = 0;
         String prikey = "75de8489fcb2dcaf2ef3cd607feffde18789de7da129b5e97c81e001793cb7cf";
