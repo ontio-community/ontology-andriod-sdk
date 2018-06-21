@@ -72,6 +72,13 @@ public class Governance {
      * @throws Exception
      */
     public String registerCandidate(Account account, String peerPubkey, int initPos, String ontid,String ontidpwd,byte[] salt,  long keyNo, Account payerAcct, long gaslimit, long gasprice) throws Exception{
+        if(account == null || peerPubkey==null || peerPubkey.equals("")|| ontid==null || ontid.equals("") || ontidpwd==null || ontidpwd.equals("")||
+                salt==null|| payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(initPos < 0 ||keyNo<0 ||gaslimit<0 ||gasprice<0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
+        }
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey,account.getAddressU160(),initPos,ontid.getBytes(),keyNo));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -99,7 +106,12 @@ public class Governance {
      * @throws Exception
      */
     public String unRegisterCandidate(Account account, String peerPubkey,Account payerAcct, long gaslimit, long gasprice) throws Exception{
-
+        if(account == null || peerPubkey==null || peerPubkey.equals("")|| payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit<0 ||gasprice<0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
+        }
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey,account.getAddressU160()));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -122,6 +134,9 @@ public class Governance {
      * @throws Exception
      */
     public String getPeerInfo(String peerPubkey) throws Exception {
+        if(peerPubkey==null || peerPubkey.equals("")){
+            throw new SDKException(ErrorCode.ParamErr("peerPubkey should not be null"));
+        }
         return getPeerPoolMap(peerPubkey);
     }
 
@@ -175,7 +190,10 @@ public class Governance {
      * @param addr
      * @return
      */
-    public VoteInfo getVoteInfo(String peerPubkey, Address addr) {
+    public VoteInfo getVoteInfo(String peerPubkey, Address addr) throws SDKException {
+        if(peerPubkey==null || peerPubkey.equals("")||addr==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
         byte[] peerPubkeyPrefix = new byte[0];
         try {
             peerPubkeyPrefix = Helper.hexToBytes(peerPubkey);
@@ -212,7 +230,12 @@ public class Governance {
      * @throws Exception
      */
     public String approveCandidate(Account adminAccount, String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
-
+        if(adminAccount == null || peerPubkey==null || peerPubkey.equals("")|| payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit<0 ||gasprice<0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
+        }
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -238,6 +261,12 @@ public class Governance {
      * @throws Exception
      */
     public String rejectCandidate(Account adminAccount,String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+        if(adminAccount == null || peerPubkey==null || peerPubkey.equals("")|| payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit<0 ||gasprice<0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
+        }
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -266,6 +295,12 @@ public class Governance {
      * @throws Exception
      */
     public String voteForPeer(Account account,String peerPubkey[],long[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+        if(account == null || peerPubkey==null||peerPubkey.length==0|| posList==null || posList.length==0||payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit<0 ||gasprice<0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
+        }
         if(peerPubkey.length != posList.length){
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -311,6 +346,12 @@ public class Governance {
      * @throws Exception
      */
     public String unVoteForPeer(Account account,String peerPubkey[],long[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+        if(account == null || peerPubkey==null||peerPubkey.length==0|| posList==null || posList.length==0||payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit<0 ||gasprice<0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
+        }
         if(peerPubkey.length != posList.length){
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -356,6 +397,12 @@ public class Governance {
      * @throws Exception
      */
     public String withdraw(Account account,String peerPubkey[],long[] withdrawList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+        if(account == null || peerPubkey==null||peerPubkey.length==0|| withdrawList==null || withdrawList.length==0||payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit<0 ||gasprice<0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
+        }
         if(peerPubkey.length != withdrawList.length){
             throw new SDKException(ErrorCode.ParamError);
         }
@@ -399,7 +446,12 @@ public class Governance {
      * @throws Exception
      */
     public String commitDpos(Account adminAccount, Account payerAcct,long gaslimit,long gasprice) throws Exception{
-
+        if(adminAccount == null || payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit<0 ||gasprice<0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
+        }
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"commitDpos",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
         sdk.signTx(tx,new Account[][]{{adminAccount}});
         if(!adminAccount.equals(payerAcct)){
@@ -422,6 +474,12 @@ public class Governance {
      * @throws Exception
      */
     public String blackNode(String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+        if(peerPubkey==null||peerPubkey.equals("")||payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit < 0||gasprice <0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be less than 0"));
+        }
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -444,6 +502,12 @@ public class Governance {
      * @throws Exception
      */
     public String whiteNode(String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+        if(peerPubkey==null||peerPubkey.equals("")||payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit < 0||gasprice <0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be less than 0"));
+        }
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -467,6 +531,12 @@ public class Governance {
      * @throws Exception
      */
     public String quitNode(Account account,String peerPubkey,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+        if(account==null||peerPubkey==null||peerPubkey.equals("")||payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit < 0||gasprice <0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be less than 0"));
+        }
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey,account.getAddressU160()));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -493,6 +563,12 @@ public class Governance {
      * @throws Exception
      */
     public String updateConfig(Configuration config,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+        if(config == null || payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit < 0||gasprice <0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be less than 0"));
+        }
         List list = new ArrayList();
         list.add(new Struct().add(config.toArray()));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -520,6 +596,12 @@ public class Governance {
      * @throws Exception
      */
     public String updateGlobalParam(long candidateFee,long minInitStake,long candidateNum,long A,long B,long Yita,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+        if(payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit < 0||gasprice <0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be less than 0"));
+        }
         List list = new ArrayList();
         list.add(new Struct().add(candidateFee,minInitStake,candidateNum,A,B,Yita));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
@@ -540,7 +622,13 @@ public class Governance {
      * @return
      * @throws Exception
      */
-    public String callSplit(Account payerAcct,long gaslimit,long gasprice) throws Exception{
+    public String callSplit(Account payerAcct,long gaslimit,long gasprice) throws Exception {
+        if(payerAcct==null){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit < 0||gasprice <0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be less than 0"));
+        }
         Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"callSplit",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
         sdk.signTx(tx,new Account[][]{{payerAcct}});
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
