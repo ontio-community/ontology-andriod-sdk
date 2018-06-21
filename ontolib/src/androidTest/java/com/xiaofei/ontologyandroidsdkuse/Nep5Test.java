@@ -29,8 +29,11 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,20 +104,21 @@ public class Nep5Test {
         System.out.println("acct2 address:" + acct2.getAddressU160().toBase58()+" "+Helper.toHexString(acct2.getAddressU160().toArray()));
         System.out.println("multi address:" + multiSignAddr.toBase58()+" "+Helper.toHexString(multiSignAddr.toArray()));
         if(true) {
-            String balance = (String) getBalance(nodeUrl, contractAddr, Helper.toHexString(acct1.getAddressU160().toArray()));
-            System.out.println("acct1: " + Long.parseLong(balance,16));
-            balance = (String) getBalance(nodeUrl, contractAddr, Helper.toHexString(acct2.getAddressU160().toArray()));
-            System.out.println("acct2: " + Long.parseLong(balance,16));
-            balance = (String) getBalance(nodeUrl, contractAddr, Helper.toHexString(multiSignAddr.toArray()));
+            long balance =  getBalance(nodeUrl, contractAddr, Helper.toHexString(acct1.getAddressU160().toArray()));
+
+            System.out.println("acct1: " + balance);
+            balance =  getBalance(nodeUrl, contractAddr, Helper.toHexString(acct2.getAddressU160().toArray()));
+            System.out.println("acct2: " + balance);
+            balance = getBalance(nodeUrl, contractAddr, Helper.toHexString(multiSignAddr.toArray()));
             System.out.println("");
-            System.out.println("multiSignAddr: " + Long.parseLong(balance,16));
+            System.out.println("multiSignAddr: " + balance);
             System.out.println("");
         }
         if(false) {
             Address recv = multiSignAddr;//acct2.getAddressU160()
             AbiFunction func = abiinfo.getFunction("Transfer");
             func.name = func.name.toLowerCase();
-            func.setParamsValue(acct1.getAddressU160().toArray(), recv.toArray(), Long.valueOf(10));
+            func.setParamsValue(acct1.getAddressU160().toArray(), recv.toArray(), Long.valueOf(3000));
 
             //make transaction
             TransactionNeo tx = SmartContract.makeInvocationTransaction(Helper.reverse(contractAddr), acct1.getAddressU160().toArray(), func);
@@ -158,9 +162,9 @@ public class Nep5Test {
         Object result = call(url,"sendrawtransaction", new Object[]{sData});
         return result;
     }
-    public static Object getBalance(String url,String contractAddr,String addr) throws Exception {
+    public static long getBalance(String url,String contractAddr,String addr) throws Exception {
         Object result = call(url,"getstorage", new Object[]{contractAddr,addr});
-        return result;
+        return new BigInteger(Helper.reverse(Helper.hexToBytes((String)result))).longValue();
     }
     public static Object call(String url,String method, Object... params) throws Exception
     {
