@@ -74,10 +74,15 @@ public class AssetTest {
 
     @Test
     public void ongTest() throws Exception {
+//        ontSdk.getWalletMgr().importIdentity("dRiHlKa16kKGuWEYWhXUxvHcPlLiJcorAN3ocZ9fQ8p832p4OdIIiy+kR6eImjYd","111111", Base64.decode("sJwpxe1zDsBt9hI2iA2zKQ==",Base64.NO_WRAP),"AakBoSAJapitE4sMPmW7bs8tfT4YqPeZEU");
+
+
+        Account account99 = ontSdk.getWalletMgr().createAccountFromPriKey("111111","6717c0df45159d5b5ef383521e5d8ed8857a02cdbbfdefeeeb624f9418b0895e");
+        int aa = 0;
         String prikey = "75de8489fcb2dcaf2ef3cd607feffde18789de7da129b5e97c81e001793cb7cf";
         com.github.ontio.account.Account account2 = new com.github.ontio.account.Account(Helper.hexToBytes(prikey),SignatureScheme.SHA256WITHECDSA);
         Account account = ontSdk.getWalletMgr().importAccount("C37723zCK+H7oFQEeyYK+DDWD3o7H5oIAK5uMnKsHtpZ2365b8zen4fGapJLjaOr","11111111","AUDDJAsG1nQo115gXh8rtfocgfT2QLqLDp",Base64.decode("qWmSyQtulLImm5WrmqEBzw==",Base64.NO_WRAP));
-        int aa = 0;
+        int a1a = 0;
 
         com.github.ontio.account.Account account1 = ontSdk.getWalletMgr().getAccount("AUDDJAsG1nQo115gXh8rtfocgfT2QLqLDp","11111111",Base64.decode("qWmSyQtulLImm5WrmqEBzw==",Base64.NO_WRAP));
         System.out.println("account1:" + ontSdk.getConnect().getBalance(account1.getAddressU160().toBase58()));
@@ -156,9 +161,10 @@ public class AssetTest {
         if(false){
             ontSdk.nativevm().ont().sendTransfer(account,account9.getAddressU160().toBase58(),100,payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
-            System.out.println("account" + ontSdk.getConnect().getBalance(account.getAddressU160().toBase58()));
-            System.out.println("account" + ontSdk.nativevm().ong().unclaimOng(account.getAddressU160().toBase58()));
-            ontSdk.nativevm().ong().claimOng(account,account.getAddressU160().toBase58(),640000000000L,payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+            System.out.println("account: " + ontSdk.getConnect().getBalance(account.getAddressU160().toBase58()));
+            long aa = ontSdk.nativevm().ong().unclaimOng(account.getAddressU160().toBase58());
+            System.out.println("account: " + aa);
+            ontSdk.nativevm().ong().claimOng(account,account.getAddressU160().toBase58(),aa,payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
         }
 
         if(false){
@@ -167,8 +173,8 @@ public class AssetTest {
             Identity identity8 = ontSdk.getWalletMgr().getWallet().getIdentity(Common.didont + account8.getAddressU160().toBase58());
             String txhash2 = ontSdk.nativevm().ontId().sendRegister(identity8,password,payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
 
-//            Identity identity = ontSdk.getWalletMgr().createIdentityFromPriKey(password,prikey);
-//            String txhash = ontSdk.nativevm().ontId().sendRegister(identity,password,payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+            Identity identity = ontSdk.getWalletMgr().getWallet().getIdentity(Common.didont + account.getAddressU160().toBase58());
+            String txhash = ontSdk.nativevm().ontId().sendRegister(identity,password,payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
 //            Object obj = ontSdk.getConnect().getSmartCodeEvent(txhash);
 //            System.out.println(obj);
@@ -181,7 +187,7 @@ public class AssetTest {
         System.out.println("account:" + account.getAddressU160().toBase58());
 
         Identity adminOntid = ontSdk.getWalletMgr().getWallet().getIdentity(Common.didont + adminAccount.getAddressU160().toBase58());
-
+        adminOntid = ontSdk.getWalletMgr().getWallet().getIdentity(Common.didont + account.getAddressU160().toBase58());
 //        com.github.ontio.account.Account adminAccount = new com.github.ontio.account.Account(Helper.hexToBytes(adminPrivateKey),SignatureScheme.SHA256WITHECDSA);
 //        com.github.ontio.account.Account adminAccount2 = new com.github.ontio.account.Account(Helper.hexToBytes(adminPrivateKey2),SignatureScheme.SHA256WITHECDSA);
 
@@ -189,33 +195,34 @@ public class AssetTest {
             String contractAddr = "0000000000000000000000000000000000000007";
 //                Identity adminOntid = sdk.getWalletMgr().getWallet().getIdentity("did:ont:AazEvfQPcQ2GEFFPLF1ZLwQ7K5jDn81hve");
 //                String txhash = ontSdk.nativevm().auth().assignFuncsToRole(adminOntid.ontid,password,adminOntid.controls.get(0).getSalt(),1,contractAddr,"role",new String[]{"registerCandidate"},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
-                String txhash = ontSdk.nativevm().auth().assignOntIdsToRole(adminOntid.ontid,password,adminOntid.controls.get(0).getSalt(),1,contractAddr,"role",new String[]{identity.ontid},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
-                Thread.sleep(6000);
-                Object obj = ontSdk.getConnect().getSmartCodeEvent(txhash);
-                System.out.println(obj);
-
+//                String txhash = ontSdk.nativevm().auth().assignOntIdsToRole(adminOntid.ontid,password,adminOntid.controls.get(0).getSalt(),1,contractAddr,"role",new String[]{identity.ontid},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+//                Thread.sleep(6000);
+//                Object obj = ontSdk.getConnect().getSmartCodeEvent(txhash);
+//                System.out.println(obj);
+            System.out.println("");
             Object obj2 = ontSdk.nativevm().auth().verifyToken(identity.ontid,password,identity.controls.get(0).getSalt(),1,contractAddr,"registerCandidate");
             System.out.println(obj2);
 
         }
         if(false){
-            String txhash = ontSdk.nativevm().governance().registerCandidate(account,Helper.toHexString(account7.serializePublicKey()),10000,identity.ontid,password,identity.controls.get(0).getSalt(),1,account,ontSdk.DEFAULT_GAS_LIMIT,0);
+            String txhash = ontSdk.nativevm().governance().registerCandidate(account,Helper.toHexString(account7.serializePublicKey()),100000,identity.ontid,password,identity.controls.get(0).getSalt(),1,account,ontSdk.DEFAULT_GAS_LIMIT,0);
 //                String txhash = ontSdk.nativevm().governance().unRegisterCandidate(account,Helper.toHexString(account7.serializePublicKey()),payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
             Object obj = ontSdk.getConnect().getSmartCodeEvent(txhash);
             System.out.println(obj);
 
         }
-        if(true){
+        if(false){
 //                Identity adminOntid = sdk.getWalletMgr().getWallet().getIdentity("did:ont:AazEvfQPcQ2GEFFPLF1ZLwQ7K5jDn81hve");
-//            String txhash = ontSdk.nativevm().governance().rejectCandidate(adminAccount2,Helper.toHexString(account7.serializePublicKey()),payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
-//                String txhash = ontSdk.nativevm().governance().approveCandidate(adminAccount2,Helper.toHexString(account7.serializePublicKey()),payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+//            String txhash = ontSdk.nativevm().governance().rejectCandidate(account,Helper.toHexString(account7.serializePublicKey()),payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+//                String txhash = ontSdk.nativevm().governance().approveCandidate(account,Helper.toHexString(account7.serializePublicKey()),payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
 //                String txhash = ontSdk.nativevm().governance().voteForPeer(account,new String[]{Helper.toHexString(account7.serializePublicKey())},new long[]{100},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
 //String txhash = ontSdk.nativevm().governance().unVoteForPeer(account,new String[]{Helper.toHexString(account7.serializePublicKey())},new long[]{100},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
 //                  String txhash = ontSdk.nativevm().governance().quitNode(account,Helper.toHexString(account7.serializePublicKey()),payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
-            String txhash = ontSdk.nativevm().governance().withdraw(account,new String[]{Helper.toHexString(account7.serializePublicKey())},new long[]{10000},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
-//                String txhash = ontSdk.nativevm().governance().commitDpos(adminAccount2,payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+            String txhash = ontSdk.nativevm().governance().withdraw(account,new String[]{Helper.toHexString(account7.serializePublicKey())},new long[]{100000},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+//                String txhash = ontSdk.nativevm().governance().commitDpos(account,payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
+
             System.out.println(ontSdk.getConnect().getSmartCodeEvent(txhash));
 //                System.out.println("account9" +sdk.getConnect().getBalance( account9.getAddressU160().toBase58()));
         }
