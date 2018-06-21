@@ -31,7 +31,7 @@ import com.github.ontio.sdk.exception.SDKException;
 /**
  *
  */
-public class Fixed8  implements Comparable<Fixed8> {
+public class Fixed8 extends Serializable implements Comparable<Fixed8> {
     public static final Fixed8 MAX_VALUE = new Fixed8(Long.MAX_VALUE);
     public static final Fixed8 MIN_VALUE = new Fixed8(Long.MIN_VALUE);
     public static final Fixed8 SATOSHI = new Fixed8(1);
