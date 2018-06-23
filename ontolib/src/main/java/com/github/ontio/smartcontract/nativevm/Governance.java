@@ -452,7 +452,7 @@ public class Governance {
         if(gaslimit<0 ||gasprice<0){
             throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
         }
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"commitDpos",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"commitDpos",new byte[]{0},payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
         sdk.signTx(tx,new Account[][]{{adminAccount}});
         if(!adminAccount.equals(payerAcct)){
             sdk.addSign(tx,payerAcct);
