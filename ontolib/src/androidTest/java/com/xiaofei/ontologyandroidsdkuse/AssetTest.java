@@ -207,7 +207,7 @@ public class AssetTest {
 
         }
         if(false){
-            String txhash = ontSdk.nativevm().governance().registerCandidate(account,Helper.toHexString(account7.serializePublicKey()),40000,identity.ontid,password,identity.controls.get(0).getSalt(),1,account,ontSdk.DEFAULT_GAS_LIMIT,0);
+            String txhash = ontSdk.nativevm().governance().registerCandidate(account,Helper.toHexString(account7.serializePublicKey()),20000,identity.ontid,password,identity.controls.get(0).getSalt(),1,account,ontSdk.DEFAULT_GAS_LIMIT,0);
 //                String txhash = ontSdk.nativevm().governance().unRegisterCandidate(account,Helper.toHexString(account7.serializePublicKey()),payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
             Object obj = ontSdk.getConnect().getSmartCodeEvent(txhash);
@@ -220,8 +220,8 @@ public class AssetTest {
 //                String txhash = ontSdk.nativevm().governance().approveCandidate(adminAccount2,Helper.toHexString(account7.serializePublicKey()),payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
 //                String txhash = ontSdk.nativevm().governance().voteForPeer(account,new String[]{Helper.toHexString(account7.serializePublicKey())},new long[]{100},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
 //String txhash = ontSdk.nativevm().governance().unVoteForPeer(account,new String[]{Helper.toHexString(account7.serializePublicKey())},new long[]{100},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
-//                  String txhash = ontSdk.nativevm().governance().quitNode(account,Helper.toHexString(account7.serializePublicKey()),payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
-            String txhash = ontSdk.nativevm().governance().withdraw(account,new String[]{Helper.toHexString(account7.serializePublicKey())},new long[]{40000},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
+//                  String txhash = ontSdk.nativevm().governance().quitNode(account,Helper.toHexString(account7.serializePublicKey()),account,ontSdk.DEFAULT_GAS_LIMIT,1);
+            String txhash = ontSdk.nativevm().governance().withdraw(account,new String[]{Helper.toHexString(account7.serializePublicKey())},new long[]{20000},payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
 
 //            String txhash = ontSdk.nativevm().governance().commitDpos(adminAccount2,payerAcct,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
