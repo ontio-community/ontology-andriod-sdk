@@ -71,7 +71,7 @@ public class Governance {
      * @return
      * @throws Exception
      */
-    public String registerCandidate(Account account, String peerPubkey, int initPos, String ontid,String ontidpwd,byte[] salt,  long keyNo, Account payerAcct, long gaslimit, long gasprice) throws Exception{
+    public String registerCandidate(Account account, String peerPubkey, long initPos, String ontid,String ontidpwd,byte[] salt,  long keyNo, Account payerAcct, long gaslimit, long gasprice) throws Exception{
         if(account == null || peerPubkey==null || peerPubkey.equals("")|| ontid==null || ontid.equals("") || ontidpwd==null || ontidpwd.equals("")||
                 salt==null|| payerAcct==null){
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
