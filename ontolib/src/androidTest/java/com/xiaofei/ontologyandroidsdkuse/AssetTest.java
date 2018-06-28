@@ -7,6 +7,7 @@ import android.util.Base64;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
+import com.github.ontio.common.Address;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.governance.VoteInfo;
@@ -71,6 +72,22 @@ public class AssetTest {
 
 
 
+    }
+
+    @Test
+    public void AccountTest() throws Exception {
+        String pri1 = "e980868fe46185bdbf43cac90cd3ce8aed364ecd13041b431f72ca83d074b86b";
+        String pri2 = "edfa7d5a8b511656915c101de176fce6fb67391f6d90340d8bfd3802c252bca8";
+        String pri3 = "b9d425568a67e6b93d2fa6eff3c0970b9f4bb5dd7e8aecde8db3babf727cd274";
+
+        com.github.ontio.account.Account account1 = new com.github.ontio.account.Account(Helper.hexToBytes(pri1),SignatureScheme.SHA256WITHECDSA);
+        com.github.ontio.account.Account account2 = new com.github.ontio.account.Account(Helper.hexToBytes(pri2),SignatureScheme.SHA256WITHECDSA);
+        com.github.ontio.account.Account account3 = new com.github.ontio.account.Account(Helper.hexToBytes(pri3),SignatureScheme.SM3WITHSM2);
+
+        Address address = Address.addressFromMultiPubKeys(2,account1.serializePublicKey(),account2.serializePublicKey(),account3.serializePublicKey());
+
+        System.out.println(address.toBase58()+ "***");
+        System.out.println();
     }
 
     @Test

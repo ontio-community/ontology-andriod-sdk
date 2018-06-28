@@ -107,14 +107,33 @@ public class Address extends UIntBase implements Comparable<Address> {
         }
         try (ScriptBuilder sb = new ScriptBuilder()) {
             sb.push(BigInteger.valueOf(m));
-
             Arrays.sort(publicKeys, new Comparator<byte[]>() {
                 @Override
-                public int compare(byte[] a, byte[] b) {
-                    ECPoint pk1 = ECC.secp256r1.getCurve().decodePoint(a);
-                    ECPoint pk2 = ECC.secp256r1.getCurve().decodePoint(b);
-                    return ECC.compare(pk1,pk2);
-//                    return Helper.toHexString(a).compareTo(Helper.toHexString(b));
+                public int compare(byte[] o1, byte[] o2) {
+                    if (KeyType.fromPubkey(o1).getLabel() != KeyType.fromPubkey(o2).getLabel()) {
+                        return KeyType.fromPubkey(o1).getLabel() > KeyType.fromPubkey(o2).getLabel() ? 1 : -1;
+                    }
+                    switch (KeyType.fromPubkey(o1)) {
+                        case SM2:
+                            byte[] p = new byte[33];
+                            System.arraycopy(o1, 2, p, 0, p.length);
+                            o1 = p;
+                            byte[] p2 = new byte[33];
+                            System.arraycopy(o2, 2, p2, 0, p2.length);
+                            o2 = p2;
+                            ECPoint smPk1 = ECC.sm2p256v1.getCurve().decodePoint(o1);
+                            ECPoint smPk2 = ECC.sm2p256v1.getCurve().decodePoint(o2);
+                            return ECC.compare(smPk1, smPk2);
+                        case ECDSA:
+                            ECPoint pk1 = ECC.secp256r1.getCurve().decodePoint(o1);
+                            ECPoint pk2 = ECC.secp256r1.getCurve().decodePoint(o2);
+                            return ECC.compare(pk1, pk2);
+                        case EDDSA:
+                            //TODO
+                            return Helper.toHexString(o1).compareTo(Helper.toHexString(o1));
+                        default:
+                            return Helper.toHexString(o1).compareTo(Helper.toHexString(o1));
+                    }
                 }
             });
 

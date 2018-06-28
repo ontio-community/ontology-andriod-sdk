@@ -25,6 +25,19 @@ public enum KeyType {
         throw new SDKException(ErrorCode.ParamError);
     }
 
+    public static KeyType fromPubkey(byte[] pubkey)  {
+        try {
+            if(pubkey.length == 33){
+                return KeyType.ECDSA;
+            }else {
+                return KeyType.fromLabel(pubkey[0]);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public int getLabel() {
         return label;
     }
