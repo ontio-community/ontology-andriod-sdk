@@ -12,6 +12,7 @@ import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.governance.VoteInfo;
 import com.github.ontio.core.ontid.Attribute;
+import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.crypto.Digest;
 import com.github.ontio.crypto.SignatureScheme;
 import com.github.ontio.sdk.exception.SDKException;
@@ -55,9 +56,9 @@ public class AssetTest {
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
 //        ontSdk.setRestful("http://polaris1.ont.io:20334");
-        ontSdk.setRestful("http://139.219.128.60:20334");
-        ontSdk.setRestful("http://139.219.128.220:20334");
-//        ontSdk.setRestful("http://192.168.50.74:20334");
+//        ontSdk.setRestful("http://139.219.128.60:20334");
+//        ontSdk.setRestful("http://139.219.128.220:20334");
+        ontSdk.setRestful("http://192.168.50.74:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -79,15 +80,37 @@ public class AssetTest {
         String pri1 = "e980868fe46185bdbf43cac90cd3ce8aed364ecd13041b431f72ca83d074b86b";
         String pri2 = "edfa7d5a8b511656915c101de176fce6fb67391f6d90340d8bfd3802c252bca8";
         String pri3 = "b9d425568a67e6b93d2fa6eff3c0970b9f4bb5dd7e8aecde8db3babf727cd274";
+        String pri4 = "75de8489fcb2dcaf2ef3cd607feffde18789de7da129b5e97c81e001793cb7cf";
 
         com.github.ontio.account.Account account1 = new com.github.ontio.account.Account(Helper.hexToBytes(pri1),SignatureScheme.SHA256WITHECDSA);
         com.github.ontio.account.Account account2 = new com.github.ontio.account.Account(Helper.hexToBytes(pri2),SignatureScheme.SHA256WITHECDSA);
-        com.github.ontio.account.Account account3 = new com.github.ontio.account.Account(Helper.hexToBytes(pri3),SignatureScheme.SM3WITHSM2);
+        com.github.ontio.account.Account account3 = new com.github.ontio.account.Account(Helper.hexToBytes(pri3),SignatureScheme.SHA256WITHECDSA);
+        com.github.ontio.account.Account account4 = new com.github.ontio.account.Account(Helper.hexToBytes(pri4),SignatureScheme.SHA256WITHECDSA);
 
         Address address = Address.addressFromMultiPubKeys(2,account1.serializePublicKey(),account2.serializePublicKey(),account3.serializePublicKey());
 
-        System.out.println(address.toBase58()+ "***");
-        System.out.println();
+        System.out.println("account4:" + ontSdk.getConnect().getBalance(account4.getAddressU160().toBase58()));
+        System.out.println("address:" +ontSdk.getConnect().getBalance(address.toBase58()));
+        System.out.println("address:" +address.toBase58());
+
+        if(true){
+//             String txhash = ontSdk.nativevm().ont().sendTransfer(account4,address.toBase58(),10000000,account4,ontSdk.DEFAULT_GAS_LIMIT,0);
+
+//             Transaction tx = ontSdk.nativevm().ont().makeTransfer(address.toBase58(),account1.getAddressU160().toBase58(),1000000,account1.getAddressU160().toBase58(),ontSdk.DEFAULT_GAS_LIMIT,0);
+//             ontSdk.signTx(tx,new com.github.ontio.account.Account[][]{{account1,account2,account3}},new int[]{2});
+//             ontSdk.addSign(tx,account1);
+//             ontSdk.getConnect().sendRawTransaction(tx);
+//             String txhash = tx.hash().toHexString();
+
+            String txhash = ontSdk.nativevm().ont().sendTransferFromMultiSignAddr(new com.github.ontio.account.Account[]{account1,account2,account3},2,account4.getAddressU160().toBase58(),100000,account4,ontSdk.DEFAULT_GAS_LIMIT,0);
+
+             Thread.sleep(6000);
+             System.out.println(ontSdk.getConnect().getSmartCodeEvent(txhash));
+        }
+
+        System.out.println("");
+        System.out.println("account4:" + ontSdk.getConnect().getBalance(account4.getAddressU160().toBase58()));
+        System.out.println("address:" +ontSdk.getConnect().getBalance(address.toBase58()));
     }
 
     @Test
