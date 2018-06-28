@@ -139,7 +139,7 @@ public class Ong {
         }
         Address multiAddr = Address.addressFromMultiPubKeys(M,pks);
         Transaction tx = makeTransfer(multiAddr.toBase58(), recvAddr, amount, payerAcct.getAddressU160().toBase58(), gaslimit, gasprice);
-        sdk.signTx(tx, new Account[][]{sendAccts});
+        sdk.signTx(tx, new Account[][]{sendAccts},new int[]{M});
         sdk.addSign(tx, payerAcct);
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {
