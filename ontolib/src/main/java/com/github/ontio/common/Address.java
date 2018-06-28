@@ -29,6 +29,8 @@ import com.github.ontio.crypto.ECC;
 import com.github.ontio.io.BinaryWriter;
 import com.github.ontio.sdk.exception.SDKException;
 
+import org.spongycastle.math.ec.ECPoint;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -67,8 +69,8 @@ public class Address extends UIntBase implements Comparable<Address> {
             throw new SDKException(ErrorCode.ParamError);
         }
         byte[] v = Helper.hexToBytes(value);
-        return new Address(v);
-//        return new UInt160(Helper.reverse(v));
+//        return new Address(v);
+        return new Address(Helper.reverse(v));
     }
 
     public static boolean tryParse(String s, Address result) {
@@ -109,14 +111,16 @@ public class Address extends UIntBase implements Comparable<Address> {
             Arrays.sort(publicKeys, new Comparator<byte[]>() {
                 @Override
                 public int compare(byte[] a, byte[] b) {
-                    return Helper.toHexString(a).compareTo(Helper.toHexString(b));
+                    ECPoint pk1 = ECC.secp256r1.getCurve().decodePoint(a);
+                    ECPoint pk2 = ECC.secp256r1.getCurve().decodePoint(b);
+                    return ECC.compare(pk1,pk2);
+//                    return Helper.toHexString(a).compareTo(Helper.toHexString(b));
                 }
             });
 
             for (byte[] publicKey : publicKeys) {
                 sb.push(publicKey);
             }
-            System.out.println(Helper.toHexString(sb.toArray()));
             sb.push(BigInteger.valueOf(publicKeys.length));
             sb.add(ScriptOp.OP_CHECKMULTISIG);
             return new Address(Digest.hash160(sb.toArray()));
