@@ -70,8 +70,8 @@ public class Address extends UIntBase implements Comparable<Address> {
             throw new SDKException(ErrorCode.ParamError);
         }
         byte[] v = Helper.hexToBytes(value);
-//        return new Address(v);
-        return new Address(Helper.reverse(v));
+        return new Address(v);
+//        return new Address(Helper.reverse(v));
     }
 
     public static boolean tryParse(String s, Address result) {
