@@ -59,6 +59,10 @@ public class Account {
     private Address addressU160;
     private SignatureScheme signatureScheme;
 
+    public SignatureScheme getSignatureScheme(){
+        return signatureScheme;
+    }
+
     // create an account with the specified key type
     public Account(SignatureScheme scheme) throws Exception {
         Security.addProvider(new BouncyCastleProvider());
