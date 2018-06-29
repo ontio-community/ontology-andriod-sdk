@@ -55,10 +55,10 @@ public class AssetTest {
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
-//        ontSdk.setRestful("http://polaris1.ont.io:20334");
+        ontSdk.setRestful("http://polaris1.ont.io:20334");
 //        ontSdk.setRestful("http://139.219.128.60:20334");
 //        ontSdk.setRestful("http://139.219.128.220:20334");
-        ontSdk.setRestful("http://192.168.50.74:20334");
+//        ontSdk.setRestful("http://192.168.50.74:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -90,11 +90,13 @@ public class AssetTest {
         Address address = Address.addressFromMultiPubKeys(2,account1.serializePublicKey(),account2.serializePublicKey(),account3.serializePublicKey());
 
         System.out.println("account4:" + ontSdk.getConnect().getBalance(account4.getAddressU160().toBase58()));
-        System.out.println("address:" +ontSdk.getConnect().getBalance(address.toBase58()));
-        System.out.println("address:" +address.toBase58());
+        System.out.println("account4 ong:" + ontSdk.nativevm().ong().unclaimOng(account4.getAddressU160().toBase58()));
+        System.out.println("account3:" + ontSdk.getConnect().getBalance(account3.getAddressU160().toBase58()));
+//        System.out.println("address:" +ontSdk.getConnect().getBalance(address.toBase58()));
+//        System.out.println("address:" +address.toBase58());
 
         if(true){
-//             String txhash = ontSdk.nativevm().ont().sendTransfer(account4,address.toBase58(),10000000,account4,ontSdk.DEFAULT_GAS_LIMIT,0);
+             String txhash = ontSdk.nativevm().ont().sendTransfer(account4,account3.getAddressU160().toBase58(),1000,account4,ontSdk.DEFAULT_GAS_LIMIT,0);
 
 //             Transaction tx = ontSdk.nativevm().ont().makeTransfer(address.toBase58(),account1.getAddressU160().toBase58(),1000000,account1.getAddressU160().toBase58(),ontSdk.DEFAULT_GAS_LIMIT,0);
 //             ontSdk.signTx(tx,new com.github.ontio.account.Account[][]{{account1,account2,account3}},new int[]{2});
@@ -102,15 +104,18 @@ public class AssetTest {
 //             ontSdk.getConnect().sendRawTransaction(tx);
 //             String txhash = tx.hash().toHexString();
 
-            String txhash = ontSdk.nativevm().ont().sendTransferFromMultiSignAddr(new com.github.ontio.account.Account[]{account1,account2,account3},2,account4.getAddressU160().toBase58(),100000,account4,ontSdk.DEFAULT_GAS_LIMIT,0);
+//            String txhash = ontSdk.nativevm().ont().sendTransferFromMultiSignAddr(new com.github.ontio.account.Account[]{account1,account2,account3},2,account4.getAddressU160().toBase58(),100000,account4,ontSdk.DEFAULT_GAS_LIMIT,0);
 
              Thread.sleep(6000);
              System.out.println(ontSdk.getConnect().getSmartCodeEvent(txhash));
         }
 
         System.out.println("");
+        System.out.println("account4 ong:" + ontSdk.nativevm().ong().unclaimOng(account4.getAddressU160().toBase58()));
         System.out.println("account4:" + ontSdk.getConnect().getBalance(account4.getAddressU160().toBase58()));
-        System.out.println("address:" +ontSdk.getConnect().getBalance(address.toBase58()));
+        System.out.println("account3:" + ontSdk.getConnect().getBalance(account3.getAddressU160().toBase58()));
+        System.out.println("account3 ong:" + ontSdk.nativevm().ong().unclaimOng(account3.getAddressU160().toBase58()));
+//        System.out.println("address:" +ontSdk.getConnect().getBalance(address.toBase58()));
     }
 
     @Test
