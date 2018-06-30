@@ -180,7 +180,7 @@ public class Program {
             short m = 0;
             int len = program[program.length - 2] - ScriptOp.OP_1.getByte() +1;
             try {
-                m = reader.readByte();
+                m = (byte)(reader.readByte() - ScriptOp.OP_1.getByte()+1);
             } catch (Exception e) {
                 e.printStackTrace();
             }
