@@ -80,7 +80,7 @@ public class Governance {
         if(initPos < 0 ||keyNo<0 ||gaslimit<0 ||gasprice<0){
             throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
         }
-        Transaction tx = makeRegisterCandidateTx(account,peerPubkey,initPos,ontid,salt,keyNo,payerAcct,gaslimit,gasprice);
+        Transaction tx = makeRegisterCandidateTx(account,peerPubkey,initPos,ontid,keyNo,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
         sdk.signTx(tx,new Account[][]{{account}});
         sdk.addSign(tx,ontid,ontidpwd,salt);
         if(!account.equals(payerAcct)){
@@ -99,17 +99,15 @@ public class Governance {
      * @param peerPubkey
      * @param initPos
      * @param ontid
-     * @param salt
      * @param keyNo
-     * @param payerAcct
+     * @param payerAddr
      * @param gaslimit
      * @param gasprice
      * @return
      * @throws Exception
      */
-    public Transaction makeRegisterCandidateTx(Account account, String peerPubkey, long initPos, String ontid, byte[] salt, long keyNo, Account payerAcct, long gaslimit, long gasprice) throws Exception {
-        if(account==null||peerPubkey==null || peerPubkey.equals("")|| ontid==null || ontid.equals("") || payerAcct == null ||
-                salt==null){
+    public Transaction makeRegisterCandidateTx(Account account, String peerPubkey, long initPos, String ontid, long keyNo, String payerAddr, long gaslimit, long gasprice) throws Exception {
+        if(account==null||peerPubkey==null || peerPubkey.equals("")|| ontid==null || ontid.equals("") || payerAddr == null || payerAddr.equals("")){
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
         if(initPos < 0 ||keyNo<0 ||gaslimit<0 ||gasprice<0){
@@ -118,7 +116,7 @@ public class Governance {
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey,account.getAddressU160(),initPos,ontid.getBytes(),keyNo));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"registerCandidate",args,payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"registerCandidate",args,payerAddr,gaslimit, gasprice);
         return tx;
     }
 
@@ -139,7 +137,7 @@ public class Governance {
         if(gaslimit<0 ||gasprice<0){
             throw new SDKException(ErrorCode.ParamErr("parameter should not less than 0"));
         }
-        Transaction tx = makeUnRegisterCandidateTx(account,peerPubkey,payerAcct,gaslimit,gasprice);
+        Transaction tx = makeUnRegisterCandidateTx(account,peerPubkey,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
         sdk.signTx(tx,new Account[][]{{account}});
         if(!account.equals(payerAcct)){
             sdk.addSign(tx,payerAcct);
@@ -155,14 +153,14 @@ public class Governance {
      *
      * @param account
      * @param peerPubkey
-     * @param payerAcct
+     * @param payerAddr
      * @param gaslimit
      * @param gasprice
      * @return
      * @throws Exception
      */
-    public Transaction makeUnRegisterCandidateTx(Account account, String peerPubkey,Account payerAcct, long gaslimit, long gasprice) throws Exception {
-        if(account == null || peerPubkey==null || peerPubkey.equals("")|| payerAcct==null){
+    public Transaction makeUnRegisterCandidateTx(Account account, String peerPubkey,String payerAddr, long gaslimit, long gasprice) throws Exception {
+        if(account == null || peerPubkey==null || peerPubkey.equals("")|| payerAddr==null || payerAddr.equals("")){
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
         if(gaslimit<0 ||gasprice<0){
@@ -171,8 +169,7 @@ public class Governance {
         List list = new ArrayList();
         list.add(new Struct().add(peerPubkey,account.getAddressU160()));
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"unRegisterCandidate",args,payerAcct.getAddressU160().toBase58(),
-                gaslimit, gasprice);
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"unRegisterCandidate",args,payerAddr,gaslimit, gasprice);
         return tx;
     }
 
@@ -600,7 +597,7 @@ public class Governance {
         if(peerPubkey.length != withdrawList.length){
             throw new SDKException(ErrorCode.ParamError);
         }
-        Transaction tx = makeWithdrawTx(account,peerPubkey,withdrawList,payerAcct,gaslimit,gasprice);
+        Transaction tx = makeWithdrawTx(account,peerPubkey,withdrawList,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
         sdk.signTx(tx,new Account[][]{{account}});
         if(!account.equals(payerAcct)){
             sdk.addSign(tx,payerAcct);
@@ -617,14 +614,14 @@ public class Governance {
      * @param account
      * @param peerPubkey
      * @param withdrawList
-     * @param payerAcct
+     * @param payerAddr
      * @param gaslimit
      * @param gasprice
      * @return
      * @throws Exception
      */
-    public Transaction makeWithdrawTx(Account account,String peerPubkey[],long[] withdrawList,Account payerAcct,long gaslimit,long gasprice) throws Exception {
-        if(account == null || peerPubkey==null||peerPubkey.length==0|| withdrawList==null || withdrawList.length==0||payerAcct==null){
+    public Transaction makeWithdrawTx(Account account,String peerPubkey[],long[] withdrawList,String payerAddr,long gaslimit,long gasprice) throws Exception {
+        if(account == null || peerPubkey==null||peerPubkey.length==0|| withdrawList==null || withdrawList.length==0||payerAddr==null||payerAddr.equals("")){
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
         if(gaslimit<0 ||gasprice<0){
@@ -651,7 +648,7 @@ public class Governance {
         }
         list.add(struct);
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"withdraw",args,payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"withdraw",args,payerAddr,gaslimit, gasprice);
         return tx;
     }
 
@@ -781,10 +778,8 @@ public class Governance {
         if(gaslimit < 0||gasprice <0){
             throw new SDKException(ErrorCode.ParamErr("parameter should not be less than 0"));
         }
-        List list = new ArrayList();
-        list.add(new Struct().add(peerPubkey,account.getAddressU160()));
-        byte[] args = NativeBuildParams.createCodeParamsScript(list);
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"quitNode",args,payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
+
+        Transaction tx = makeQuitNodeTx(account,peerPubkey,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
         sdk.signTx(tx,new Account[][]{{account}});
         if(!account.equals(payerAcct)){
             sdk.addSign(tx,payerAcct);
@@ -794,6 +789,30 @@ public class Governance {
             return tx.hash().toString();
         }
         return null;
+    }
+
+    /**
+     *
+     * @param account
+     * @param peerPubkey
+     * @param payerAddr
+     * @param gaslimit
+     * @param gasprice
+     * @return
+     * @throws Exception
+     */
+    public Transaction makeQuitNodeTx(Account account,String peerPubkey,String payerAddr,long gaslimit,long gasprice) throws Exception{
+        if(account==null||peerPubkey==null||peerPubkey.equals("")||payerAddr==null||payerAddr.equals("")){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
+        }
+        if(gaslimit < 0||gasprice <0){
+            throw new SDKException(ErrorCode.ParamErr("parameter should not be less than 0"));
+        }
+        List list = new ArrayList();
+        list.add(new Struct().add(peerPubkey,account.getAddressU160()));
+        byte[] args = NativeBuildParams.createCodeParamsScript(list);
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"quitNode",args,payerAddr,gaslimit, gasprice);
+        return tx;
     }
 
 
