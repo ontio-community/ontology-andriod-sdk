@@ -60,7 +60,7 @@ public class MnemonicCode {
     public static byte[] getPrikeyFromMnemonicCodesStrBip44(String mnemonicCodesStr) throws Exception{
         byte[] seed = MnemonicCode.getSeedFromMnemonicCodesStr(mnemonicCodesStr);
         ExtendedPrivateKey key = ExtendedPrivateKey.fromSeed(seed, Bitcoin.MAIN_NET);
-        ExtendedPrivateKey child = key.derive("m/44'/60'/0'/0/0");
+        ExtendedPrivateKey child = key.derive("m/44'/1024'/0'/0/0");
         byte[] p = child.extendedKeyByteArray();
         byte[] tmp = new byte[32];
         System.arraycopy(p, 46, tmp, 0, 32);
