@@ -48,7 +48,24 @@ public class MnemonicCode {
         byte[] prikey = Arrays.copyOfRange(seed,0,32);
         return prikey;
     }
-
+    public static byte[] getSeedFromMnemonicCodesStr(String mnemonicCodesStr){
+        String[] mnemonicCodesArray = mnemonicCodesStr.split(" ");
+        byte[] seed = new SeedCalculator()
+                .withWordsFromWordList(English.INSTANCE)
+                .calculateSeed(Arrays.asList(mnemonicCodesArray), "");
+        mnemonicCodesArray = null;
+        mnemonicCodesStr = null;
+        return seed;
+    }
+    public static byte[] getPrikeyFromMnemonicCodesStrBip44(String mnemonicCodesStr) throws Exception{
+        byte[] seed = MnemonicCode.getSeedFromMnemonicCodesStr(mnemonicCodesStr);
+        ExtendedPrivateKey key = ExtendedPrivateKey.fromSeed(seed, Bitcoin.MAIN_NET);
+        ExtendedPrivateKey child = key.derive("m/44'/60'/0'/0/0");
+        byte[] p = child.extendedKeyByteArray();
+        byte[] tmp = new byte[32];
+        System.arraycopy(p, 46, tmp, 0, 32);
+        return tmp;
+    }
     public static String encryptMnemonicCodesStr(String mnemonicCodesStr, String password, String address) throws Exception {
         int N = 4096;
         int r = 8;
