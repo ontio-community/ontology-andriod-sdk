@@ -120,7 +120,7 @@ public class MnemonicCode {
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, new IvParameterSpec(iv));
         byte[] rawMns = cipher.doFinal(encryptedkey);
         String mnemonicCodesStr = new String(rawMns);
-        byte[] rawkey = MnemonicCode.getPrikeyFromMnemonicCodesStr(mnemonicCodesStr);
+        byte[] rawkey = MnemonicCode.getPrikeyFromMnemonicCodesStrBip44(mnemonicCodesStr);
         String addressNew = new Account(rawkey, SignatureScheme.SHA256WITHECDSA).getAddressU160().toBase58();
         byte[] addressNewHashTemp = Digest.sha256(Digest.sha256(addressNew.getBytes()));
         byte[] saltNew = Arrays.copyOfRange(addressNewHashTemp, 0, 4);
