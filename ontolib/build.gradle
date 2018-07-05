@@ -42,7 +42,6 @@ dependencies {
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.6.0'
     //implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
     implementation 'io.github.novacrypto:BIP39:0.1.9'
-    implementation 'io.github.novacrypto:BIP44:0.0.3'
     implementation 'io.github.novacrypto:BIP32:0.0.9'
     //implementation 'com.google.guava:guava:25.1-android'
     androidTestImplementation group: 'com.squareup.retrofit2', name: 'retrofit', version: '2.4.0'

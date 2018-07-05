@@ -7,6 +7,7 @@ import com.github.ontio.account.Account;
 import com.github.ontio.common.Address;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
+import com.github.ontio.crypto.bip32.ExtendedPrivateKey;
 import com.github.ontio.sdk.exception.SDKException;
 
 import java.nio.charset.StandardCharsets;
@@ -17,7 +18,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import io.github.novacrypto.bip32.ExtendedPrivateKey;
 import io.github.novacrypto.bip32.networks.Bitcoin;
 import io.github.novacrypto.bip39.MnemonicGenerator;
 import io.github.novacrypto.bip39.SeedCalculator;
@@ -61,7 +61,7 @@ public class MnemonicCode {
     }
     public static byte[] getPrikeyFromMnemonicCodesStrBip44(String mnemonicCodesStr) throws Exception{
         byte[] seed = MnemonicCode.getSeedFromMnemonicCodesStr(mnemonicCodesStr);
-        ExtendedPrivateKey key = ExtendedPrivateKey.fromSeed(seed, Bitcoin.MAIN_NET);
+        ExtendedPrivateKey key = ExtendedPrivateKey.fromSeed(seed,"Nist256p1 seed".getBytes("UTF-8"), Bitcoin.MAIN_NET);
         ExtendedPrivateKey child = key.derive("m/44'/1024'/0'/0/0");
         byte[] p = child.extendedKeyByteArray();
         byte[] tmp = new byte[32];
