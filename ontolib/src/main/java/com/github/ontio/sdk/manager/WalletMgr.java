@@ -20,7 +20,6 @@
 package com.github.ontio.sdk.manager;
 
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
@@ -72,7 +71,6 @@ public class WalletMgr {
             walletFile = new Wallet();
             writeWallet();
         } else {
-            Log.i("ontsdk", "WalletMgr: " + text);
             walletInMem = JSON.parseObject(text, Wallet.class);
             walletFile = JSON.parseObject(text, Wallet.class);
         }
@@ -86,7 +84,6 @@ public class WalletMgr {
             walletFile = new Wallet();
             writeWallet();
         } else {
-            Log.i("ontsdk", "WalletMgr: " + text);
             walletInMem = JSON.parseObject(text, Wallet.class);
             walletFile = JSON.parseObject(text, Wallet.class);
         }
@@ -100,7 +97,6 @@ public class WalletMgr {
     }
 
     private static void writeFile(SharedPreferences sp, String sets) throws IOException {
-        Log.i("ontsdk", "writeFile: " + sets);
         boolean isSuccess = sp.edit().putString(key, sets).commit();
         if (!isSuccess) {
             throw new IOException("Wallet File Write Error");
