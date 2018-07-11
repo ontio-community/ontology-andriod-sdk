@@ -87,7 +87,7 @@ public class Program {
             @Override
             public int compare(byte[] o1, byte[] o2) {
                 if (KeyType.fromPubkey(o1).getLabel() != KeyType.fromPubkey(o2).getLabel()) {
-                    return KeyType.fromPubkey(o1).getLabel() > KeyType.fromPubkey(o2).getLabel() ? 1 : -1;
+                    return KeyType.fromPubkey(o1).getLabel() >= KeyType.fromPubkey(o2).getLabel() ? 1 : -1;
                 }
                 switch (KeyType.fromPubkey(o1)) {
                     case SM2:
