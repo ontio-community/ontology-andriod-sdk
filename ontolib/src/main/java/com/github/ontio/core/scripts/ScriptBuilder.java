@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import java.nio.*;
 
 import com.github.ontio.common.ErrorCode;
+import com.github.ontio.common.Helper;
 import com.github.ontio.common.UIntBase;
 import com.github.ontio.sdk.exception.SDKException;
 
@@ -48,39 +49,42 @@ public class ScriptBuilder implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        ms.close();
-    }
-
-    public ScriptBuilder push(boolean b) {
-        if (b == true) {
-            return add(ScriptOp.OP_1);
+        try {
+            ms.close();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
-        return add(ScriptOp.OP_0);
     }
 
-    public ScriptBuilder push(BigInteger number) throws SDKException {
+    public ScriptBuilder emitPushBool(boolean b) {
+        if (b == true) {
+            return add(ScriptOp.OP_PUSH1);
+        }
+        return add(ScriptOp.OP_PUSH0);
+    }
+
+    public ScriptBuilder emitPushInteger(BigInteger number) {
         if (number.equals(BigInteger.ONE.negate())) {
-            return add(ScriptOp.OP_1NEGATE);
+            return add(ScriptOp.OP_PUSHM1);
         }
         if (number.equals(BigInteger.ZERO)) {
-            return add(ScriptOp.OP_0);
+            return add(ScriptOp.OP_PUSH0);
         }
         if (number.compareTo(BigInteger.ZERO) > 0 && number.compareTo(BigInteger.valueOf(16)) <= 0) {
-            return add((byte) (ScriptOp.OP_1.getByte() - 1 + number.byteValue()));
+            return add((byte) (ScriptOp.OP_PUSH1.getByte() - 1 + number.byteValue()));
         }
-
-        if (number.longValue() < 0 || number.longValue() >= Long.MAX_VALUE) {
-            throw new IllegalArgumentException();
-        }
-        ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.LITTLE_ENDIAN);
-        byteBuffer.putLong(number.longValue());
-        return push(byteBuffer.array());
-
+//        if (number.longValue() < 0 || number.longValue() >= Long.MAX_VALUE) {
+//            throw new IllegalArgumentException();
+//        }
+//        ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.LITTLE_ENDIAN);
+//        byteBuffer.putLong(number.longValue());
+        byte[] bytes = Helper.BigIntToNeoBytes(number);
+        return emitPushByteArray(bytes);
     }
 
-    public ScriptBuilder push(byte[] data) throws SDKException {
+    public ScriptBuilder emitPushByteArray(byte[] data) {
         if (data == null) {
-            throw new SDKException(ErrorCode.ParamError);
+            throw new NullPointerException();
         }
         if (data.length <= (int) ScriptOp.OP_PUSHBYTES75.getByte()) {
             ms.write((byte) data.length);
@@ -98,13 +102,13 @@ public class ScriptBuilder implements AutoCloseable {
             ms.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(data.length).array(), 0, 4);
             ms.write(data, 0, data.length);
         } else {
-            throw new SDKException(ErrorCode.ParamError);
+            throw new IllegalArgumentException();
         }
         return this;
     }
 
     public ScriptBuilder push(UIntBase hash) throws SDKException {
-        return push(hash.toArray());
+        return emitPushByteArray(hash.toArray());
     }
 
     public ScriptBuilder pushPack() {

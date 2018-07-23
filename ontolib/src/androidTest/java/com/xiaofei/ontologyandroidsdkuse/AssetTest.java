@@ -10,6 +10,7 @@ import com.github.ontio.OntSdk;
 import com.github.ontio.common.Address;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
+import com.github.ontio.core.asset.State;
 import com.github.ontio.core.governance.VoteInfo;
 import com.github.ontio.core.ontid.Attribute;
 import com.github.ontio.core.transaction.Transaction;
@@ -49,16 +50,17 @@ public class AssetTest {
     private Context appContext;
     private OntId ontIdTx;
     String password = "111111";
-    public static String privatekey1 = "75de8489fcb2dcaf2ef3cd607feffde18789de7da129b5e97c81e001793cb7cf";
+    public static String privatekey2 = "75de8489fcb2dcaf2ef3cd607feffde18789de7da129b5e97c81e001793cb7cf";
+    public static String privatekey1 = "f9d2d30ffb22dffdf4f14ad6f1303460efc633ea8a3014f638eaa19c259bada1";
 
 
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
-        ontSdk.setRestful("http://polaris1.ont.io:20334");
+//        ontSdk.setRestful("http://polaris1.ont.io:20334");
 //        ontSdk.setRestful("http://139.219.128.60:20334");
 //        ontSdk.setRestful("http://139.219.128.220:20334");
-//        ontSdk.setRestful("http://192.168.50.74:20334");
+        ontSdk.setRestful("http://192.168.50.74:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -121,18 +123,42 @@ public class AssetTest {
     @Test
     public void ongTest() throws Exception {
 //        ontSdk.getWalletMgr().importIdentity("dRiHlKa16kKGuWEYWhXUxvHcPlLiJcorAN3ocZ9fQ8p832p4OdIIiy+kR6eImjYd","111111", Base64.decode("sJwpxe1zDsBt9hI2iA2zKQ==",Base64.NO_WRAP),"AakBoSAJapitE4sMPmW7bs8tfT4YqPeZEU");
-        Account account99 = ontSdk.getWalletMgr().createAccountFromPriKey("111111","6717c0df45159d5b5ef383521e5d8ed8857a02cdbbfdefeeeb624f9418b0895e");
+        com.github.ontio.account.Account account99 = new com.github.ontio.account.Account(Helper.hexToBytes(privatekey1),SignatureScheme.SHA256WITHECDSA);
         int aa = 0;
         String prikey = "75de8489fcb2dcaf2ef3cd607feffde18789de7da129b5e97c81e001793cb7cf";
         com.github.ontio.account.Account account2 = new com.github.ontio.account.Account(Helper.hexToBytes(prikey),SignatureScheme.SHA256WITHECDSA);
         Account account = ontSdk.getWalletMgr().importAccount("C37723zCK+H7oFQEeyYK+DDWD3o7H5oIAK5uMnKsHtpZ2365b8zen4fGapJLjaOr","11111111","AUDDJAsG1nQo115gXh8rtfocgfT2QLqLDp",Base64.decode("qWmSyQtulLImm5WrmqEBzw==",Base64.NO_WRAP));
-        int a1a = 0;
 
         com.github.ontio.account.Account account1 = ontSdk.getWalletMgr().getAccount("AUDDJAsG1nQo115gXh8rtfocgfT2QLqLDp","11111111",Base64.decode("qWmSyQtulLImm5WrmqEBzw==",Base64.NO_WRAP));
+        System.out.println("account99:" + ontSdk.getConnect().getBalance(account99.getAddressU160().toBase58()));
         System.out.println("account1:" + ontSdk.getConnect().getBalance(account1.getAddressU160().toBase58()));
         System.out.println("account2:" + ontSdk.getConnect().getBalance(account2.getAddressU160().toBase58()));
         if(false){
-            ontSdk.nativevm().ong().sendTransfer(account2,account1.getAddressU160().toBase58(),10,account2,ontSdk.DEFAULT_GAS_LIMIT,0);
+//            ontSdk.nativevm().ont().sendTransfer(account99,account1.getAddressU160().toBase58(),1000,account99,ontSdk.DEFAULT_GAS_LIMIT,0);
+            State state = new State(account99.getAddressU160(),account1.getAddressU160(),1000);
+            State[] states = new State[]{state,state};
+            Transaction tx = ontSdk.nativevm().ont().makeTransfer(states,account99.getAddressU160().toBase58(),ontSdk.DEFAULT_GAS_LIMIT,0);
+            ontSdk.addSign(tx,account99);
+            Boolean b = ontSdk.getConnect().sendRawTransaction(tx);
+            Thread.sleep(6000);
+            if(b) {
+                System.out.println(ontSdk.getConnect().getSmartCodeEvent(tx.hash().toHexString()));
+            }
+        }
+        if(false){
+//            ontSdk.nativevm().ont().sendTransfer(account99,account1.getAddressU160().toBase58(),1000,account99,ontSdk.DEFAULT_GAS_LIMIT,0);
+            State state = new State(account99.getAddressU160(),account1.getAddressU160(),1000);
+            State[] states = new State[]{state,state};
+            Transaction tx = ontSdk.nativevm().ong().makeTransfer(states,account99.getAddressU160().toBase58(),ontSdk.DEFAULT_GAS_LIMIT,0);
+            ontSdk.addSign(tx,account99);
+            Boolean b = ontSdk.getConnect().sendRawTransaction(tx);
+            Thread.sleep(6000);
+            if(b) {
+                System.out.println(ontSdk.getConnect().getSmartCodeEvent(tx.hash().toHexString()));
+            }
+        }
+        if(true){
+            ontSdk.nativevm().ong().sendTransfer(account99,account1.getAddressU160().toBase58(),1000,account2,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
         }
         if(false){
@@ -143,12 +169,12 @@ public class AssetTest {
             ontSdk.nativevm().ong().sendTransferFrom(account1,account2.getAddressU160().toBase58(),account1.getAddressU160().toBase58(),10,account2,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
         }
-        System.out.println("account1 unclaimOng:" + ontSdk.nativevm().ong().unclaimOng(account1.getAddressU160().toBase58()));
         if(true){
-            ontSdk.nativevm().ong().claimOng(account1,account1.getAddressU160().toBase58(),10,account2,ontSdk.DEFAULT_GAS_LIMIT,0);
+            ontSdk.nativevm().ong().claimOng(account99,account99.getAddressU160().toBase58(),10060734996550000L,account99,ontSdk.DEFAULT_GAS_LIMIT,0);
             Thread.sleep(6000);
         }
-        System.out.println("account1 unclaimOng:" + ontSdk.nativevm().ong().unclaimOng(account1.getAddressU160().toBase58()));
+        System.out.println("account99:" + ontSdk.getConnect().getBalance(account99.getAddressU160().toBase58()));
+        System.out.println("account99 unclaimOng:" + ontSdk.nativevm().ong().unclaimOng(account99.getAddressU160().toBase58()));
         System.out.println("account1:" + ontSdk.getConnect().getBalance(account1.getAddressU160().toBase58()));
         System.out.println("account2:" + ontSdk.getConnect().getBalance(account2.getAddressU160().toBase58()));
     }

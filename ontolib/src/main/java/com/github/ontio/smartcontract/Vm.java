@@ -142,11 +142,11 @@ public class Vm {
         if(args.length >0) {
             sb.add(args);
         }
-        sb.push(initMethod.getBytes());
-        sb.push(codeAddr.toArray());
-        sb.push(BigInteger.valueOf(0));
+        sb.emitPushByteArray(initMethod.getBytes());
+        sb.emitPushByteArray(codeAddr.toArray());
+        sb.emitPushInteger(BigInteger.valueOf(0));
         sb.add(ScriptOp.OP_SYSCALL);
-        sb.push(NATIVE_INVOKE_NAME.getBytes());
+        sb.emitPushByteArray(NATIVE_INVOKE_NAME.getBytes());
         Transaction tx = makeInvokeCodeTransaction(sb.toArray(),payer,gaslimit,gasprice);
         return tx;
     }
