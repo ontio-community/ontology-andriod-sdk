@@ -54,13 +54,13 @@ public class Program {
             }
         });
         for (byte[] sig : sigData) {
-            sb.push(sig);
+            sb.emitPushByteArray(sig);
         }
         return sb.toArray();
     }
     public static byte[] ProgramFromPubKey(byte[] publicKey) throws Exception {
         ScriptBuilder sb = new ScriptBuilder();
-        sb.push(publicKey);
+        sb.emitPushByteArray(publicKey);
         sb.add(ScriptOp.OP_CHECKSIG);
         return sb.toArray();
     }
@@ -71,12 +71,12 @@ public class Program {
             throw new SDKException(ErrorCode.ParamError);
         }
         try (ScriptBuilder sb = new ScriptBuilder()) {
-            sb.push(BigInteger.valueOf(m));
+            sb.emitPushInteger(BigInteger.valueOf(m));
             publicKeys = sortPublicKeys(publicKeys);
             for (byte[] publicKey : publicKeys) {
-                sb.push(publicKey);
+                sb.emitPushByteArray(publicKey);
             }
-            sb.push(BigInteger.valueOf(publicKeys.length));
+            sb.emitPushInteger(BigInteger.valueOf(publicKeys.length));
             sb.add(ScriptOp.OP_CHECKMULTISIG);
             return sb.toArray();
         }
@@ -178,9 +178,9 @@ public class Program {
             }
         }else if(end == ScriptOp.OP_CHECKMULTISIG.getByte()) {
             short m = 0;
-            int len = program[program.length - 2] - ScriptOp.OP_1.getByte() +1;
+            int len = program[program.length - 2] - ScriptOp.OP_PUSH1.getByte() +1;
             try {
-                m = (byte)(reader.readByte() - ScriptOp.OP_1.getByte()+1);
+                m = (byte)(reader.readByte() - ScriptOp.OP_PUSH1.getByte()+1);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -196,18 +196,18 @@ public class Program {
 
     public static short readNum(BinaryReader reader) throws IOException, SDKException {
         ScriptOp code = readOpCode(reader);
-        if(code == ScriptOp.OP_0){
+        if(code == ScriptOp.OP_PUSH0){
             readOpCode(reader);
             return 0;
         }else {
-            int num = (int)code.getByte() - (int)ScriptOp.OP_1.getByte() + 1;
+            int num = (int)code.getByte() - (int)ScriptOp.OP_PUSH1.getByte() + 1;
             if(num >= 1 && num <= 16) {
                 readOpCode(reader);
                 return (short)num;
             }
         }
         byte[] buff = readBytes(reader);
-        BigInteger bint = Helper.BigIntFromBytes(buff);
+        BigInteger bint = Helper.BigIntFromNeoBytes(buff);
         long num = bint.longValue();
         if(num > Short.MAX_VALUE || num < 16){
             throw new SDKException(ErrorCode.ParamErr("num is wrong"));
@@ -221,13 +221,13 @@ public class Program {
     public static byte[] programFromParams(byte[][] sigs) throws SDKException {
         ScriptBuilder builder = new ScriptBuilder();
         for(byte[] sigdata : sigs){
-            builder.push(sigdata);
+            builder.emitPushByteArray(sigdata);
         }
         return builder.toArray();
     }
     public static byte[] programFromPubKey(byte[] publicKey) throws SDKException {
         ScriptBuilder builder = new ScriptBuilder();
-        builder.push(publicKey);
+        builder.emitPushByteArray(publicKey);
         builder.add(ScriptOp.OP_CHECKSIG);
         return builder.toArray();
     }
