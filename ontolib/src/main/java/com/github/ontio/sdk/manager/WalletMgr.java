@@ -397,6 +397,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
             }
             acct.label = label;
             acct.setSalt(salt);
+            acct.setPublicKey(Helper.toHexString(account.serializePublicKey()));
             walletInMem.getAccounts().add(acct);
         } else {
             for (Identity e : walletInMem.getIdentities()) {
@@ -412,7 +413,7 @@ public WalletMgr(String path, SignatureScheme scheme) throws Exception {
                 walletInMem.setDefaultOntid(idt.ontid);
             }
             idt.controls = new ArrayList<Control>();
-            Control ctl = new Control(acct.key, "keys-1");
+            Control ctl = new Control(acct.key, "keys-1",Helper.toHexString(account.serializePublicKey()));
             ctl.setSalt(salt);
             ctl.setAddress(acct.address);
             idt.controls.add(ctl);

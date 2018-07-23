@@ -229,7 +229,7 @@ public class Wallet implements Cloneable {
         }
         getIdentities().add(idt);
     }
-    public Identity addOntIdController(String ontid, String key, String id) {
+    public Identity addOntIdController(String ontid, String key, String id,String pubkey) {
         Identity identity = getIdentity(ontid);
         if (identity == null) {
             identity = addIdentity(ontid);
@@ -239,7 +239,7 @@ public class Wallet implements Cloneable {
                 return identity;
             }
         }
-        Control control = new Control(key, id);
+        Control control = new Control(key, id, pubkey);
         identity.controls.add(control);
         return identity;
     }
