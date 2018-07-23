@@ -33,11 +33,11 @@ public class PublishTransaction extends TransactionNeo {
 //		parameterList = toEnum(reader.readVarBytes());
 //		returnType = toEnum(reader.readByte());
 		needStorage = reader.readBoolean();
-		name = reader.readVarString();
-		codeVersion = reader.readVarString();
-		author = reader.readVarString();
-		email = reader.readVarString();
-		description = reader.readVarString();
+		name = new String(reader.readVarBytes(252));
+		codeVersion = new String(reader.readVarBytes(252));
+		author = new String(reader.readVarBytes(252));
+		email = new String(reader.readVarBytes(252));
+		description = new String(reader.readVarBytes(65535));
 	}
 	@Override
 	protected void serializeExclusiveData(BinaryWriter writer) {
