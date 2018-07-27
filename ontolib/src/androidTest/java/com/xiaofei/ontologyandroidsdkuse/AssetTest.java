@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.sql.Time;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -57,10 +58,10 @@ public class AssetTest {
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
-//        ontSdk.setRestful("http://polaris1.ont.io:20334");
+        ontSdk.setRestful("http://polaris1.ont.io:20334");
 //        ontSdk.setRestful("http://139.219.128.60:20334");
 //        ontSdk.setRestful("http://139.219.128.220:20334");
-        ontSdk.setRestful("http://192.168.50.74:20334");
+//        ontSdk.setRestful("http://192.168.50.74:20334");
         appContext  = InstrumentationRegistry.getTargetContext();
         ontSdk.openWalletFile(appContext.getSharedPreferences("wallet",Context.MODE_PRIVATE));
         walletMgr = ontSdk.getWalletMgr();
@@ -74,6 +75,42 @@ public class AssetTest {
     public void tearDown() throws Exception {
 
 
+
+    }
+    @Test
+    public void testA(){
+        byte[] a = {'a','b'};
+        byte[] b = {'a','b'};
+        System.out.println(a.equals(b));
+        int c = 0;
+    }
+
+    @Test
+    public void testMult() throws Exception {
+        String pri1 = "e980868fe46185bdbf43cac90cd3ce8aed364ecd13041b431f72ca83d074b86b";
+        String pri2 = "edfa7d5a8b511656915c101de176fce6fb67391f6d90340d8bfd3802c252bca8";
+
+
+        com.github.ontio.account.Account account1 = new com.github.ontio.account.Account(Helper.hexToBytes(pri1),SignatureScheme.SHA256WITHECDSA);
+        com.github.ontio.account.Account account2 = new com.github.ontio.account.Account(Helper.hexToBytes(pri2),SignatureScheme.SHA256WITHECDSA);
+
+        Address address = Address.addressFromMultiPubKeys(2,account1.serializePublicKey(),account2.serializePublicKey());
+        System.out.println("add:" + address.toBase58());
+        Transaction tx = ontSdk.nativevm().ont().makeTransfer(address.toBase58(),account1.getAddressU160().toBase58(),10,address.toBase58(),20000,500);
+        byte[][] bytes = new byte[2][];
+        bytes[0] = account1.serializePublicKey();
+        bytes[1] = account2.serializePublicKey();
+        Transaction transaction = ontSdk.addMultiSign(tx, 2, bytes, account1);
+        System.out.println(ontSdk.getConnect().getBalance(address.toBase58()));
+//        boolean b = ontSdk.verifySignature(account1.serializePublicKey(),tx.getHashData(),transaction.sigs[0].sigData[0]);
+        Transaction tx2 = Transaction.deserializeFrom(Helper.hexToBytes(transaction.toHexString()));
+//        boolean b2 = ontSdk.verifySignature(account1.serializePublicKey(),tx2.getHashData(),tx2.sigs[0].sigData[0]);
+        Transaction transaction1 = ontSdk.addMultiSign(tx2, 2, bytes, account2);
+        System.out.println(transaction1.toHexString());
+        ontSdk.getConnect().sendRawTransaction(transaction1);
+        Thread.sleep(6000);
+        System.out.println();
+        System.out.println(ontSdk.getConnect().getBalance(address.toBase58()));
 
     }
 
@@ -128,7 +165,6 @@ public class AssetTest {
         String prikey = "75de8489fcb2dcaf2ef3cd607feffde18789de7da129b5e97c81e001793cb7cf";
         com.github.ontio.account.Account account2 = new com.github.ontio.account.Account(Helper.hexToBytes(prikey),SignatureScheme.SHA256WITHECDSA);
         Account account = ontSdk.getWalletMgr().importAccount("C37723zCK+H7oFQEeyYK+DDWD3o7H5oIAK5uMnKsHtpZ2365b8zen4fGapJLjaOr","11111111","AUDDJAsG1nQo115gXh8rtfocgfT2QLqLDp",Base64.decode("qWmSyQtulLImm5WrmqEBzw==",Base64.NO_WRAP));
-
         com.github.ontio.account.Account account1 = ontSdk.getWalletMgr().getAccount("AUDDJAsG1nQo115gXh8rtfocgfT2QLqLDp","11111111",Base64.decode("qWmSyQtulLImm5WrmqEBzw==",Base64.NO_WRAP));
         System.out.println("account99:" + ontSdk.getConnect().getBalance(account99.getAddressU160().toBase58()));
         System.out.println("account1:" + ontSdk.getConnect().getBalance(account1.getAddressU160().toBase58()));
