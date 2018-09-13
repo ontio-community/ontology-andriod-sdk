@@ -26,7 +26,7 @@ import com.github.ontio.account.Account;
 import com.github.ontio.common.*;
 import com.github.ontio.core.VmType;
 import com.github.ontio.core.asset.Sig;
-import com.github.ontio.core.governance.VoteInfo;
+import com.github.ontio.core.governance.AuthorizeInfo;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.io.BinaryReader;
 import com.github.ontio.io.BinaryWriter;
@@ -53,7 +53,7 @@ import java.util.Map;
 public class Governance {
     private OntSdk sdk;
     private final String contractAddress = "0000000000000000000000000000000000000007";
-    private final String VOTE_INFO_POOL = "voteInfoPool";
+    private final String AUTHORIZE_INFO_POOL = "766f7465496e666f506f6f6c";
     public Governance(OntSdk sdk) {
         this.sdk = sdk;
     }
@@ -236,7 +236,7 @@ public class Governance {
      * @param addr
      * @return
      */
-    public VoteInfo getVoteInfo(String peerPubkey, Address addr) throws SDKException {
+    public AuthorizeInfo getAuthorizeInfo(String peerPubkey, Address addr) throws Exception {
         if(peerPubkey==null || peerPubkey.equals("")||addr==null){
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
@@ -247,7 +247,7 @@ public class Governance {
             e.printStackTrace();
         }
         byte[] address = addr.toArray();
-        byte[] voteInfoPool = VOTE_INFO_POOL.getBytes();
+        byte[] voteInfoPool = Helper.hexToBytes(AUTHORIZE_INFO_POOL);
         byte[] key = new byte[voteInfoPool.length + peerPubkeyPrefix.length + address.length];
         System.arraycopy(voteInfoPool,0,key,0,voteInfoPool.length);
         System.arraycopy(peerPubkeyPrefix,0,key,voteInfoPool.length,peerPubkeyPrefix.length);
@@ -257,7 +257,7 @@ public class Governance {
         try {
             res = sdk.getConnect().getStorage(Helper.reverse(contractAddress),Helper.toHexString(key));
             if(res!= null && !res.equals("")){
-                return Serializable.from(Helper.hexToBytes(res), VoteInfo.class);
+                return Serializable.from(Helper.hexToBytes(res), AuthorizeInfo.class);
             }
         } catch (Exception e) {
             return null;
@@ -485,7 +485,7 @@ public class Governance {
      * @return
      * @throws Exception
      */
-    public String voteForPeer(Account account,String peerPubkey[],long[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+    public String authorizeForPeer(Account account,String peerPubkey[],long[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
         if(account == null || peerPubkey==null||peerPubkey.length==0|| posList==null || posList.length==0||payerAcct==null){
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
@@ -513,7 +513,7 @@ public class Governance {
         }
         list.add(struct);
         byte[] args = NativeBuildParams.createCodeParamsScript(list);
-        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"voteForPeer",args,payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
+        Transaction tx = sdk.vm().buildNativeParams(new Address(Helper.hexToBytes(contractAddress)),"authorizeForPeer",args,payerAcct.getAddressU160().toBase58(),gaslimit, gasprice);
         sdk.signTx(tx,new Account[][]{{account}});
         if(!account.equals(payerAcct)){
             sdk.addSign(tx,payerAcct);
@@ -536,7 +536,7 @@ public class Governance {
      * @return
      * @throws Exception
      */
-    public String unVoteForPeer(Account account,String peerPubkey[],long[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
+    public String unAuthorizeForPeer(Account account,String peerPubkey[],long[] posList,Account payerAcct,long gaslimit,long gasprice) throws Exception{
         if(account == null || peerPubkey==null||peerPubkey.length==0|| posList==null || posList.length==0||payerAcct==null){
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }

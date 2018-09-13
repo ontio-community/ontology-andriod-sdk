@@ -11,7 +11,7 @@ import com.github.ontio.common.Address;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.asset.State;
-import com.github.ontio.core.governance.VoteInfo;
+import com.github.ontio.core.governance.AuthorizeInfo;
 import com.github.ontio.core.ontid.Attribute;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.crypto.Digest;
@@ -392,7 +392,7 @@ public class AssetTest {
             System.out.println("account:" + ontSdk.getConnect().getBalance(account.getAddressU160().toBase58()));
             String peerInfo = ontSdk.nativevm().governance().getPeerInfo(Helper.toHexString(account7.serializePublicKey()));
             System.out.println("peerInfo:" + peerInfo);
-            VoteInfo voteInfo = ontSdk.nativevm().governance().getVoteInfo(Helper.toHexString(account7.serializePublicKey()),account.getAddressU160());
+            AuthorizeInfo voteInfo = ontSdk.nativevm().governance().getAuthorizeInfo(Helper.toHexString(account7.serializePublicKey()),account.getAddressU160());
             if(voteInfo != null){
                 System.out.println("voteInfo:" + voteInfo.json());
             }
