@@ -31,10 +31,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.math.BigInteger;
+import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.ontio.common.Helper.BigIntFromNeoBytes;
+import static com.github.ontio.common.Helper.BigIntToNeoBytes;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -56,7 +61,7 @@ public class AssetTest {
     @Before
     public void setUp() throws Exception {
         ontSdk = OntSdk.getInstance();
-        ontSdk.setRestful("http://polaris1.ont.io:20334");
+        ontSdk.setRestful("http://polaris2.ont.io:20334");
 //        ontSdk.setRestful("http://139.219.128.60:20334");
 //        ontSdk.setRestful("http://139.219.128.220:20334");
 //        ontSdk.setRestful("http://192.168.50.74:20334");
@@ -74,6 +79,49 @@ public class AssetTest {
 
 
 
+    }
+    @Test
+    public void bigInt2Bytes() {
+        assertArrayEquals(new byte[] {-85, -86, -86, -86, -86, -86, -85, -128}, BigIntToNeoBytes(new BigInteger("-9175052165852779861")));
+
+        assertArrayEquals(new byte[] {85, 85, 85, 85, 85, 85, 84, 127}, BigIntToNeoBytes(new BigInteger("9175052165852779861")));
+
+        assertArrayEquals(new byte[] {85, 85, 85, 85, 85, 85, 84, -128}, BigIntToNeoBytes(new BigInteger("-9199634313818843819")));
+
+        assertArrayEquals(new byte[] {-85, -86, -86, -86, -86, -86, -85, 127}, BigIntToNeoBytes(new BigInteger("9199634313818843819")));
+
+        assertArrayEquals(new byte[] {16, 31, -128}, BigIntToNeoBytes(new BigInteger("-8380656")));
+
+        assertArrayEquals(new byte[] {-16, -32, 127}, BigIntToNeoBytes(new BigInteger("8380656")));
+
+        assertArrayEquals(new byte[] {16, 31, 127, -1}, BigIntToNeoBytes(new BigInteger("-8446192")));
+
+        assertArrayEquals(new byte[] {-16, -32, -128, 0}, BigIntToNeoBytes(new BigInteger("8446192")));
+
+        assertArrayEquals(new byte[0], BigIntToNeoBytes(new BigInteger("-0")));
+
+        assertArrayEquals(new byte[0], BigIntToNeoBytes(new BigInteger("0")));
+    }
+
+    @Test
+    public void bytes2BigInt() {
+        assertEquals(BigIntFromNeoBytes(new byte[] {-85, -86, -86, -86, -86, -86, -85, -128}), new BigInteger("-9175052165852779861"));
+
+        assertEquals(BigIntFromNeoBytes(new byte[] {85, 85, 85, 85, 85, 85, 84, 127}), new BigInteger("9175052165852779861"));
+
+        assertEquals(BigIntFromNeoBytes(new byte[] {85, 85, 85, 85, 85, 85, 84, -128}), new BigInteger("-9199634313818843819"));
+
+        assertEquals(BigIntFromNeoBytes(new byte[] {-85, -86, -86, -86, -86, -86, -85, 127}), new BigInteger("9199634313818843819"));
+
+        assertEquals(BigIntFromNeoBytes(new byte[] {16, 31, -128}), new BigInteger("-8380656"));
+
+        assertEquals(BigIntFromNeoBytes(new byte[] {-16, -32, 127}), new BigInteger("8380656"));
+
+        assertEquals(BigIntFromNeoBytes(new byte[] {16, 31, 127, -1}), new BigInteger("-8446192"));
+
+        assertEquals(BigIntFromNeoBytes(new byte[] {-16, -32, -128, 0}), new BigInteger("8446192"));
+
+        assertEquals(BigIntFromNeoBytes(new byte[0]), new BigInteger("0"));
     }
     @Test
     public void testA(){
@@ -98,13 +146,14 @@ public class AssetTest {
         byte[][] bytes = new byte[2][];
         bytes[0] = account1.serializePublicKey();
         bytes[1] = account2.serializePublicKey();
-        Transaction transaction = ontSdk.addMultiSign(tx, 2, bytes, account1);
+        Transaction tx2 = Transaction.deserializeFrom(Helper.hexToBytes(tx.toHexString()));
+        Transaction transaction = ontSdk.addMultiSign(tx2, 2, bytes, account1);
         System.out.println(ontSdk.getConnect().getBalance(address.toBase58()));
-//        boolean b = ontSdk.verifySignature(account1.serializePublicKey(),tx.getHashData(),transaction.sigs[0].sigData[0]);
-        Transaction tx2 = Transaction.deserializeFrom(Helper.hexToBytes(transaction.toHexString()));
-//        boolean b2 = ontSdk.verifySignature(account1.serializePublicKey(),tx2.getHashData(),tx2.sigs[0].sigData[0]);
-        Transaction transaction1 = ontSdk.addMultiSign(tx2, 2, bytes, account2);
-        System.out.println(transaction1.toHexString());
+
+        Transaction tx3 = Transaction.deserializeFrom(Helper.hexToBytes(transaction.toHexString()));
+
+        Transaction transaction1 = ontSdk.addMultiSign(tx3, 2, bytes, account2);
+        
         ontSdk.getConnect().sendRawTransaction(transaction1);
         Thread.sleep(6000);
         System.out.println();
@@ -123,6 +172,11 @@ public class AssetTest {
         com.github.ontio.account.Account account2 = new com.github.ontio.account.Account(Helper.hexToBytes(pri2),SignatureScheme.SHA256WITHECDSA);
         com.github.ontio.account.Account account3 = new com.github.ontio.account.Account(Helper.hexToBytes(pri3),SignatureScheme.SHA256WITHECDSA);
         com.github.ontio.account.Account account4 = new com.github.ontio.account.Account(Helper.hexToBytes(pri4),SignatureScheme.SHA256WITHECDSA);
+        if(true){
+            long l = ontSdk.nativevm().ong().unclaimOng(account4.getAddressU160().toBase58());
+            System.out.println(l);
+            System.exit(0);
+        }
 
         Address address = Address.addressFromMultiPubKeys(2,account1.serializePublicKey(),account2.serializePublicKey(),account3.serializePublicKey());
 
