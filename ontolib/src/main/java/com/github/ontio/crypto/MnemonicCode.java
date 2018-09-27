@@ -40,16 +40,16 @@ public class MnemonicCode {
         return sb.toString();
     }
 
-    public static byte[] getPrikeyFromMnemonicCodesStr(String mnemonicCodesStr){
-        String[] mnemonicCodesArray = mnemonicCodesStr.split(" ");
-        byte[] seed = new SeedCalculator()
-                .withWordsFromWordList(English.INSTANCE)
-                .calculateSeed(Arrays.asList(mnemonicCodesArray), "");
-        mnemonicCodesArray = null;
-        mnemonicCodesStr = null;
-        byte[] prikey = Arrays.copyOfRange(seed,0,32);
-        return prikey;
-    }
+//    public static byte[] getPrikeyFromMnemonicCodesStr(String mnemonicCodesStr){
+//        String[] mnemonicCodesArray = mnemonicCodesStr.split(" ");
+//        byte[] seed = new SeedCalculator()
+//                .withWordsFromWordList(English.INSTANCE)
+//                .calculateSeed(Arrays.asList(mnemonicCodesArray), "");
+//        mnemonicCodesArray = null;
+//        mnemonicCodesStr = null;
+//        byte[] prikey = Arrays.copyOfRange(seed,0,32);
+//        return prikey;
+//    }
     public static byte[] getSeedFromMnemonicCodesStr(String mnemonicCodesStr){
         String[] mnemonicCodesArray = mnemonicCodesStr.split(" ");
         byte[] seed = new SeedCalculator()

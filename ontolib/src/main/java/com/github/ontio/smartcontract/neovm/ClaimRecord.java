@@ -69,9 +69,8 @@ public class ClaimRecord {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-        String addr = issuerOntid.replace(Common.didont,"");
         Transaction tx = makeCommit(issuerOntid,subjectOntid,claimId,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-        sdk.signTx(tx, addr, password,salt);
+        sdk.signTx(tx, issuerOntid, password,salt);
         sdk.addSign(tx,payerAcct);
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {
@@ -131,9 +130,8 @@ public class ClaimRecord {
         if (contractAddress == null) {
             throw new SDKException(ErrorCode.NullCodeHash);
         }
-        String addr = issuerOntid.replace(Common.didont,"");
         Transaction tx = makeRevoke(issuerOntid,claimId,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-        sdk.signTx(tx, addr, password,salt);
+        sdk.signTx(tx, issuerOntid, password,salt);
         sdk.addSign(tx,payerAcct);
         boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
         if (b) {

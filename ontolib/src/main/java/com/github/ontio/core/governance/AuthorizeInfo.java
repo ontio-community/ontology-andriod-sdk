@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VoteInfo extends Serializable {
+public class AuthorizeInfo extends Serializable {
     public String peerPubkey;
     public Address address;
     public long consensusPos;
@@ -21,7 +21,7 @@ public class VoteInfo extends Serializable {
     public long withdrawFreezePos;
     public long withdrawUnfreezePos;
 
-    public VoteInfo(){}
+    public AuthorizeInfo(){}
 
     @Override
     public void deserialize(BinaryReader reader) throws IOException {
