@@ -39,7 +39,7 @@ public class Oep8 {
             "{\"name\":\"allowance\",\"parameters\":[{\"name\":\"owner\",\"type\":\"ByteArray\"},{\"name\":\"spender\",\"type\":\"ByteArray\"},{\"name\":\"tokenId\",\"type\":\"ByteArray\"}],\"returntype\":\"\"}," +
             "{\"name\":\"transferFrom\",\"parameters\":[{\"name\":\"spender\",\"type\":\"ByteArray\"},{\"name\":\"fromAcct\",\"type\":\"ByteArray\"},{\"name\":\"toAcct\",\"type\":\"ByteArray\"},{\"name\":\"tokenId\",\"type\":\"ByteArray\"},{\"name\":\"amount\",\"type\":\"Integer\"}],\"returntype\":\"\"}," +
             "{\"name\":\"transferFromMulti\",\"parameters\":[{\"name\":\"args\",\"type\":\"Array\"}],\"returntype\":\"\"}," +
-            "{\"name\":\"compound\",\"parameters\":[{\"name\":\"acct\",\"type\":\"Array\"}],\"returntype\":\"\"}," +
+            "{\"name\":\"compound\",\"parameters\":[{\"name\":\"acct\",\"type\":\"ByteArray\"}],\"returntype\":\"\"}," +
             "{\"name\":\"concatkey\",\"parameters\":[{\"name\":\"str1\",\"type\":\"\"},{\"name\":\"str2\",\"type\":\"\"}],\"returntype\":\"\"}," +
             "{\"name\":\"init\",\"parameters\":[],\"returntype\":\"\"}," +
             "{\"name\":\"createMultiKindsPumpkin\",\"parameters\":[{\"name\":\"\",\"type\":\"Array\"}],\"returntype\":\"\"}," +
@@ -334,6 +334,20 @@ public class Oep8 {
         String payer = payerAcct.getAddressU160().toBase58();
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(getContractAddress(), null, params, payer,gaslimit, gasprice);
         return tx;
+    }
+
+    public String sendCompound(Account account, Account payerAcct, long gaslimit, long gasprice) throws Exception {
+        if (contractAddress == null) {
+            throw new SDKException(ErrorCode.NullCodeHash);
+        }
+        if(account == null || payerAcct == null || gaslimit<0 || gasprice <0){
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        AbiInfo abiinfo = JSON.parseObject(oep8abi, AbiInfo.class);
+        AbiFunction func = abiinfo.getFunction("compound");
+        func.setParamsValue(account.getAddressU160().toArray());
+        Object obj = sdk.neovm().sendTransaction(contractAddress,account,payerAcct,gaslimit,gasprice,func, false);
+        return (String) obj;
     }
 
     public String queryAllowance(String owner, String spender, byte[] tokenId) throws Exception {
