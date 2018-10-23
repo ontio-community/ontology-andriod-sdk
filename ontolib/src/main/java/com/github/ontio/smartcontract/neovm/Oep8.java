@@ -129,17 +129,15 @@ public class Oep8 {
         Object obj = sdk.neovm().sendTransaction(contractAddress,acct,payerAcct,gaslimit,gasprice,func, preExec);
         return obj;
     }
-    public Transaction makeTransfer(String sendAddr,String recvAddr, byte[] tokenId, long amount, Account payerAcct, long gaslimit, long gasprice) throws Exception{
-        if(sendAddr==null||sendAddr.equals("")||recvAddr == null || recvAddr.equals("")|| amount <=0 || payerAcct==null ||gaslimit < 0 || gasprice<0){
+    public Transaction makeTransfer(String sendAddr,String recvAddr, byte[] tokenId, long amount, String payerAddress, long gaslimit, long gasprice) throws Exception{
+        if(sendAddr==null||sendAddr.equals("")||recvAddr == null || recvAddr.equals("")|| amount <=0 || payerAddress==null ||gaslimit < 0 || gasprice<0){
             throw new SDKException(ErrorCode.ParamError);
         }
         AbiInfo abiinfo = JSON.parseObject(oep8abi, AbiInfo.class);
-        AbiFunction func = abiinfo.getFunction("Transfer");
-        func.name = "transfer";
+        AbiFunction func = abiinfo.getFunction("transfer");
         func.setParamsValue(Address.decodeBase58(sendAddr).toArray(), Address.decodeBase58(recvAddr).toArray(), tokenId, amount);
         byte[] params = BuildParams.serializeAbiFunction(func);
-        String payer = payerAcct.getAddressU160().toBase58();
-        Transaction tx = sdk.vm().makeInvokeCodeTransaction(getContractAddress(), null, params, payer,gaslimit, gasprice);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(getContractAddress(), null, params, payerAddress,gaslimit, gasprice);
         return tx;
     }
 
@@ -212,7 +210,6 @@ public class Oep8 {
         }
         AbiInfo abiinfo = JSON.parseObject(oep8abi, AbiInfo.class);
         AbiFunction func = abiinfo.getFunction("approve");
-        func.name = "approve";
         func.setParamsValue(Address.decodeBase58(owner).toArray(), Address.decodeBase58(spender).toArray(), tokenId, amount);
         byte[] params = BuildParams.serializeAbiFunction(func);
         String payer = payerAcct.getAddressU160().toBase58();
@@ -333,7 +330,6 @@ public class Oep8 {
         }
         AbiInfo abiinfo = JSON.parseObject(oep8abi, AbiInfo.class);
         AbiFunction func = abiinfo.getFunction("transferFrom");
-        func.name = "transferFrom";
         func.setParamsValue(Address.decodeBase58(sender).toArray(), Address.decodeBase58(from).toArray(),Address.decodeBase58(to).toArray(), tokenId, amount);
         byte[] params = BuildParams.serializeAbiFunction(func);
         String payer = payerAcct.getAddressU160().toBase58();
@@ -353,6 +349,20 @@ public class Oep8 {
         func.setParamsValue(account.getAddressU160().toArray(), compoundOneOrAll);
         Object obj = sdk.neovm().sendTransaction(contractAddress,account,payerAcct,gaslimit,gasprice,func, false);
         return (String) obj;
+    }
+    public Transaction makeCompound(String address, long compoundOneOrAll, String payerAddress, long gaslimit, long gasprice) throws Exception {
+        if (contractAddress == null) {
+            throw new SDKException(ErrorCode.NullCodeHash);
+        }
+        if(address == null || payerAddress == null || gaslimit<0 || gasprice <0){
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        AbiInfo abiinfo = JSON.parseObject(oep8abi, AbiInfo.class);
+        AbiFunction func = abiinfo.getFunction("compound");
+        func.setParamsValue(Address.decodeBase58(address).toArray(), compoundOneOrAll);
+        byte[] params = BuildParams.serializeAbiFunction(func);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params,payerAddress,gaslimit, gasprice);
+        return tx;
     }
 
     public String queryAllowance(String owner, String spender, byte[] tokenId) throws Exception {
@@ -481,5 +491,19 @@ public class Oep8 {
         func.setParamsValue(tokenId, amount);
         Object obj = sdk.neovm().sendTransaction(contractAddress,adminAccount,payer,gaslimit,gasprice,func, false);
         return (String) obj;
+    }
+    public Transaction makeMint(byte[] tokenId, long amount, String payerAddress, long gaslimit, long gasprice) throws Exception {
+        if (contractAddress == null) {
+            throw new SDKException(ErrorCode.NullCodeHash);
+        }
+        if(tokenId==null || payerAddress == null || gaslimit<0 || gasprice <0){
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        AbiInfo abiinfo = JSON.parseObject(oep8abi, AbiInfo.class);
+        AbiFunction func = abiinfo.getFunction("mint");
+        func.setParamsValue(tokenId, amount);
+        byte[] params = BuildParams.serializeAbiFunction(func);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params,payerAddress,gaslimit, gasprice);
+        return tx;
     }
 }
