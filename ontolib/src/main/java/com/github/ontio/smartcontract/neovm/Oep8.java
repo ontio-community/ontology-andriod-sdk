@@ -354,6 +354,20 @@ public class Oep8 {
         Object obj = sdk.neovm().sendTransaction(contractAddress,account,payerAcct,gaslimit,gasprice,func, false);
         return (String) obj;
     }
+    public Transaction makeCompound(String address, long compoundOneOrAll, String payerAddress, long gaslimit, long gasprice) throws Exception {
+        if (contractAddress == null) {
+            throw new SDKException(ErrorCode.NullCodeHash);
+        }
+        if(address == null || payerAddress == null || gaslimit<0 || gasprice <0){
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        AbiInfo abiinfo = JSON.parseObject(oep8abi, AbiInfo.class);
+        AbiFunction func = abiinfo.getFunction("compound");
+        func.setParamsValue(Address.decodeBase58(address).toArray(), compoundOneOrAll);
+        byte[] params = BuildParams.serializeAbiFunction(func);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params,payerAddress,gaslimit, gasprice);
+        return tx;
+    }
 
     public String queryAllowance(String owner, String spender, byte[] tokenId) throws Exception {
         if (contractAddress == null) {
@@ -481,5 +495,19 @@ public class Oep8 {
         func.setParamsValue(tokenId, amount);
         Object obj = sdk.neovm().sendTransaction(contractAddress,adminAccount,payer,gaslimit,gasprice,func, false);
         return (String) obj;
+    }
+    public Transaction makeMint(byte[] tokenId, long amount, String payerAddress, long gaslimit, long gasprice) throws Exception {
+        if (contractAddress == null) {
+            throw new SDKException(ErrorCode.NullCodeHash);
+        }
+        if(tokenId==null || payerAddress == null || gaslimit<0 || gasprice <0){
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        AbiInfo abiinfo = JSON.parseObject(oep8abi, AbiInfo.class);
+        AbiFunction func = abiinfo.getFunction("mint");
+        func.setParamsValue(tokenId, amount);
+        byte[] params = BuildParams.serializeAbiFunction(func);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, null, params,payerAddress,gaslimit, gasprice);
+        return tx;
     }
 }
