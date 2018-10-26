@@ -5,6 +5,8 @@ import com.github.ontio.account.Account;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.sdk.exception.SDKException;
+import com.github.ontio.smartcontract.neovm.Oep4;
+import com.github.ontio.smartcontract.neovm.Oep8;
 import com.github.ontio.smartcontract.neovm.abi.AbiFunction;
 import com.github.ontio.smartcontract.neovm.abi.BuildParams;
 import com.github.ontio.smartcontract.neovm.ClaimRecord;
@@ -15,6 +17,8 @@ public class NeoVm {
     private Nep5 nep5Tx = null;
     private Record recordTx = null;
     private ClaimRecord claimRecordTx = null;
+    private Oep4 oep4Tx;
+    private Oep8 oep8Tx;
 
     private OntSdk sdk;
     public NeoVm(OntSdk sdk){
@@ -29,6 +33,18 @@ public class NeoVm {
             nep5Tx = new Nep5(sdk);
         }
         return nep5Tx;
+    }
+    public Oep4 oep4() {
+        if(oep4Tx == null){
+            oep4Tx = new Oep4(sdk);
+        }
+        return oep4Tx;
+    }
+    public Oep8 oep8() {
+        if(oep8Tx == null){
+            oep8Tx = new Oep8(sdk);
+        }
+        return oep8Tx;
     }
 
     /**

@@ -80,6 +80,12 @@ public class AssetTest {
 
 
     }
+
+    @Test
+    public void TestOep4() throws Exception {
+        ontSdk.neovm().oep4().setContractAddress("0933f577ff7ad57e1eea69591998578b133d9c6f");
+        System.out.println(ontSdk.neovm().oep4().queryName());
+    }
     @Test
     public void bigInt2Bytes() {
         assertArrayEquals(new byte[] {-85, -86, -86, -86, -86, -86, -85, -128}, BigIntToNeoBytes(new BigInteger("-9175052165852779861")));
