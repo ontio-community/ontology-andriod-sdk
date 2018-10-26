@@ -243,7 +243,7 @@ public class SmokeTest {
     @Test
     public void createAccount() throws Exception {
         String mnsStr = MnemonicCode.generateMnemonicCodesStr().toString();
-        byte[] prikey = MnemonicCode.getPrikeyFromMnemonicCodesStr(mnsStr);
+        byte[] prikey = MnemonicCode.getPrikeyFromMnemonicCodesStrBip44(mnsStr);
         String prikeyStr = Helper.toHexString(prikey);
         String password = "123456";
         Account account = walletMgr.createAccountFromPriKey("bbb",password,prikeyStr);
@@ -311,7 +311,7 @@ public class SmokeTest {
         String mnemonicCodesStr = "economy utility unlock library awful proof episode where skirt autumn toilet prison";
         String[] mnemonicCodes = mnemonicCodesStr.split(" ");
         assertEquals(mnemonicCodes.length,12);
-        byte[] prikey = MnemonicCode.getPrikeyFromMnemonicCodesStr(mnemonicCodesStr);
+        byte[] prikey = MnemonicCode.getPrikeyFromMnemonicCodesStrBip44(mnemonicCodesStr);
         String prikeyHexStr = Helper.toHexString(prikey);
         String prikeyHexStrOrig = "87ba38545e2b5392b2d9356d36927caf969113f62a9eded366a0b8035441ea8d";
         assertEquals(prikeyHexStrOrig,prikeyHexStr);
