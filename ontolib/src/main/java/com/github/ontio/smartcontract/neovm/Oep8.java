@@ -78,7 +78,7 @@ public class Oep8 {
         AbiFunction func = abiinfo.getFunction("init");
         if(preExec) {
             byte[] params = BuildParams.serializeAbiFunction(func);
-            Transaction tx = sdk.vm().makeInvokeCodeTransaction(getContractAddress(), null, params,null,0, 0);
+            Transaction tx = sdk.vm().makeInvokeCodeTransaction(Helper.reverse(contractAddress), null, params,null,0, 0);
             if (acct != null) {
                 sdk.signTx(tx, new Account[][]{{acct}});
             }
