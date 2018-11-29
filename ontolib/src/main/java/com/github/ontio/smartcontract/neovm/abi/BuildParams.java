@@ -19,16 +19,22 @@
 
 package com.github.ontio.smartcontract.neovm.abi;
 
+
+import android.util.Base64;
+
 import com.alibaba.fastjson.JSON;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.scripts.ScriptBuilder;
 import com.github.ontio.core.scripts.ScriptOp;
+import com.github.ontio.io.BinaryReader;
+import com.github.ontio.io.BinaryWriter;
 import com.github.ontio.sdk.exception.SDKException;
 
-import java.lang.reflect.Array;
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,12 +78,14 @@ public class BuildParams {
                 } else if (val instanceof Long) {
                     builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((long)val)));
                 } else if(val instanceof Map){
-                    byte[] bys = getMapBytes(val);
-                    builder.emitPushByteArray(bys);
+                    pushMap(builder,val);
+//                    byte[] bys = getMapBytes(val);
+//                    builder.emitPushByteArray(bys);
                 } else if(val instanceof Struct){
-                    byte[] bys = getStructBytes(val);
-                    System.out.println(Helper.toHexString(bys));
-                    builder.emitPushByteArray(bys);
+                    pushStruct(builder,val);
+//                    byte[] bys = getStructBytes(val);
+//                    System.out.println(Helper.toHexString(bys));
+//                    builder.emitPushByteArray(bys);
                 } else if (val instanceof List) {
                     List tmp = (List) val;
                     createCodeParamsScript(builder, tmp);
@@ -92,6 +100,57 @@ public class BuildParams {
         }
         return builder.toArray();
     }
+
+    public static Object deserializeItem(byte[] mBytes){
+        ByteArrayInputStream ms = new ByteArrayInputStream(mBytes);
+        BinaryReader reader = new BinaryReader(ms);
+        return deserializeItem(reader);
+    }
+
+    public static Object deserializeItem(BinaryReader reader){
+        try {
+            byte t = reader.readByte();
+            if (t == Type.ByteArrayType.getValue()) {
+                return reader.readVarBytes();
+            }else if (t == Type.BooleanType.getValue()) {
+                return reader.readBoolean();
+            } else if (t == Type.IntegerType.getValue()) {
+                long v = Helper.BigIntFromNeoBytes(reader.readVarBytes()).longValue();
+                return v;
+            } else if (t == Type.ArrayType.getValue() || t == Type.StructType.getValue()) {
+                int count = (int)reader.readVarInt();
+                List list = new ArrayList();
+                for (int i = count; i > 0; i--) {
+                    Object ele = deserializeItem(reader);
+                    if(ele instanceof byte[]){
+                        ele = new String((byte[])ele);
+                    }
+                    list.add(ele);
+                    count--;
+                }
+                return list;
+            } else if (t == Type.MapType.getValue()) {
+                int count = (int)reader.readVarInt();
+                Map map = new HashMap();
+                for (int i = count; i > 0; i--) {
+                    byte[] key = (byte[])deserializeItem(reader);
+                    Object value = deserializeItem(reader);
+                    if(value instanceof byte[]){
+                        value = new String((byte[])value);
+                    }
+                    map.put(new String(key),value);
+                    count--;
+                }
+                return map;
+            } else {
+                throw new SDKException(ErrorCode.ParamError);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static byte[] getStructBytes(Object val){
 
         ScriptBuilder sb = null;
@@ -192,6 +251,110 @@ public class BuildParams {
         return sb.toArray();
     }
 
+    public static void serializeStackItem(BinaryWriter bw, Object eValue){
+        try {
+            if(eValue instanceof byte[]){
+                bw.writeByte(Type.ByteArrayType.getValue());
+                bw.writeVarBytes((byte[]) eValue);
+            } else if(eValue instanceof String){
+                bw.writeByte(Type.ByteArrayType.getValue());
+                bw.writeVarBytes(((String) eValue).getBytes());
+            } else if (eValue instanceof Boolean) {
+                bw.writeByte(Type.BooleanType.getValue());
+                bw.writeBoolean((Boolean) eValue);
+            } else if (eValue instanceof Map) {
+                bw.write(getMapBytes(eValue));
+            } else if (eValue instanceof Struct) {
+                bw.writeVarBytes(getStructBytes(eValue));
+            } else if (eValue instanceof List) {
+                List tmp = (List) eValue;
+                bw.writeByte(Type.ArrayType.getValue());
+                bw.writeVarInt(tmp.size());
+                for (int i = 0; i < tmp.size(); i++) {
+                    serializeStackItem(bw, tmp.get(i));
+                }
+            }else if(eValue instanceof Integer){
+                bw.writeByte(Type.IntegerType.getValue());
+                bw.writeVarBytes(Helper.BigIntToNeoBytes(BigInteger.valueOf((Integer) eValue)));
+            } else if(eValue instanceof Long){
+                bw.writeByte(Type.IntegerType.getValue());
+                bw.writeVarBytes(Helper.BigIntToNeoBytes(BigInteger.valueOf((Long) eValue)));
+            } else {
+                throw new SDKException(ErrorCode.ParamError);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void pushParam(ScriptBuilder sb,Object eValue){
+        try {
+            if (eValue instanceof byte[]) {
+                sb.emitPushByteArray((byte[]) eValue);
+            } else if (eValue instanceof String) {
+                sb.emitPushByteArray(((String) eValue).getBytes());
+            } else if (eValue instanceof Boolean) {
+                sb.emitPushBool((Boolean) eValue);
+                sb.add(ScriptOp.OP_PUSH0);
+                sb.add(ScriptOp.OP_BOOLOR);
+            } else if (eValue instanceof Map) {
+                pushMap(sb,eValue);
+            } else if (eValue instanceof Struct) {
+                List list = (List) ((Struct) eValue).list;
+                for (int i = list.size() - 1; i >= 0; i--) {
+                    Object val = list.get(i);
+                    pushParam(sb,val);
+                }
+                sb.emitPushInteger(new BigInteger(String.valueOf(list.size())));
+                sb.pushPack();
+            } else if (eValue instanceof List) {
+                List list = (List) eValue;
+                for (int i = list.size() - 1; i >= 0; i--) {
+                    Object val = list.get(i);
+                    pushParam(sb,val);
+                }
+                sb.emitPushInteger(new BigInteger(String.valueOf(list.size())));
+                sb.pushPack();
+            } else if (eValue instanceof Integer) {
+                sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((Integer) eValue)));
+                sb.add(ScriptOp.OP_PUSH0);
+                sb.add(ScriptOp.OP_ADD);
+            } else if (eValue instanceof Long) {
+                sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((Long) eValue)));
+                sb.add(ScriptOp.OP_PUSH0);
+                sb.add(ScriptOp.OP_ADD);
+            } else {
+                throw new SDKException(ErrorCode.ParamError);
+            }
+        }catch (SDKException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void pushStruct(ScriptBuilder sb,Object val) {
+        Struct struct = (Struct) val;
+        sb.add(ScriptOp.OP_NEWSTRUCT);
+        sb.add(ScriptOp.OP_TOALTSTACK);
+        for (int i =0;i < struct.list.size();i++) {
+            pushParam(sb, struct.list.get(i));
+            sb.add(ScriptOp.OP_DUPFROMALTSTACK);
+            sb.add(ScriptOp.OP_SWAP);
+            sb.add(ScriptOp.OP_APPEND);
+        }
+        sb.add(ScriptOp.OP_FROMALTSTACK);
+    }
+    public static void pushMap(ScriptBuilder sb,Object val) {
+        Map<String, Object> map = (Map) val;
+        sb.add(ScriptOp.OP_NEWMAP);
+        sb.add(ScriptOp.OP_TOALTSTACK);
+        for (Map.Entry e : map.entrySet()) {
+            sb.add(ScriptOp.OP_DUPFROMALTSTACK);
+            pushParam(sb, e.getKey());
+            pushParam(sb, e.getValue());
+            sb.add(ScriptOp.OP_SETITEM);
+        }
+        sb.add(ScriptOp.OP_FROMALTSTACK);
+    }
     /**
      * @param abiFunction
      * @return
@@ -211,7 +374,9 @@ public class BuildParams {
             } else if ("Integer".equals(obj.getType())) {
                 tmp.add(JSON.parseObject(obj.getValue(), Long.class));
             } else if ("Array".equals(obj.getType())) {
-                tmp.add(JSON.parseObject(obj.getValue(), List.class));
+                List l = JSON.parseObject(obj.getValue(), List.class);
+                l = listConvert(l);
+                tmp.add(l);
             } else if ("InteropInterface".equals(obj.getType())) {
                 tmp.add(JSON.parseObject(obj.getValue(), Object.class));
             } else if ("Void".equals(obj.getType())) {
@@ -229,5 +394,18 @@ public class BuildParams {
         }
         byte[] params = createCodeParamsScript(list);
         return params;
+    }
+
+    private static List listConvert(List l){
+        for(int i = 0; i < l.size();i++){
+            if(l.get(i) instanceof String) {
+                if (l.get(i) instanceof String) {
+                    l.set(i, Base64.decode((String) l.get(i), Base64.NO_WRAP));
+                }
+            }else if (l.get(i) instanceof List) {
+                l.set(i,listConvert((List)l.get(i)));
+            }
+        }
+        return l;
     }
 }
