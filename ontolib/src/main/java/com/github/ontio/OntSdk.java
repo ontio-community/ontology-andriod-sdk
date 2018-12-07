@@ -22,10 +22,13 @@ package com.github.ontio;
 import android.content.SharedPreferences;
 
 import com.github.ontio.account.Account;
+import com.github.ontio.common.Address;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.common.Helper;
 import com.github.ontio.core.DataSignature;
+import com.github.ontio.core.payload.DeployCode;
+import com.github.ontio.core.payload.InvokeCode;
 import com.github.ontio.core.program.Program;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.core.asset.Sig;
@@ -39,8 +42,11 @@ import com.github.ontio.smartcontract.Vm;
 import com.github.ontio.smartcontract.WasmVm;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Ont Sdk
@@ -345,6 +351,102 @@ public class OntSdk {
             tx.sigs[i].M = M[i];
         }
         return tx;
+    }
+
+    public boolean verifyTransaction(Transaction tx) {
+        try {
+            boolean result = true;
+            for (int i = 0; i < tx.sigs.length; i++) {
+                if (tx.sigs[i].M == 1) {
+                    if (tx.sigs[i].pubKeys.length != 1 || tx.sigs[i].sigData.length != 1) {
+                        throw new SDKException(ErrorCode.OtherError("index" + i + "pubKeys or sigData number != 1"));
+                    }
+                    Account account = new Account(false, tx.sigs[i].pubKeys[0]);
+                    boolean verify = account.verifySignature(Digest.hash256(tx.getHashData()), tx.sigs[i].sigData[0]);
+                    if (!verify) {
+                        return false;
+                    }
+                } else if (tx.sigs[i].M > 1) {
+                    int m = 0;
+                    for (int j = 0; j < tx.sigs[i].pubKeys.length; j++) {
+                        Account account = new Account(false, tx.sigs[i].pubKeys[j]);
+                        for (int k = 0; k < tx.sigs[i].sigData.length; k++) {
+                            boolean verify = account.verifySignature(Digest.hash256(tx.getHashData()), tx.sigs[i].sigData[k]);
+                            if (verify) {
+                                m++;
+                                break;
+                            }
+                        }
+                    }
+                    if (m < tx.sigs[i].M) {
+                        return false;
+                    }
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public Map parseTransaction(String txhexstr) throws Exception {
+        Map map = new HashMap();
+        try {
+            Transaction tx = Transaction.deserializeFrom(Helper.hexToBytes(txhexstr));
+            if (tx instanceof DeployCode) {
+                map.put("txType", "deploy");
+                map.put("author", ((DeployCode) tx).author);
+                map.put("email", ((DeployCode) tx).email);
+                map.put("version", ((DeployCode) tx).version);
+                map.put("description", ((DeployCode) tx).description);
+                map.put("name", ((DeployCode) tx).name);
+            } else if (tx instanceof InvokeCode) {
+                map.put("txType", "invoke");
+                byte[] code = ((InvokeCode) tx).code;
+                String codeHexStr = Helper.toHexString(code);
+                if (codeHexStr.length() > 44 && codeHexStr.substring(codeHexStr.length() - 44, codeHexStr.length()).equals(Helper.toHexString("Ontology.Native.Invoke".getBytes()))) {
+                    if (codeHexStr.substring(codeHexStr.length() - 92 - 16, codeHexStr.length() - 92).equals(Helper.toHexString("transfer".getBytes()))) {
+                        map.put("method", "transfer");
+                        map.put("from", Address.parse(codeHexStr.substring(8, 48)).toBase58());
+                        map.put("to", Address.parse(codeHexStr.substring(56, 96)).toBase58());
+                        map.put("amount", new BigInteger("00"));
+                        if (codeHexStr.substring(102, 103).equals("5")) {
+                            map.put("amount", code[51] - 0x50);
+                        } else {
+                            map.put("amount", Helper.BigIntFromNeoBytes(Helper.hexToBytes(codeHexStr.substring(104, 104 + code[51] * 2))));
+                        }
+                        if (codeHexStr.substring(codeHexStr.length() - 50 - 40, codeHexStr.length() - 50).equals(this.nativevm().ont().getContractAddress())) {
+                            map.put("asset", "ont");
+                        } else if (codeHexStr.substring(codeHexStr.length() - 50 - 40, codeHexStr.length() - 50).equals(this.nativevm().ong().getContractAddress())) {
+                            map.put("asset", "ong");
+                            map.put("amount", ((BigInteger) map.get("amount")).doubleValue() / 1000000000L);
+                        }
+                    } else if (codeHexStr.substring(codeHexStr.length() - 92 - 24, codeHexStr.length() - 92).equals(Helper.toHexString("transferFrom".getBytes()))) {
+                        map.put("method", "transferFrom");
+                        map.put("from", Address.parse(codeHexStr.substring(8, 48)).toBase58());
+                        map.put("to", Address.parse(codeHexStr.substring(56, 96)).toBase58());
+                        map.put("amount", new BigInteger("00"));
+                        if (codeHexStr.substring(102, 103).equals("5")) {
+                            map.put("amount", code[51] - 0x50);
+                        } else {
+                            map.put("amount", Helper.BigIntFromNeoBytes(Helper.hexToBytes(codeHexStr.substring(104, 104 + code[51] * 2))));
+                        }
+                        if (codeHexStr.substring(codeHexStr.length() - 50 - 40, codeHexStr.length() - 50).equals(this.nativevm().ont().getContractAddress())) {
+                            map.put("asset", "ont");
+                        } else if (codeHexStr.substring(codeHexStr.length() - 50 - 40, codeHexStr.length() - 50).equals(this.nativevm().ong().getContractAddress())) {
+                            map.put("asset", "ong");
+                            map.put("amount", ((BigInteger) map.get("amount")).doubleValue() / 1000000000L);
+                        }
+                    }
+                }
+            } else {
+                throw new SDKException(ErrorCode.OtherError("tx type error"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 
     public byte[] signatureData(com.github.ontio.account.Account acct, byte[] data) throws SDKException {
