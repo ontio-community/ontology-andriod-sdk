@@ -77,6 +77,8 @@ public class BuildParams {
                     builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((int)val)));
                 } else if (val instanceof Long) {
                     builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((long)val)));
+                } else if(val instanceof String) {
+                    builder.emitPushByteArray(((String) val).getBytes());
                 } else if(val instanceof Map){
                     pushMap(builder,val);
 //                    byte[] bys = getMapBytes(val);
