@@ -28,6 +28,7 @@ import com.github.ontio.crypto.SignatureScheme;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.digests.SHA1Digest;
+import org.spongycastle.crypto.digests.SHA256Digest;
 import org.spongycastle.crypto.generators.KDF2BytesGenerator;
 import org.spongycastle.crypto.kems.ECIESKeyEncapsulation;
 import org.spongycastle.crypto.params.ECDomainParameters;
@@ -40,62 +41,60 @@ import org.spongycastle.jce.ECNamedCurveTable;
 import org.spongycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.spongycastle.util.encoders.Hex;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.SecureRandom;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
+import java.security.SecureRandom;
 
-/**
- * @Description:
- * @date 2018/4/11
- */
 public class ECIES {
     public static KeyType keyType = KeyType.ECDSA;
     public static Object[] curveParaSpec = new Object[]{"P-256"};
     public static SignatureScheme signatureScheme = SignatureScheme.SHA256WITHECDSA;
-    public static Digest digest = new SHA1Digest();
-
-    public ECIES(Digest dig) {
-        digest = dig;
+    public static Digest defaultDigest = new SHA256Digest();
+    public ECIES(Digest dig){
+        defaultDigest = dig;
     }
-
-    public static void setDigest(Digest dig) {
-        digest = dig;
+    public static void setDigest(Digest dig){
+        defaultDigest = dig;
     }
-
-    public static String[] Encrypt(String pubkey, byte[] msg) throws Exception {
+    public static String[] Encrypt(String pubkey, byte[] msg) {
         return Encrypt(pubkey, msg, 32);
     }
 
     //keylen: 16/24/32
-    public static String[] Encrypt(String pubkey, byte[] msg, int keylen) throws Exception {
-        com.github.ontio.account.Account account = new com.github.ontio.account.Account(false, Helper.hexToBytes(pubkey));
+    public static String[] Encrypt(String pubkey, byte[] msg, int keylen) {
+        try {
+            com.github.ontio.account.Account account = new com.github.ontio.account.Account(false, Helper.hexToBytes(pubkey));
 
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec((String) curveParaSpec[0]);
-        ECDomainParameters ecDomain = new ECDomainParameters(spec.getCurve(), spec.getG(), spec.getN());
-        AsymmetricCipherKeyPair keys = new AsymmetricCipherKeyPair(
-                new ECPublicKeyParameters(((BCECPublicKey) account.getPublicKey()).getQ(), ecDomain), null);
+            ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec((String) curveParaSpec[0]);
+            ECDomainParameters ecDomain = new ECDomainParameters(spec.getCurve(), spec.getG(), spec.getN());
+            AsymmetricCipherKeyPair keys = new AsymmetricCipherKeyPair(
+                    new ECPublicKeyParameters(((BCECPublicKey) account.getPublicKey()).getQ(), ecDomain), null);
 
-        byte[] out = new byte[(ecDomain.getCurve().getFieldSize() / 8) * 2 + 1];
-        ECIESKeyEncapsulation kem = new ECIESKeyEncapsulation(new KDF2BytesGenerator(digest), new SecureRandom());
-        KeyParameter key1;
+            byte[] out = new byte[(ecDomain.getCurve().getFieldSize() / 8) * 2 + 1];
+            ECIESKeyEncapsulation kem = new ECIESKeyEncapsulation(new KDF2BytesGenerator(defaultDigest), new SecureRandom());
+            KeyParameter key1;
 
-        kem.init(keys.getPublic());
-        key1 = (KeyParameter) kem.encrypt(out, keylen); //AES key = key1 (is encrypted in out)
+            kem.init(keys.getPublic());
+            key1 = (KeyParameter) kem.encrypt(out, keylen); //AES key = key1 (is encrypted in out)
 
-        byte[] IV = Hex.decode(getRandomString(keylen)); //choose random IV of length = keylen
-        byte[] ciphertext;
-        Cipher en = Cipher.getInstance("AES/CBC/PKCS7Padding", "SC");
-        Key key = new SecretKeySpec(key1.getKey(), "AES");
-        en.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(IV));
-        ciphertext = en.doFinal(msg);
-
-        //(IV, out, ciphertext)
-        return new String[]{Helper.toHexString(IV), Helper.toHexString(out), Helper.toHexString(ciphertext)};
+            byte[] IV = Hex.decode(getRandomString(keylen)); //choose random IV of length = keylen
+            byte[] ciphertext;
+            try {
+                Cipher en = Cipher.getInstance("AES/CBC/PKCS7Padding", "BC");
+                Key key = new SecretKeySpec(key1.getKey(), "AES");
+                en.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(IV));
+                ciphertext = en.doFinal(msg);
+            } catch (Exception e) {
+                throw new Exception("AES failed initialisation - " + e.toString(), e);
+            }
+            //(IV, out, ciphertext)
+            return new String[]{Helper.toHexString(IV), Helper.toHexString(out), Helper.toHexString(ciphertext)};
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static byte[] Decrypt(Account account, String[] params) throws Exception {
@@ -112,33 +111,42 @@ public class ECIES {
         return Decrypt(Helper.hexToBytes(prikey), Helper.hexToBytes(params[0]), Helper.hexToBytes(params[1]), Helper.hexToBytes(params[2]), 32);
     }
 
-    public static byte[] Decrypt(byte[] prikey, byte[] IV, byte[] key_cxt, byte[] ciphertext) throws Exception {
+    public static byte[] Decrypt(byte[] prikey, byte[] IV, byte[] key_cxt, byte[] ciphertext) {
         return Decrypt(prikey, IV, key_cxt, ciphertext, 32);
     }
 
-    public static byte[] Decrypt(byte[] prikey, byte[] IV, byte[] key_cxt, byte[] ciphertext, int keylen) throws Exception {
-        com.github.ontio.account.Account account = new com.github.ontio.account.Account(prikey, signatureScheme);
+    public static byte[] Decrypt(byte[] prikey, byte[] IV, byte[] key_cxt, byte[] ciphertext, int keylen) {
+        try {
+            com.github.ontio.account.Account account = new com.github.ontio.account.Account(prikey, signatureScheme);
 
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec((String) curveParaSpec[0]);
-        ECDomainParameters ecDomain = new ECDomainParameters(spec.getCurve(), spec.getG(), spec.getN());
-        AsymmetricCipherKeyPair keys = new AsymmetricCipherKeyPair(
-                null,
-                new ECPrivateKeyParameters(((BCECPrivateKey) account.getPrivateKey()).getD(), ecDomain));
+            ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec((String) curveParaSpec[0]);
+            ECDomainParameters ecDomain = new ECDomainParameters(spec.getCurve(), spec.getG(), spec.getN());
+            AsymmetricCipherKeyPair keys = new AsymmetricCipherKeyPair(
+                    null,
+                    new ECPrivateKeyParameters(((BCECPrivateKey) account.getPrivateKey()).getD(), ecDomain));
 
-        byte[] out = key_cxt;
-        ECIESKeyEncapsulation kem = new ECIESKeyEncapsulation(new KDF2BytesGenerator(new SHA1Digest()), new SecureRandom());
-        KeyParameter key1;
+            byte[] out = key_cxt;
+            ECIESKeyEncapsulation kem = new ECIESKeyEncapsulation(new KDF2BytesGenerator(defaultDigest), new SecureRandom());
 
-        kem.init(keys.getPrivate());
-        key1 = (KeyParameter) kem.decrypt(out, keylen);
+            KeyParameter key1;
 
-        byte[] plaintext;
-        Cipher dec = Cipher.getInstance("AES/CBC/PKCS7Padding", "SC");
-        Key key = new SecretKeySpec(key1.getKey(), "AES");
-        dec.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(IV));
-        plaintext = dec.doFinal(ciphertext);
+            kem.init(keys.getPrivate());
+            key1 = (KeyParameter) kem.decrypt(out, keylen);
 
-        return plaintext;
+            byte[] plaintext;
+            try {
+                Cipher dec = Cipher.getInstance("AES/CBC/PKCS7Padding", "BC");
+                Key key = new SecretKeySpec(key1.getKey(), "AES");
+                dec.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(IV));
+                plaintext = dec.doFinal(ciphertext);
+            } catch (Exception e) {
+                throw new Exception("AES failed initialisation - " + e.toString(), e);
+            }
+            return plaintext;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static String getRandomString(int length) {
