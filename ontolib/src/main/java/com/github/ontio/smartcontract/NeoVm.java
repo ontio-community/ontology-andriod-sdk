@@ -5,8 +5,7 @@ import com.github.ontio.account.Account;
 import com.github.ontio.common.ErrorCode;
 import com.github.ontio.core.transaction.Transaction;
 import com.github.ontio.sdk.exception.SDKException;
-import com.github.ontio.smartcontract.neovm.Oep4;
-import com.github.ontio.smartcontract.neovm.Oep8;
+import com.github.ontio.smartcontract.neovm.*;
 import com.github.ontio.smartcontract.neovm.abi.AbiFunction;
 import com.github.ontio.smartcontract.neovm.abi.BuildParams;
 import com.github.ontio.smartcontract.neovm.ClaimRecord;
@@ -19,6 +18,7 @@ public class NeoVm {
     private ClaimRecord claimRecordTx = null;
     private Oep4 oep4Tx;
     private Oep8 oep8Tx;
+	private Oep5 oep5Tx;
 
     private OntSdk sdk;
     public NeoVm(OntSdk sdk){
@@ -39,6 +39,12 @@ public class NeoVm {
             oep4Tx = new Oep4(sdk);
         }
         return oep4Tx;
+    }
+    public Oep5 oep5(){
+        if(oep5Tx == null) {
+            oep5Tx = new Oep5(sdk);
+        }
+        return oep5Tx;
     }
     public Oep8 oep8() {
         if(oep8Tx == null){
@@ -64,8 +70,13 @@ public class NeoVm {
         }
         return claimRecordTx;
     }
-    public Object sendTransaction(String contractAddr, Account acct, Account payerAcct, long gaslimit, long gasprice, AbiFunction func, boolean preExec) throws Exception {
-        byte[] params = BuildParams.serializeAbiFunction(func);
+    public Object sendTransaction(String contractAddr, Account acct,Account payerAcct, long gaslimit, long gasprice, AbiFunction func, boolean preExec) throws Exception {
+        byte[] params;
+        if (func != null) {
+            params = BuildParams.serializeAbiFunction(func);
+        } else {
+            params = new byte[]{};
+        }
         if (preExec) {
             Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr, null, params, null,0, 0);
             if(acct != null){
@@ -77,7 +88,7 @@ public class NeoVm {
             String payer = payerAcct.getAddressU160().toBase58();
             Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddr, null, params,payer,gaslimit, gasprice);
             sdk.signTx(tx, new Account[][]{{acct}});
-            if(!payer.equals(payerAcct.getAddressU160().toBase58())){
+            if(!acct.getAddressU160().toBase58().equals(payerAcct.getAddressU160().toBase58())){
                 sdk.addSign(tx,payerAcct);
             }
             boolean b = sdk.getConnect().sendRawTransaction(tx.toHexString());
