@@ -48,7 +48,7 @@ public class AuthorizeInfo extends Serializable {
 
     }
 
-    public String json() throws NoSuchAlgorithmException {
+    public String toJson() throws Exception{
         Map map = new HashMap();
         map.put("peerPubkey",peerPubkey);
         map.put("address",address.toBase58());
