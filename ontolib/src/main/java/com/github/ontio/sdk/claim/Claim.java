@@ -68,11 +68,11 @@ public class Claim {
         Payload payload = new Payload("v1.0",iss,sub,System.currentTimeMillis()/1000,expireTime,ctx,clmMap,clmRevMap);
         String headerStr = JSONObject.toJSONString(header.getJson());
         String payloadStr = JSONObject.toJSONString(payload.getJson());
-        byte[] headerBytes = Base64.encode(headerStr.getBytes(),Base64.DEFAULT);
-        byte[] payloadBytes = Base64.encode(payloadStr.getBytes(),Base64.DEFAULT);
+        byte[] headerBytes = Base64.encode(headerStr.getBytes(),Base64.NO_WRAP);
+        byte[] payloadBytes = Base64.encode(payloadStr.getBytes(),Base64.NO_WRAP);
         DataSignature sign = new DataSignature(scheme, acct, new String(headerBytes) + "." + new String(payloadBytes));
         byte[] signature = sign.signature();
-        ClaimStr += new String(headerBytes) + "." + new String(payloadBytes) + "." + new String(Base64.encode(signature,Base64.DEFAULT));
+        ClaimStr += new String(headerBytes) + "." + new String(payloadBytes) + "." + new String(Base64.encode(signature,Base64.NO_WRAP));
     }
 
     public String getClaim() {
