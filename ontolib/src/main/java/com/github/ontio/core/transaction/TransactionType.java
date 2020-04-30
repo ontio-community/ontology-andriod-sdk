@@ -34,6 +34,7 @@ public enum TransactionType {
     Vote(0x05),
     DeployCode(0xd0),
     InvokeCode(0xd1),
+    InvokeWasm(0xd2),
     ;
 
     private byte value;
