@@ -21,12 +21,10 @@ package com.github.ontio.smartcontract;
 
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Address;
-import com.github.ontio.common.ErrorCode;
-import com.github.ontio.core.scripts.WasmScriptBuilder;
-import com.github.ontio.core.transaction.Attribute;
-import com.github.ontio.sdk.exception.SDKException;
 import com.github.ontio.core.payload.DeployWasmCode;
 import com.github.ontio.core.payload.InvokeWasmCode;
+import com.github.ontio.core.scripts.WasmScriptBuilder;
+import com.github.ontio.core.transaction.Attribute;
 
 import java.util.List;
 import java.util.Random;
@@ -45,15 +43,15 @@ public class WasmVm {
 
     public DeployWasmCode makeDeployCodeTransaction(String codeStr, String name, String codeVersion, String author,
                                                     String email, String description, Address payer, long gasLimit,
-                                                    long gasPrice) throws SDKException {
+                                                    long gasPrice) throws Exception {
         if (name == null || name.equals("") || codeVersion == null || codeVersion.equals("") || author == null || author.equals("") || email == null || email.equals("") || description == null || description.equals("")) {
-            throw new SDKException(ErrorCode.InvalidInterfaceParam);
+            throw new IllegalArgumentException();
         }
         return new DeployWasmCode(codeStr, name, codeVersion, author, email, description, payer, gasLimit, gasPrice);
     }
 
     public InvokeWasmCode makeInvokeCodeTransaction(String contractHash, String method, List<Object> params, Address payer,
-                                                    long gasLimit, long gasPrice) {
+                                                    long gasLimit, long gasPrice) throws Exception {
         byte[] invokeCode = WasmScriptBuilder.createWasmInvokeCode(contractHash, method, params);
         InvokeWasmCode tx = new InvokeWasmCode(invokeCode);
         tx.payer = payer;

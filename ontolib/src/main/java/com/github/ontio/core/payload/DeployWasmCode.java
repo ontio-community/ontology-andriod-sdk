@@ -22,13 +22,13 @@ public class DeployWasmCode extends Transaction {
     public String email;
     public String description;
 
-    public DeployWasmCode() {
+    public DeployWasmCode() throws Exception {
         super(TransactionType.DeployCode);
         this.vmType = VmType.WASMVM;
     }
 
     public DeployWasmCode(String codeStr, String name, String codeVersion, String author, String email,
-                          String description, Address payer, long gasLimit, long gasPrice) {
+                          String description, Address payer, long gasLimit, long gasPrice) throws Exception {
         super(TransactionType.DeployCode);
         this.vmType = VmType.WASMVM;
         this.attributes = new Attribute[0];
@@ -62,7 +62,7 @@ public class DeployWasmCode extends Transaction {
     }
 
     @Override
-    protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+    protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
         writer.writeVarBytes(code);
         writer.writeByte(vmType.value());
         writer.writeVarString(name);
@@ -72,4 +72,8 @@ public class DeployWasmCode extends Transaction {
         writer.writeVarString(description);
     }
 
+    @Override
+    public Address[] getAddressU160ForVerifying () throws Exception {
+        return null;
+    }
 }

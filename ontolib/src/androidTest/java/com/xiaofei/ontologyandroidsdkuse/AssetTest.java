@@ -5,18 +5,16 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Base64;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.ontio.OntSdk;
 import com.github.ontio.common.Address;
 import com.github.ontio.common.Common;
 import com.github.ontio.common.Helper;
+import com.github.ontio.common.UInt256;
 import com.github.ontio.core.asset.State;
-import com.github.ontio.core.governance.AuthorizeInfo;
 import com.github.ontio.core.ontid.Attribute;
+import com.github.ontio.core.scripts.WasmScriptBuilder;
 import com.github.ontio.core.transaction.Transaction;
-import com.github.ontio.crypto.Digest;
 import com.github.ontio.crypto.SignatureScheme;
-import com.github.ontio.sdk.exception.SDKException;
 import com.github.ontio.sdk.manager.ConnectMgr;
 import com.github.ontio.sdk.manager.WalletMgr;
 import com.github.ontio.sdk.wallet.Account;
@@ -32,7 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.math.BigInteger;
-import java.sql.SQLOutput;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -398,10 +396,10 @@ public class AssetTest {
             System.out.println("account:" + ontSdk.getConnect().getBalance(account.getAddressU160().toBase58()));
             String peerInfo = ontSdk.nativevm().governance().getPeerInfo(Helper.toHexString(account7.serializePublicKey()));
             System.out.println("peerInfo:" + peerInfo);
-            AuthorizeInfo voteInfo = ontSdk.nativevm().governance().getAuthorizeInfo(Helper.toHexString(account7.serializePublicKey()),account.getAddressU160());
-            if(voteInfo != null){
-                System.out.println("voteInfo:" + voteInfo.json());
-            }
+//            AuthorizeInfo voteInfo = ontSdk.nativevm().governance().getAuthorizeInfo(Helper.toHexString(account7.serializePublicKey()),account.getAddressU160());
+//            if(voteInfo != null){
+//                System.out.println("voteInfo:" + voteInfo.json());
+//            }
 
         }
     }
@@ -560,7 +558,7 @@ public class AssetTest {
     }
 
     @Test
-    public void wasm(){
+    public void wasm() throws Exception {
         List<Object> params = new ArrayList<Object>();
         UInt256 u = UInt256.parse("2abf22c752d71f8d65b39f3b12159f965602bf22e942e51d08d1023b9a4ab02f");
         params.add(u);
