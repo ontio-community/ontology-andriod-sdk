@@ -3,7 +3,6 @@ package com.github.ontio.core.scripts;
 import com.github.ontio.common.Address;
 import com.github.ontio.common.Helper;
 import com.github.ontio.common.UInt256;
-import com.github.ontio.sdk.exception.SDKRuntimeException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -44,14 +43,16 @@ public class WasmScriptBuilder implements AutoCloseable{
             return Helper.addBytes(headBuilder.toByteArray(), createWasmCodeParamsScript(method, params));
         } catch (Exception e) {
             e.printStackTrace();
-            throw new SDKRuntimeException("Create wasm invoke code failed");
+            throw new IllegalArgumentException();
         }
     }
 
     private static byte[] createWasmCodeParamsScript(String method, List<Object> list) {
         WasmScriptBuilder builder = new WasmScriptBuilder();
         builder.push(method);
-        list.forEach(builder::pushVmParam);
+        for (Object obj : list) {
+            builder.pushVmParam(obj);
+        }
         return builder.packAsArray();
     }
 
@@ -77,7 +78,7 @@ public class WasmScriptBuilder implements AutoCloseable{
                 pushVmParam(param);
             }
         } else {
-            throw new SDKRuntimeException("Invalid data");
+            throw new IllegalArgumentException();
         }
     }
 
@@ -137,29 +138,29 @@ public class WasmScriptBuilder implements AutoCloseable{
 
     void push(Integer data) {
         if (data == null) {
-            throw new SDKRuntimeException("NULL Pointer exception");
+            throw new IllegalArgumentException();
         }
         push(BigInteger.valueOf(data));
     }
 
     void push(Long data) {
         if (data == null) {
-            throw new SDKRuntimeException("NULL Pointer exception");
+            throw new IllegalArgumentException();
         }
         push(BigInteger.valueOf(data));
     }
 
     void push(BigInteger data) {
         if (data == null) {
-            throw new SDKRuntimeException("NULL Pointer exception");
+            throw new IllegalArgumentException();
         }
         if (data.compareTo(minInt128) < 0 || data.compareTo(maxInt128) > 0) {
-            throw new SDKRuntimeException("Out of range");
+            throw new IllegalArgumentException();
         }
         byte[] bytesData = Helper.reverse(data.toByteArray());
         int int128Length = 16;
         if (bytesData.length > int128Length) {
-            throw new SDKRuntimeException("Data in bytes should be less equal then 16");
+            throw new IllegalArgumentException();
         }
         byte[] finalResult = new byte[int128Length];
         if (data.compareTo(BigInteger.ZERO) < 0) {

@@ -12,7 +12,7 @@ public class InvokeWasmCode extends Transaction {
 
     public byte[] invokeCode;
 
-    public InvokeWasmCode(byte[] invokeCode) {
+    public InvokeWasmCode(byte[] invokeCode) throws Exception {
         super(TransactionType.InvokeWasm);
         this.invokeCode = invokeCode;
     }
@@ -27,7 +27,12 @@ public class InvokeWasmCode extends Transaction {
     }
 
     @Override
-    protected void serializeExclusiveData(BinaryWriter writer) throws IOException {
+    protected void serializeExclusiveData(BinaryWriter writer) throws Exception {
         writer.writeVarBytes(invokeCode);
+    }
+
+    @Override
+    public Address[] getAddressU160ForVerifying () throws Exception {
+        return null;
     }
 }
