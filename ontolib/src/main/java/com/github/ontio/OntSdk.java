@@ -552,9 +552,10 @@ public class OntSdk {
         Map config = null;
         try {
             String action = ((String) map.get("action"));
-            if (!action.equals("invoke") && !action.equals("invokeRead") && !action.equals("invokePasswordFree")) {
-                throw new Exception(ErrorCode.OtherError("not found action is invoke or invokeRead or invokePasswordFree"));
-            }
+            //todo 支持多种action，先注释掉
+//            if (!action.equals("invoke") && !action.equals("invokeRead") && !action.equals("invokePasswordFree")) {
+//                throw new Exception(ErrorCode.OtherError("not found action is invoke or invokeRead or invokePasswordFree"));
+//            }
             config = (Map) ((Map) map.get("params")).get("invokeConfig");
             String payer = (String) config.get("payer");
             long gasLimit = (int) config.get("gasLimit");

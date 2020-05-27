@@ -19,6 +19,8 @@
 
 package com.github.ontio.smartcontract;
 
+import android.text.TextUtils;
+
 import com.alibaba.fastjson.JSON;
 import com.github.ontio.OntSdk;
 import com.github.ontio.account.Account;
@@ -83,7 +85,7 @@ public class Vm {
      */
     public DeployCode makeDeployCodeTransaction(String codeStr, boolean needStorage, String name, String codeVersion, String author, String email, String desp,String payer,long gaslimit,long gasprice) throws Exception {
         DeployCode tx = new DeployCode();
-        if(payer != null){
+        if(payer != null && !TextUtils.isEmpty(payer)){
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         }
         tx.attributes = new Attribute[0];
@@ -109,7 +111,7 @@ public class Vm {
         tx.code = params;
         tx.gasLimit = gaslimit;
         tx.gasPrice = gasprice;
-        if(payer != null){
+        if(payer != null && !TextUtils.isEmpty(payer)){
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         }
         return tx;
@@ -131,7 +133,7 @@ public class Vm {
         tx.code = params;
         tx.gasLimit = gaslimit;
         tx.gasPrice = gasprice;
-        if(payer != null){
+        if(payer != null && !TextUtils.isEmpty(payer)){
             tx.payer = Address.decodeBase58(payer.replace(Common.didont,""));
         }
         return tx;
