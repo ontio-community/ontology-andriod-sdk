@@ -42,7 +42,7 @@ import java.util.List;
 
 public class ClaimRecord {
     private OntSdk sdk;
-    private String contractAddress = null;
+    private String contractAddress = "36bb5c053b6b839c8f6b923fe852f91239b9fccc";
     private String abi = "{\"hash\":\"0x9a4c79ee4379a0b5d10db03553ca7e61e17a8977\",\"entrypoint\":\"Main\",\"functions\":[{\"name\":\"Main\",\"parameters\":[{\"name\":\"operation\",\"type\":\"String\"},{\"name\":\"args\",\"type\":\"Array\"}],\"returntype\":\"Any\"},{\"name\":\"Commit\",\"parameters\":[{\"name\":\"claimId\",\"type\":\"ByteArray\"},{\"name\":\"commiterId\",\"type\":\"ByteArray\"},{\"name\":\"ownerId\",\"type\":\"ByteArray\"}],\"returntype\":\"Boolean\"},{\"name\":\"Revoke\",\"parameters\":[{\"name\":\"claimId\",\"type\":\"ByteArray\"},{\"name\":\"ontId\",\"type\":\"ByteArray\"}],\"returntype\":\"Boolean\"},{\"name\":\"GetStatus\",\"parameters\":[{\"name\":\"claimId\",\"type\":\"ByteArray\"}],\"returntype\":\"ByteArray\"}],\"events\":[{\"name\":\"ErrorMsg\",\"parameters\":[{\"name\":\"arg1\",\"type\":\"ByteArray\"},{\"name\":\"arg2\",\"type\":\"String\"}],\"returntype\":\"Void\"},{\"name\":\"Push\",\"parameters\":[{\"name\":\"arg1\",\"type\":\"ByteArray\"},{\"name\":\"arg2\",\"type\":\"String\"},{\"name\":\"arg3\",\"type\":\"ByteArray\"}],\"returntype\":\"Void\"}]}";
 
 
@@ -50,8 +50,8 @@ public class ClaimRecord {
         this.sdk = sdk;
     }
 
-    public void setContractAddress(String codeHash) throws Exception {
-        this.contractAddress = Helper.reverse(codeHash.replace("0x", ""));
+    public void setContractAddress(String codeHash) {
+        this.contractAddress = codeHash.replace("0x", "");
     }
 
     public String getContractAddress() {
