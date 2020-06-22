@@ -538,6 +538,8 @@ public class OntSdk {
                 }else {
                     list.add(struct);
                 }
+            } else {
+                list.add(struct);
             }
             byte[] args = NativeBuildParams.createCodeParamsScript(list);
             return vm().buildNativeParams(new Address(Helper.hexToBytes(Helper.reverse(contractHash))), method, args, payer, gasLimit, gasPrice);
