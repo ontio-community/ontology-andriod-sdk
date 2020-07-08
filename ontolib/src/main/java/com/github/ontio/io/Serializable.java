@@ -34,6 +34,8 @@ public abstract class Serializable {
             try (BinaryReader reader = new BinaryReader(ms)) {
                 return reader.readSerializable(t);
             }
+        } catch (IOException ex) {
+            throw new IllegalArgumentException(ex);
         }
     }
 
@@ -56,6 +58,8 @@ public abstract class Serializable {
                 writer.flush();
                 return ms.toByteArray();
             }
+        } catch (IOException ex) {
+            throw new UnsupportedOperationException(ex);
         }
     }
 

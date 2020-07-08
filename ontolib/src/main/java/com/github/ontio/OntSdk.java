@@ -62,6 +62,8 @@ public class OntSdk {
     private ConnectMgr connRestful;
     private ConnectMgr connWebSocket;
     private ConnectMgr connDefault;
+    private ConnectMgr sideChainConnectMgr;
+
 
 
     private Vm vm = null;
@@ -637,5 +639,21 @@ public class OntSdk {
             e.printStackTrace();
         }
         return map;
+    }
+
+    public ConnectMgr getSideChainConnectMgr() {
+        return sideChainConnectMgr;
+    }
+
+    public void setSideChainRpc(String url) throws MalformedURLException {
+        this.sideChainConnectMgr = new ConnectMgr(url, "rpc");
+    }
+
+    public void setSideChainRest(String url) throws MalformedURLException {
+        this.sideChainConnectMgr = new ConnectMgr(url, "restful");
+    }
+
+    public void setSideChainWebsocket(String url, Object lock) {
+        this.sideChainConnectMgr = new ConnectMgr(url, "websocket", lock);
     }
 }

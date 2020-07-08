@@ -31,9 +31,21 @@ import java.util.Map;
  *
  */
 public class Parameter {
+
+    public enum Type {ByteArray, String, Boolean, Integer, Array, InteropInterface, Void, Main, Struct}
+
     public String name;
     public String type;
     public String value;
+
+    public Parameter(String name, Type type, Object value) {
+        this.name = name;
+        this.type = type.name();
+        setValue(value);
+    }
+
+    public Parameter() {
+    }
 
     public String getName() {
         return name;
@@ -49,9 +61,9 @@ public class Parameter {
 
     public boolean setValue(Object value) {
         try {
-            if(value == null) {
+            if (value == null) {
                 this.value = null;
-            }else if ("ByteArray".equals(type)) {
+            } else if ("ByteArray".equals(type)) {
                 byte[] tmp = (byte[]) value;
                 this.value = JSON.toJSONString(tmp);
             } else if ("String".equals(type)) {
@@ -60,10 +72,15 @@ public class Parameter {
                 boolean tmp = (boolean) value;
                 this.value = JSON.toJSONString(tmp);
             } else if ("Integer".equals(type)) {
-                long tmp = (long)value;
+                long tmp = Long.parseLong(value.toString());
                 this.value = JSON.toJSONString(tmp);
             } else if ("Array".equals(type)) {
                 List tmp = (List) value;
+                for (int i = 0; i < tmp.size(); i++) {
+                    if (tmp.get(i) instanceof String) {
+                        tmp.set(i, ((String) tmp.get(i)).getBytes());
+                    }
+                }
                 this.value = JSON.toJSONString(tmp);
             } else if ("InteropInterface".equals(type)) {
                 Object tmp = (Object) value;

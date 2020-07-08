@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 8
-        versionName "0.9.7"
+        versionCode 9
+        versionName "0.9.8"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -38,7 +38,7 @@ dependencies {
 
     implementation group: 'com.madgag.spongycastle', name: 'bcpkix-jdk15on', version: '1.58.0.0'
     implementation group: 'com.madgag.spongycastle', name: 'bcpg-jdk15on', version: '1.58.0.0'
-    implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.9'
+    implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.51'
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.6.0'
     //implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
     implementation 'io.github.novacrypto:BIP39:0.1.9'
