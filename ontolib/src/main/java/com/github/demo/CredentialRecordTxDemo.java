@@ -24,6 +24,7 @@ public class CredentialRecordTxDemo {
 
             String password = "passwordtest";
 
+
             com.github.ontio.account.Account payer = ontSdk.getWalletMgr().getAccount(
                     "AUNB7xQuBVg8hnRfVz9pyAuZQUqPBiDxDF", password);
 
