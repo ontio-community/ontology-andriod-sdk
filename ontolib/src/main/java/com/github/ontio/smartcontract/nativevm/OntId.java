@@ -19,7 +19,6 @@
 
 package com.github.ontio.smartcontract.nativevm;
 
-
 import android.util.Base64;
 
 import com.alibaba.fastjson.JSON;
@@ -49,6 +48,7 @@ import com.github.ontio.smartcontract.nativevm.abi.Struct;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,8 +59,9 @@ public class OntId {
     private OntSdk sdk;
     private String contractAddress = "0000000000000000000000000000000000000003";
 
+    private int ONT_ID_2_HEIGHT = 9000000;
 
-    public OntId(OntSdk sdk) {
+    public OntId (OntSdk sdk) {
         this.sdk = sdk;
     }
 
@@ -158,7 +159,7 @@ public class OntId {
         return tx.hash().toHexString();
     }
 
-    public Transaction makeRegisterIdWithController(String ontId, Group controller, Signer[] signers, String payer, long gaslimit, long gasprice) throws SDKException, Exception {
+    public Transaction makeRegisterIdWithController(String ontId, Group controller, Signer[] signers, String payer, long gaslimit, long gasprice) throws Exception {
         if (payer == null || payer.equals("")) {
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
@@ -195,7 +196,7 @@ public class OntId {
         return tx.hash().toHexString();
     }
 
-    public Transaction makeRevokeId(String ontId, int index, String payer, long gaslimit, long gasprice) throws SDKException, Exception {
+    public Transaction makeRevokeId(String ontId, int index, String payer, long gaslimit, long gasprice) throws Exception {
         if (payer == null || payer.equals("")) {
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
@@ -232,7 +233,7 @@ public class OntId {
         return tx.hash().toHexString();
     }
 
-    public Transaction makeRevokeIdByController(String ontId, Signer[] signers, String payer, long gaslimit, long gasprice) throws SDKException, Exception {
+    public Transaction makeRevokeIdByController(String ontId, Signer[] signers, String payer, long gaslimit, long gasprice) throws Exception {
         if (payer == null || payer.equals("")) {
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
@@ -278,7 +279,7 @@ public class OntId {
         return tx.hash().toHexString();
     }
 
-    public Transaction makeRemoveController(String ontId, int index, String payer, long gaslimit, long gasprice) throws SDKException, Exception {
+    public Transaction makeRemoveController(String ontId, int index, String payer, long gaslimit, long gasprice) throws Exception {
         if (payer == null || payer.equals("")) {
             throw new SDKException(ErrorCode.ParamErr("parameter should not be null"));
         }
@@ -2120,18 +2121,35 @@ public class OntId {
             if (sendDid == null || receiverDid == null) {
                 throw new SDKException(ErrorCode.DidNull);
             }
-            String issuerDdo = sendGetDocument(sendDid);
-            JSONArray owners = JSON.parseObject(issuerDdo).getJSONArray("publicKey");
-            if (owners == null) {
-                throw new SDKException(ErrorCode.NotExistCliamIssuer);
-            }
+            int blockHeight = sdk.getConnect().getBlockHeight();
+            String issuerDdo;
             String pubkeyId = null;
             String pk = Helper.toHexString(pkAcc.serializePublicKey());
-            for (int i = 0; i < owners.size(); i++) {
-                JSONObject obj = owners.getJSONObject(i);
-                if (obj.getString("publicKeyHex").equals(pk)) {
-                    pubkeyId = obj.getString("id");
-                    break;
+            if (blockHeight < ONT_ID_2_HEIGHT) {
+                issuerDdo = sendGetDDO(sendDid);
+                JSONArray owners = JSON.parseObject(issuerDdo).getJSONArray("Owners");
+                if (owners == null) {
+                    throw new SDKException(ErrorCode.NotExistCliamIssuer);
+                }
+                for (int i = 0; i < owners.size(); i++) {
+                    JSONObject obj = owners.getJSONObject(i);
+                    if (obj.getString("Value").equals(pk)) {
+                        pubkeyId = obj.getString("PubKeyId");
+                        break;
+                    }
+                }
+            } else {
+                issuerDdo = sendGetDocument(sendDid);
+                JSONArray owners = JSON.parseObject(issuerDdo).getJSONArray("publicKey");
+                if (owners == null) {
+                    throw new SDKException(ErrorCode.NotExistCliamIssuer);
+                }
+                for (int i = 0; i < owners.size(); i++) {
+                    JSONObject obj = owners.getJSONObject(i);
+                    if (obj.getString("publicKeyHex").equals(pk)) {
+                        pubkeyId = obj.getString("id");
+                        break;
+                    }
                 }
             }
             if (pubkeyId == null) {
@@ -2152,9 +2170,10 @@ public class OntId {
      * @param claim
      * @return
      * @throws Exception
+     * @deprecated
      */
     public boolean verifyOntIdClaim(String claim) throws Exception {
-        if (claim == null) {
+        if ("".equals(claim)) {
             throw new SDKException(ErrorCode.ParamErr("claim should not be null"));
         }
         DataSignature sign = null;
@@ -2164,7 +2183,103 @@ public class OntId {
             if (obj.length != 3) {
                 throw new SDKException(ErrorCode.ParamError);
             }
-            byte[] payloadBytes = Base64.decode(obj[1].getBytes(),Base64.DEFAULT);
+            byte[] payloadBytes = Base64.decode(obj[1].getBytes(),Base64.NO_WRAP);
+            JSONObject payloadObj = JSON.parseObject(new String(payloadBytes));
+            String issuerDid = payloadObj.getString("iss");
+            String[] str = issuerDid.split(":");
+            if (str.length != 3) {
+                throw new SDKException(ErrorCode.DidError);
+            }
+            int blockHeight = sdk.getConnect().getBlockHeight();
+            String issuerDdo;
+            JSONArray owners;
+            if (blockHeight < ONT_ID_2_HEIGHT) {
+                issuerDdo = sendGetDDO(issuerDid);
+                owners = JSON.parseObject(issuerDdo).getJSONArray("Owners");
+            } else {
+                issuerDdo = sendGetDocument(issuerDid);
+                owners = JSON.parseObject(issuerDdo).getJSONArray("publicKey");
+            }
+            if (owners == null) {
+                throw new SDKException(ErrorCode.NotExistCliamIssuer);
+            }
+            byte[] signatureBytes = Base64.decode(obj[2],Base64.NO_WRAP);
+            byte[] headerBytes = Base64.decode(obj[0].getBytes(),Base64.NO_WRAP);
+            JSONObject header = JSON.parseObject(new String(headerBytes));
+            String kid = header.getString("kid");
+            String id = kid.split("#keys-")[1];
+            String pubkeyStr;
+            if (blockHeight < ONT_ID_2_HEIGHT) {
+                pubkeyStr = owners.getJSONObject(Integer.parseInt(id) - 1).getString("Value");
+            } else {
+                pubkeyStr = owners.getJSONObject(Integer.parseInt(id) - 1).getString("publicKeyHex");
+            }
+            sign = new DataSignature();
+            byte[] data = (obj[0] + "." + obj[1]).getBytes();
+            return sign.verifySignature(new Account(false, Helper.hexToBytes(pubkeyStr)), data, signatureBytes);
+        } catch (Exception e) {
+            throw new SDKException(ErrorCode.VerifyOntIdClaimErr);
+        }
+    }
+
+    public boolean verifyCredOntIdCredible(String cred, String[] credibleIds) throws Exception {
+        if ("".equals(cred)) {
+            throw new SDKException(ErrorCode.ParamErr("cred should not be null"));
+        }
+        String[] obj = cred.split("\\.");
+        if (obj.length != 3) {
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        byte[] payloadBytes = Base64.decode(obj[1].getBytes(),Base64.NO_WRAP);
+        JSONObject payloadObj = JSON.parseObject(new String(payloadBytes));
+        String issuerDid = payloadObj.getString("iss");
+        for (String credibleId :
+                credibleIds) {
+            if (credibleId.equals(issuerDid)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean verifyCredNotExpired(String cred) throws Exception {
+        if ("".equals(cred)) {
+            throw new SDKException(ErrorCode.ParamErr("cred should not be null"));
+        }
+        String[] obj = cred.split("\\.");
+        if (obj.length != 3) {
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        byte[] payloadBytes = Base64.decode(obj[1].getBytes(),Base64.NO_WRAP);
+        JSONObject payloadObj = JSON.parseObject(new String(payloadBytes));
+        long currentTime = System.currentTimeMillis() / 1000;
+        long expiration = payloadObj.getLong("exp");
+        if (expiration > 0 && expiration < currentTime) {
+            return false;
+        }
+        long iat = payloadObj.getLong("iat");
+        if (iat > 0 && iat > currentTime) {
+            return false;
+        }
+        long nbf = payloadObj.getLong("nbf");
+        if (nbf > 0 && nbf > currentTime) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean verifyCredSignature(String cred) throws Exception {
+        if ("".equals(cred)) {
+            throw new SDKException(ErrorCode.ParamErr("cred should not be null"));
+        }
+        DataSignature sign = null;
+        try {
+
+            String[] obj = cred.split("\\.");
+            if (obj.length != 3) {
+                throw new SDKException(ErrorCode.ParamError);
+            }
+            byte[] payloadBytes = Base64.decode(obj[1].getBytes(),Base64.NO_WRAP);
             JSONObject payloadObj = JSON.parseObject(new String(payloadBytes));
             String issuerDid = payloadObj.getString("iss");
             String[] str = issuerDid.split(":");
@@ -2176,8 +2291,8 @@ public class OntId {
             if (owners == null) {
                 throw new SDKException(ErrorCode.NotExistCliamIssuer);
             }
-            byte[] signatureBytes = Base64.decode(obj[2],Base64.DEFAULT);
-            byte[] headerBytes = Base64.decode(obj[0].getBytes(),Base64.DEFAULT);
+            byte[] signatureBytes = Base64.decode(obj[2],Base64.NO_WRAP);
+            byte[] headerBytes = Base64.decode(obj[0].getBytes(),Base64.NO_WRAP);
             JSONObject header = JSON.parseObject(new String(headerBytes));
             String kid = header.getString("kid");
             String id = kid.split("#keys-")[1];
@@ -2190,6 +2305,19 @@ public class OntId {
         }
     }
 
+    public boolean verifyCredNotRevoked(String cred) throws Exception {
+        if ("".equals(cred)) {
+            throw new SDKException(ErrorCode.ParamErr("cred should not be null"));
+        }
+        String[] obj = cred.split("\\.");
+        if (obj.length != 3) {
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        byte[] payloadBytes = Base64.decode(obj[1].getBytes(),Base64.NO_WRAP);
+        JSONObject payloadObj = JSON.parseObject(new String(payloadBytes));
+        String claimId = payloadObj.getString("jti");
+        return "01".equals(sdk.neovm().credentialRecord().sendGetStatus2(claimId));
+    }
 
     /**
      * @param ontid
