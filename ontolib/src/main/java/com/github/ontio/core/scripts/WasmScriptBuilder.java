@@ -67,7 +67,9 @@ public class WasmScriptBuilder implements AutoCloseable{
             push((Boolean) val);
         } else if (val instanceof Integer) {
             push((Integer) val);
-        } else if (val instanceof Long) {
+        }  else if (val instanceof BigInteger) {
+            push((BigInteger) val);
+        }else if (val instanceof Long) {
             push((Long) val);
         } else if (val instanceof UInt256) {
             push(((UInt256) val));
