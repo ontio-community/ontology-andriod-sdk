@@ -168,6 +168,34 @@ public class Oep4 {
         Transaction tx = sdk.vm().makeInvokeCodeTransaction(Helper.reverse(contractAddress), null, params, payer,gaslimit, gasprice);
         return tx;
     }
+    public Transaction makeTransfer(String sendAddr,String recvAddr, BigInteger amount, Account payerAcct, long gaslimit, long gasprice) throws Exception{
+        if(sendAddr==null||sendAddr.equals("")||recvAddr == null || recvAddr.equals("")|| amount.compareTo(BigInteger.ZERO)<=0 || payerAcct==null ||gaslimit < 0 || gasprice<0){
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        List paramList = new ArrayList<>();
+        paramList.add("transfer".getBytes());
+        List args = new ArrayList();
+        args.add(Address.decodeBase58(sendAddr).toArray());
+        args.add( Address.decodeBase58(recvAddr).toArray());
+        args.add(Helper.BigIntToNeoBytes(amount));
+        paramList.add(args);
+        byte[] params = BuildParams.createCodeParamsScript(paramList);
+        String payer = payerAcct.getAddressU160().toBase58();
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(Helper.reverse(contractAddress), null, params, payer,gaslimit, gasprice);
+        return tx;
+    }
+    public Transaction makeTransfer(String sendAddr,String recvAddr, long amount, String payer, long gaslimit, long gasprice) throws Exception{
+        if(sendAddr==null||sendAddr.equals("")||recvAddr == null || recvAddr.equals("")|| amount <=0 || payer == null || payer.equals("") ||gaslimit < 0 || gasprice<0){
+            throw new SDKException(ErrorCode.ParamError);
+        }
+        AbiInfo abiinfo = JSON.parseObject(oep4abi, AbiInfo.class);
+        AbiFunction func = abiinfo.getFunction("Transfer");
+        func.name = "transfer";
+        func.setParamsValue(Address.decodeBase58(sendAddr).toArray(), Address.decodeBase58(recvAddr).toArray(), amount);
+        byte[] params = BuildParams.serializeAbiFunction(func);
+        Transaction tx = sdk.vm().makeInvokeCodeTransaction(Helper.reverse(contractAddress), null, params, payer,gaslimit, gasprice);
+        return tx;
+    }
 
     public String sendTransferMulti(Account[] accounts, State[] states,Account payerAcct,long gaslimit, long gasprice) throws Exception {
         if(accounts == null || states == null || payerAcct == null){

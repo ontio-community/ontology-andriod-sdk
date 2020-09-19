@@ -75,7 +75,9 @@ public class BuildParams {
                     builder.emitPushBool((Boolean) val);
                 } else if(val instanceof Integer){
                     builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((int)val)));
-                } else if (val instanceof Long) {
+                } else if(val instanceof BigInteger){
+                    builder.emitPushByteArray(Helper.BigIntToNeoBytes((BigInteger) val));
+                }else if (val instanceof Long) {
                     builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((long)val)));
                 } else if(val instanceof String) {
                     builder.emitPushByteArray(((String) val).getBytes());
@@ -174,7 +176,10 @@ public class BuildParams {
                 } else if(list.get(i) instanceof Long){
                     sb.add(Type.ByteArrayType.getValue());
                     sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((Long) list.get(i))));
-                } else {
+                }  else if(list.get(i) instanceof BigInteger){
+                    sb.add(Type.ByteArrayType.getValue());
+                    sb.emitPushByteArray(Helper.BigIntToNeoBytes((BigInteger) list.get(i)));
+                }else {
                     throw new SDKException(ErrorCode.ParamError);
                 }
             }
@@ -205,6 +210,9 @@ public class BuildParams {
                 } else if(e.getValue() instanceof Long){
                     sb.add(Type.IntegerType.getValue());
                     sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((Long) e.getValue())));
+                } else if(e.getValue() instanceof BigInteger){
+                    sb.add(Type.IntegerType.getValue());
+                    sb.emitPushByteArray(Helper.BigIntToNeoBytes((BigInteger) e.getValue()));
                 } else {
                     throw new SDKException(ErrorCode.ParamError);
                 }
@@ -281,7 +289,10 @@ public class BuildParams {
             } else if(eValue instanceof Long){
                 bw.writeByte(Type.IntegerType.getValue());
                 bw.writeVarBytes(Helper.BigIntToNeoBytes(BigInteger.valueOf((Long) eValue)));
-            } else {
+            }else if(eValue instanceof BigInteger){
+                bw.writeByte(Type.IntegerType.getValue());
+                bw.writeVarBytes(Helper.BigIntToNeoBytes((BigInteger) eValue));
+            }  else {
                 throw new SDKException(ErrorCode.ParamError);
             }
         } catch (Exception e) {
@@ -323,6 +334,10 @@ public class BuildParams {
                 sb.add(ScriptOp.OP_ADD);
             } else if (eValue instanceof Long) {
                 sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((Long) eValue)));
+                sb.add(ScriptOp.OP_PUSH0);
+                sb.add(ScriptOp.OP_ADD);
+            } else if (eValue instanceof BigInteger) {
+                sb.emitPushByteArray(Helper.BigIntToNeoBytes((BigInteger) eValue));
                 sb.add(ScriptOp.OP_PUSH0);
                 sb.add(ScriptOp.OP_ADD);
             } else {
